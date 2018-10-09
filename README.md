@@ -1,11 +1,17 @@
 ### web-rtc-sdk
 
-> 目录结构
-> 目录结构
+#### 开发指南
+
+> 1、安装 [Node.js 6.3.0+](http://nodejs.cn/download/)
+
+> 2、项目根目录执行 `npm install`
+
+> 3、发布: npm run release
+
+#### 目录结构
 
 ```
 ├── dist
-├── build
 ├── release 发版记录
 ├── bugfix bug 记录
 ├── scripts 打包脚本
