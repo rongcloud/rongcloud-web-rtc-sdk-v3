@@ -6,9 +6,10 @@
   "scripts": {
     "eslint": "eslint .",
     "precommit": "npm run eslint",
-    "release": "npm run release:dev && npm run release:min",
+    "release": "npm run release:dev && npm run release:min && npm run release:es",
     "release:dev": "rollup -c rollup.config.js --environment TARGET:dev",
-    "release:min": "rollup -c rollup.config.js --environment TARGET:min"
+    "release:min": "rollup -c rollup.config.js --environment TARGET:min",
+    "release:es": "rollup -c rollup.config.js --environment TARGET:es"
   },
   "repository": {
     "type": "git",

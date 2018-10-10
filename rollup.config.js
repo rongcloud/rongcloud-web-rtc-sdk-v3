@@ -3,13 +3,14 @@ import minify from 'rollup-plugin-babel-minify';
 import utils from './src/utils';
 
 const {version} = require('./package.json');
+const fullYear = new Date().getFullYear();
 
-const banner =
-  '/*\n' +
-  ' * RongCloudRTC.js v' + version + '\n' +
-  ' * Copyright ' + new Date().getFullYear() + ' RongCloud\n' +
-  ' * Released under the MIT License.\n' +
-  ' */';
+const banner = [
+  '/*', 
+  `* RongCloudRTC.js v${version}`, 
+  `* Copyright ${fullYear} RongCloud`,
+  '* Released under the MIT License.',
+  '*/'].join('\n');
 
 const getTarget = function(type){
   type = type || '';
@@ -23,7 +24,12 @@ const genConfig = function(type){
       file: getTarget(type),
       format: 'umd',
       name: 'RongCloudRTC',
-    }
+    },
+    plugins: [ 
+      babel({
+        exclude: 'node_modules/**'
+      })
+    ]
   }
 };
 
@@ -46,13 +52,16 @@ const configs = {
     utils.extend(config.output, {
       banner
     });
-    return utils.extend(config, {
-      plugins: [ 
-        babel({
-          exclude: 'node_modules/**'
-        })
-      ]
-    })
+    return config;
+  },
+  es: () => {
+    let config = genConfig('.es');
+    const format = 'es';
+    utils.extend(config.output, {
+      banner,
+      format
+    });
+    return config;
   }
 };
 
