@@ -1,8 +1,16 @@
-//TODO 封装音视频 SDK
-const init = () => {
+import Room from './modules/room';
+import Stream from './modules/stream/index';
+import WhiteBoard from './modules/whiteboard';
+import ScreenShare from './modules/screenshare';
+import utils from './utils';
 
-};
-
-export default {
-  init
-};
+export default class RongRTC {
+  constructor(option){
+    utils.extend(this, {
+      Room,
+      Stream,
+      WhiteBoard,
+      ScreenShare
+    });
+  }
+}

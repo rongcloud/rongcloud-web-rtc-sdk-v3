@@ -7,14 +7,14 @@ const fullYear = new Date().getFullYear();
 
 const banner = [
   '/*', 
-  `* RongCloudRTC.js v${version}`, 
+  `* RongRTC.js v${version}`, 
   `* Copyright ${fullYear} RongCloud`,
   '* Released under the MIT License.',
   '*/'].join('\n');
 
 const getTarget = function(type){
   type = type || '';
-  return `dist/RongCloudRTC.${version}${type}.js`;
+  return `dist/RongRTC.${version}${type}.js`;
 };
 
 const genConfig = function(type){
@@ -23,7 +23,7 @@ const genConfig = function(type){
     output: {
       file: getTarget(type),
       format: 'umd',
-      name: 'RongCloudRTC',
+      name: 'RongRTC',
     },
     plugins: [ 
       babel({

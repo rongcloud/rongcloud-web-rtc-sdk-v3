@@ -6,6 +6,11 @@ const extend = (destination, sources) => {
   return destination;
 };
 
+const tplEngine = () => {
+
+};
+
 export default {
-  extend
+  extend,
+  getInstance
 }

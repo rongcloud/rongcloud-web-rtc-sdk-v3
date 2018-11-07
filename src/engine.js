@@ -3283,3 +3283,8 @@ var RongRTCLogger = {
     }
   }
 }
+
+export default {
+  RongRTCEngine,
+  RongRTCEngineEventHandle
+}
