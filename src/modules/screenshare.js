@@ -1,12 +1,12 @@
-let start  = () => {
+let rtc;
+export default function ScreenShare(_rtc){
+  rtc = _rtc;
+  return {
+    start: () => {
 
-};
+    },
+    stop: () => {
 
-let stop  = (user) => {
-
-};
-
-export default {
-  start,
-  stop
+    }
+  }
 }

@@ -2,7 +2,7 @@
 
 #### 开发指南
 
-> 1、安装 [Node.js 6.3.0+](http://nodejs.cn/download/)
+> 1、安装 [Node.js 10+](http://nodejs.cn/download/)
 
 > 2、项目根目录执行 `npm install`
 

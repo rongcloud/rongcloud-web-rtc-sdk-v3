@@ -1,16 +1,15 @@
-const extend = (destination, sources) => {
-  for(let key in sources){
-    let value = sources[key];
-    destination[key] = value;
+export default class utils {
+  static extend(destination, sources) {
+    for (let key in sources) {
+      let value = sources[key];
+      destination[key] = value;
+    }
+    return destination;
   }
-  return destination;
-};
 
-const tplEngine = () => {
+  static noop() { }
 
-};
-
-export default {
-  extend,
-  getInstance
+  static deferred(callback){
+    return new Promise(callback);
+  }
 }

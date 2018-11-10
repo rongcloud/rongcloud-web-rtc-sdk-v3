@@ -395,6 +395,7 @@ RongRTCEngine.prototype.setVideoParameters = function (config) {
 * 列举 麦克风  摄像头
 * @return audioState ：0 没有麦克风 1 有 ；videoState 0 没有摄像头 1 有
 */
+/**
 RongRTCEngine.prototype.audioVideoState = async function () {
   // 列举设备 audioState  videoState
   let audioState = 0;
@@ -436,6 +437,7 @@ RongRTCEngine.prototype.audioVideoState = async function () {
     videoAuthorized: videoAuthorized
   }
 }
+ */
 /**
 * 加入会议
 *
@@ -1960,7 +1962,7 @@ RongRTCEngine.prototype.logonAndJoin_result = function (data) {
     var content = data.content; // 返回的结果是包含自己的
     var contentArr = content.split("],");
     var member = contentArr.length > 1 ? contentArr[1] : contentArr[0];
-    var memberArr = eval(member);
+    var memberArr = JSON.parse(member);
     for (var i in memberArr) {
       var userId = memberArr[i].userId;
       if (!this.joinedUsers.contains(userId)) {
@@ -3096,7 +3098,7 @@ var RongRTCAjax = function (opt) {
         case "JSON":
           var jsonText = xhr.responseText;
           if (jsonText) {
-            returnValue = eval("(" + jsonText + ")");
+            returnValue = JSON.parse(jsonText);
           }
           break;
         default:
@@ -3283,8 +3285,5 @@ var RongRTCLogger = {
     }
   }
 }
-
-export default {
-  RongRTCEngine,
-  RongRTCEngineEventHandle
-}
+export const RTC = RongRTCEngine;
+export const EventHandler = RongRTCEngineEventHandle;

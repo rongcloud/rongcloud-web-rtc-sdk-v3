@@ -1,12 +1,10 @@
-let disable  = (user) => {
+export default function Video(rtc){
+  return {
+    disable: (user) => {
 
-};
-
-let enable  = (user) => {
-
-};
-
-export default {
-  disable,
-  enable
-};
+    },
+    enable: (user) => {
+  
+    }
+  };
+}

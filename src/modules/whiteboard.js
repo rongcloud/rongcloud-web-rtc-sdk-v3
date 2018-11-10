@@ -1,12 +1,12 @@
-let create = () => {
-
-};
-
-let getList = () => {
-
-};
-
-export default {
-  create,
-  getList
+export default function WhiteBoard(_rtc) {
+  return {
+    create: () => {
+    },
+    remove: (whiteboard) => {
+    },
+    get: (whiteboard) => {
+    },
+    getList: () => {
+    }
+  };
 }

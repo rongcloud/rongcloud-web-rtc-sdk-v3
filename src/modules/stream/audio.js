@@ -1,12 +1,10 @@
-let mute = (user) => {
+export default function Audio(rtc){
+  return {
+    mute: (user) => {
 
-};
-
-let unmute  = (user) => {
-
-};
-
-export default {
-  mute,
-  unmute
+    },
+    unmute: (user) => {
+  
+    }
+  };
 }

@@ -1,13 +1,15 @@
-import utils from '../utils';
+let rtc = null;
+export default function Room(_rtc){
+  rtc = _rtc;
+  return {
+    join: (room) => {
 
-let join = (room) => {
-
-};
-
-let leave = (room) => {
+    },
+    leave: (room) => {
   
-};
-export default {
-  join,
-  leave
+    },
+    _on: (name, event) => {
+      
+    }
+  }
 }
