@@ -5,11 +5,11 @@ export default class EventEmitter{
   on(name, event){
     $events[name] = event;
   }
-  emit(name, data){
+  emit(name, data, error){
     utils.extend(data, {
       type: name
     });
     let event = $events[name] || utils.noop;
-    event(data);
+    event(error, data);
   }
 }

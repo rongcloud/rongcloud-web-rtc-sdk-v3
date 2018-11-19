@@ -1,15 +1,35 @@
-let rtc = null;
-export default function Room(_rtc){
-  rtc = _rtc;
-  return {
-    join: (room) => {
+import EventEmitter from '../event-emitter';
+import utils from '../utils';
+import { RoomEvents } from './events';
 
-    },
-    leave: (room) => {
-  
-    },
-    _on: (name, event) => {
-      
-    }
+export default function Room(rtc) {
+  let eventEmitter = new EventEmitter();
+  utils.forEach(RoomEvents, (event) => {
+    let { name, type } = event;
+    rtc._on(name, (user) => {
+      let result = {
+        type,
+        user
+      };
+      eventEmitter.emit(result);
+    });
+  });
+
+  let join = (room) => {
+    return rtc.joinRoom(room);
+  };
+
+  let leave = (room) => {
+    return rtc.leaveRoom(room);
+  };
+
+  let _on = (name, event) => {
+    return eventEmitter.on(name, event);
+  };
+
+  return {
+    join,
+    leave,
+    _on
   }
 }
