@@ -24,5 +24,21 @@ export const Error = {
   LEAVE_ERROR: {
     code: 20001,
     msg: '离开房间失败，请检查网络是否正常'
+  },
+  CREATE_WB_ERROR: {
+    code: 21000,
+    msg: '获取白板失败'
+  },
+  GET_WB_ERROR: {
+    code: 21001,
+    msg: '获取白板列表失败'
+  },
+  SCREEN_SHARE_PLUGIN_SUPPORT_ERROR: {
+    code: 22001,
+    msg: '屏幕共享失败, 当前浏览器不支持屏幕共享'
+  },
+  SCREEN_SHARE_NOT_INSTALL_ERROR: {
+    code: 22002,
+    msg: '屏幕共享失败, 未安装浏览器屏幕共享插件, 下载地址: http://fsprodrcx.cn.ronghub.com/zaoh1s2oIOU9siHWzaoh1sSRr-3NqK1xoM9SpazNRA/rong-rtc-plugin.zip'
   }
 };

@@ -31,41 +31,86 @@ let setEventHandler = () => {
     },
     // user = > {id: 'userId'}
     onLeaveComplete: (data) => {
-      let {isLeft} = data;
+      let { isLeft } = data;
       let user = getCurrentUser();
       let error = isLeft ? null : Error.LEAVE_ERROR;
       eventEmitter.emit(EventName.ROOM_SELF_LEFT, user, error);
     },
-    onAddStream: (stream) => {
-      eventEmitter.emit(EventName.STREAM_ADDED, stream);
+    onAddStream: (result) => {
+      let { userId, userType } = result;
+      let user = {
+        id: userId,
+        type: userType
+      };
+      eventEmitter.emit(EventName.STREAM_ADDED, user);
     },
     onUserJoined: (user) => {
+      let { userId, userType } = user;
+      user = {
+        id: userId,
+        type: userType
+      };
       eventEmitter.emit(EventName.ROOM_JOINED, user);
     },
     onUserLeft: (user) => {
+      let { userId, userType } = user;
+      user = {
+        id: userId,
+        type: userType
+      };
       eventEmitter.emit(EventName.ROOM_LEAVED, user);
     },
     onTurnTalkType: (user) => {
+      let { userId, type } = user;
+      user = {
+        id: userId,
+        type: type
+      };
       eventEmitter.emit(EventName.ROOM_CHANGED, user);
     },
     onConnectionStateChanged: (network) => {
+      network = utils.rename(network, {
+        connectionState: 'state'
+      });
       eventEmitter.emit(EventName.NETWORK, network);
     },
-    // 创建白板回调时间
-    onWhiteBoardURL: (whiteboard) => {
-      eventEmitter.emit(EventName.WHITEBOARD_CREATED, whiteboard);
+    // 创建白板回调 
+    onWhiteBoardURL: (data) => {
+      // TODO: isSuccess 为 false 情况处理，需要修改 rtc.js ，后续处理
+      let { isSuccess, url } = data;
+      let error = isSuccess ? null : Error.CREATE_WB_ERROR;
+      let whiteboard = {
+        url
+      };
+      eventEmitter.emit(EventName.WHITEBOARD_CREATED, whiteboard, error);
     },
     // 获取白板
     onWhiteBoardQuery: (whiteboard) => {
-      eventEmitter.emit(EventName.WHITEBOARD_GETLIST, whiteboard);
+      // TODO: isSuccess 为 false 情况处理，需要修改 rtc.js ，后续处理
+      let { isSuccess, url } = data;
+      let error = isSuccess ? null : Error.GET_WB_ERROR;
+      let whiteboard = {
+        list: [{
+          url
+        }]
+      };
+      eventEmitter.emit(EventName.WHITEBOARD_GETLIST, whiteboard, error);
     },
     onNetworkSentLost: (network) => {
-      eventEmitter.emit(EventName.NETWORK, network);
+      // TODO: eventEmitter.emit(EventName.NETWORK, network);
     },
-    onStartScreenShareComplete: (result) => {
-      eventEmitter.emit(EventName.SCREEN_SHARE_START, result);
+    onStartScreenShareComplete: (data) => {
+      let { isSuccess, code } = data;
+      let errors = {
+        1: Error.SCREEN_SHARE_PLUGIN_SUPPORT_ERROR,
+        2: Error.SCREEN_SHARE_NOT_INSTALL_ERROR
+      };
+      let error = isSuccess ? null : errors[code];
+      let result = null;
+      eventEmitter.emit(EventName.SCREEN_SHARE_START, result, error);
     },
-    onStopScreenShareComplete: (result) => {
+    onStopScreenShareComplete: () => {
+      let result = null;
       eventEmitter.emit(EventName.SCREEN_SHARE_STOP, result);
     }
   };
