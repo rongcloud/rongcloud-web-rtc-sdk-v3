@@ -40,8 +40,11 @@ let setEventHandler = () => {
     },
     // user = > {id: 'userId'}
     onLeaveComplete: (data) => {
-      let { isLeft } = data;
       let user = getCurrentUser();
+      let { isLeft } = data;
+      if(isLeft){
+        rtc.closeLocalStream();
+      }
       let error = isLeft ? null : Error.LEAVE_ERROR;
       eventEmitter.emit(EventName.ROOM_SELF_LEFT, user, error);
     },
