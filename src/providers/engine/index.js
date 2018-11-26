@@ -66,12 +66,11 @@ let setEventHandler = () => {
       eventEmitter.emit(EventName.ROOM_USER_JOINED, user);
     },
     onUserLeft: (user) => {
-      let { userId, userType } = user;
+      let { userId } = user;
       user = {
-        id: userId,
-        type: userType
+        id: userId
       };
-      eventEmitter.emit(EventName.ROOM_LEAVED, user);
+      eventEmitter.emit(EventName.ROOM_USER_LEFT, user);
     },
     onTurnTalkType: (user) => {
       let { userId, type } = user;
