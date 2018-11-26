@@ -9,19 +9,17 @@ import { EventName, Error } from '../../enum';
 
 let option = {
   url: 'https://rtcapi.ronghub.com/nav/websocketlist',
-  currentUsreId: ''
+  currentUser: ''
 };
 let rtc = null;
 let eventHandler = null;
 let eventEmitter = null;
 
 let getCurrentUser = () => {
-  return {
-    id: option.currentUsreId
-  };
+  return option.currentUser;
 };
 let isCrruentUser = (user) => {
-  return user.id === option.currentUsreId;
+  return user.id === option.currentUser.id;
 }
 let setEventHandler = () => {
   var eventFactory = {
@@ -31,6 +29,14 @@ let setEventHandler = () => {
       let { isJoined } = data;
       let error = isJoined ? null : Error.JOIN_ERROR;
       eventEmitter.emit(EventName.ROOM_SELF_JOINED, user, error);
+
+      // 主动获取本地流，通知应用层
+      let stream = rtc.getLocalStream();
+      let result = {
+        user,
+        stream
+      };
+      eventEmitter.emit(EventName.STREAM_ADDED, result);
     },
     // user = > {id: 'userId'}
     onLeaveComplete: (data) => {
@@ -39,13 +45,17 @@ let setEventHandler = () => {
       let error = isLeft ? null : Error.LEAVE_ERROR;
       eventEmitter.emit(EventName.ROOM_SELF_LEFT, user, error);
     },
-    onAddStream: (result) => {
-      let { userId, userType } = result;
+    onAddStream: (data) => {
+      let { userId, videoType } = data;
       let user = {
-        id: userId,
-        type: userType
+        id: userId
       };
-      eventEmitter.emit(EventName.STREAM_ADDED, user);
+      let stream = rtc.getRemoteStream(userId, videoType);
+      let result = {
+        user,
+        stream
+      };
+      eventEmitter.emit(EventName.STREAM_ADDED, result);
     },
     onUserJoined: (user) => {
       let { userId, userType } = user;
@@ -53,7 +63,7 @@ let setEventHandler = () => {
         id: userId,
         type: userType
       };
-      eventEmitter.emit(EventName.ROOM_JOINED, user);
+      eventEmitter.emit(EventName.ROOM_USER_JOINED, user);
     },
     onUserLeft: (user) => {
       let { userId, userType } = user;
@@ -128,7 +138,7 @@ export default class RTCEngine {
     eventEmitter = new EventEmitter();
     eventHandler = new EventHandler();
     setEventHandler();
-    rtc.setRongRTCEngineEventHandle(eventHandler);
+    rtc.setBlinkEngineEventHandle(eventHandler);
   }
 
   joinRoom(room) {
@@ -139,12 +149,19 @@ export default class RTCEngine {
         }
         resolve(user);
       });
-      let { id, user: { id: userId, token } } = room;
+      let {user} = room;
+      let { id: userId, token } = user;
+      utils.extend(option, {
+        currentUser: {
+          id: userId
+        }
+      });
+      let { id } = room;
       rtc.joinChannel(id, userId, token);
     });
   }
 
-  leaveRoom(room) {
+  leaveRoom() {
     return utils.deferred((resolve, reject) => {
       eventEmitter.once(EventName.ROOM_SELF_LEFT, (error, user) => {
         if (error) {
@@ -152,8 +169,7 @@ export default class RTCEngine {
         }
         resolve(user);
       });
-      let { id } = room;
-      rtc.leaveChannel(id);
+      rtc.leaveChannel();
     });
   }
 

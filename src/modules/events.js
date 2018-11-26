@@ -7,7 +7,7 @@ export const RoomEvents = [{
   name: EventName.ROOM_USER_LEFT,
   type: 'leaved'
 }, {
-  name: EventName.ROLE_CHANGED,
+  name: EventName.ROOM_CHANGED,
   type: 'changed'
 }];
 

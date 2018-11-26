@@ -1,26 +1,25 @@
 import utils from './utils';
 
-let events = {};
-let onceEvents = {};
 export default class EventEmitter{
+  constructor(){
+    this.events = {};
+    this.onceEvents = {};
+  }
   on(name, event){
-    events[name] = event;
+    this.events[name] = event;
   }
   off(name){
-    delete events[name];
+    delete this.events[name];
   }
   emit(name, data, error){
-    utils.extend(data, {
-      type: name
-    });
-    let event = events[name] || utils.noop;
+    let event = this.events[name] || utils.noop;
     event(error, data);
 
-    let onceEvent = onceEvents[name] || utils.noop;
+    let onceEvent = this.onceEvents[name] || utils.noop;
     onceEvent(error, data);
-    delete onceEvents[name];
+    delete this.onceEvents[name];
   }
   once(name, event){
-    onceEvents[name] = event;
+    this.onceEvents[name] = event;
   }
 }

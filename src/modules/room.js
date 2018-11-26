@@ -6,12 +6,15 @@ export default function Room(rtc) {
   let eventEmitter = new EventEmitter();
   utils.forEach(RoomEvents, (event) => {
     let { name, type } = event;
-    rtc._on(name, (user) => {
+    rtc._on(name, (error, user) => {
+      if(error){
+        throw new Error(error);
+      }
       let result = {
         type,
         user
       };
-      eventEmitter.emit(result);
+      eventEmitter.emit(type, result);
     });
   });
 
@@ -24,7 +27,12 @@ export default function Room(rtc) {
   };
 
   let _on = (name, event) => {
-    return eventEmitter.on(name, event);
+    return eventEmitter.on(name, (error, result) => {
+      if(error){
+        throw new Error(error);
+      }
+      event(result)
+    });
   };
 
   let _off = (name) => {

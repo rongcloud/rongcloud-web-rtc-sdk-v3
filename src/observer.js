@@ -31,15 +31,19 @@ export default class Observer{
       module,
       config
     });
-    utils.forEach(config, (name) => {
-      module._on && module._on(name, this.callback);
+    utils.forEach(config, (isObserver, name) => {
+      if(isObserver){
+        module._on && module._on(name, this.callback);
+      }
     });
   }
   disconnect(){
     let {module, config} = this;
     config = config || {};
-    utils.forEach(config, (name) => {
-      module._off && module._off(name);
+    utils.forEach(config, (isObserver, name) => {
+      if(isObserver){
+        module._off && module._off(name);
+      }
     });
   }
 }

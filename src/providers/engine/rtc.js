@@ -1,18 +1,18 @@
 /** This library require adapter.js */
 
 /** ----- 参数定义 ----- */
-var RongRTCGlobal = {
+var BlinkGlobal = {
   /** 带宽设置计数器 */
   bandWidthCount: 0
 }
 /** ----- 参数定义 ----- */
 
 /** ----- 常量定义 ----- */
-var RongRTCConstant = {
-  /** RongRTC SDK版本号 */
-  SDK_VERSION_NAME: '1.6.0',
-  /** logon version */
-  LOGON_VERSION: '1',
+var BlinkConstant = {
+  /** Blink SDK版本号 */
+  SDK_VERSION_NAME: '1.0.0',
+/** client type */
+  CLIENT_TYPE: 3,
   /** keepAlive时间间隔 */
   KEEPALIVE_INTERVAL: 5 * 1000,
   /** keepAlive最大连续失败次数 */
@@ -31,210 +31,432 @@ var RongRTCConstant = {
   GETSTATSREPORT_INTERVAL: 1 * 1000
 }
 /** 连接类型 */
-RongRTCConstant.ConnectionType = {
+BlinkConstant.ConnectionType = {
   /** P2P模式 */
-  P2P: '0',
+  P2P: 0,
   /** MediaServer模式 */
-  MEDIASERVER: '1'
+  MEDIASERVER: 1
+}
+/** logon version */
+BlinkConstant.LogonVersion = {
+/** 初始版本 */
+INIT: 1,
+/** 订阅分发版本 */
+SUBSCRIBE: 3
 }
 /** 用户模式类型 */
-RongRTCConstant.UserType = {
+BlinkConstant.UserType = {
   /** 普通模式 */
-  NORMAL: '1',
+  NORMAL: 1,
   /** 观察者模式 */
-  OBSERVER: '2'
+  OBSERVER: 2,
+  /** 主持人模式 */
+  HOST: 3
+}
+/** 用户音视频类型 */
+BlinkConstant.TalkType = {
+/** 仅音频 */
+OnlyAudio: 0,
+/** 音频+视频 */
+All: 1,
+/** 视频 */
+OnlyVideo: 2,
+/** 无 */
+None: 3
+}
+/** 设备类型 */
+BlinkConstant.DeviceType = {
+/** 摄像头 */
+Camera: 1,
+/** 麦克风 */
+Microphone: 2,
+/** 摄像头+麦克风 */
+CameraAndMicrophone: 3,
+/** 屏幕共享 */
+ScreenShare: 4
+}
+/** 操作类型 */
+BlinkConstant.OperationType = {
+/** 打开 */
+OPEN: 1,
+/** 关闭 */
+CLOSE: 2
+}
+/** EnablType */
+BlinkConstant.EnableType = {
+/** disable */
+Disable: 0,
+/** enable */
+Enable: 1
 }
 /** 与服务器的连接状态 */
-RongRTCConstant.ConnectionState = {
+BlinkConstant.ConnectionState = {
   CONNECTED: 'CONNECTED',
   DISCONNECTED: 'DISCONNECTED',
   ROOM_ERROR: 'ROOM_ERROR'
 }
 /** websocket的连接状态 */
-RongRTCConstant.wsConnectionState = {
+BlinkConstant.wsConnectionState = {
   CONNECTED: 'CONNECTED',
   DISCONNECTED: 'DISCONNECTED',
   CONNECTING: 'CONNECTING'
 }
 /** 交换类型 */
-RongRTCConstant.ExchangeType = {
+BlinkConstant.ExchangeType = {
   /** offer */
-  OFFER: '1',
+  OFFER: 1,
   /** answer */
-  ANSWER: '2',
+  ANSWER: 2,
   /** candidate */
-  CANDIDATE: '3'
+  CANDIDATE: 3
 }
 /** logonAndJoin status */
-RongRTCConstant.LogonAndJoinStatus = {
+BlinkConstant.LogonAndJoinStatus = {
   CONNECT: 0,
   RECONNECT: 1
 }
 /** offer status */
-RongRTCConstant.OfferStatus = {
+BlinkConstant.OfferStatus = {
   SENDING: 'SENDING',
   DONE: 'DONE'
 }
 /**
-* 会控
+* 会控操作类型
+* 
 */
-RongRTCConstant.Meeting = {
-  RoleChange: {
-    DEMOTION: 1,
-    INVITE: 2,
-    REMOVE: 3
-  },
-  ChannelAnswer: {
-    INVITE_OBSERVER: 1,
-    OBSERVER_SPEAK: 2,
-    INVITE_OPEN_DEV: 3,
-    DEMOTIONUSER: 4,
-    INVITE_CLOSE_DEV: 5
-  }
-
+BlinkConstant.MeetingActionType = {
+/** 与会人员能力管理 */
+RoleChange: {
+  /** 将与会人降级为观察者 */
+    DegradeToObserver: 1,
+    /** 邀请观察者发言,将观察升级为正常用户 */
+    UpgradeToNormal: 2,
+    /** 移除与会人员 */
+    RemoveUser: 3
+},
+/** 申请管理 */
+Apply: {
+  /** 观察者请求变更为正常用户发言 */
+    RequestUpgradeToNormal: 1,
+    /** 正常用户成为主持人 */
+    GetHostAuthority: 2,
+    /** 获取邀请连接 */
+    GetInviteUrl: 3
+},
+/** 与会人员设备管理 */
+ManageAction: {
+  
+},
+/** 会控应答 */
+ChannelAnswer: {
+  /** 邀请观察者发言 */
+    UpgradeToNormal: 1,
+    /** 观察者主动要求发言 */
+    RequestUpgradeToNormal: 2,
+    /** 邀请打开设备 */
+    InviteToOpen: 3,
+    /** 把正常用户降级为观察者 */
+    DegradeToObserver: 4,
+    /** 邀请关闭设备 */
+    InviteToClose: 5
+}
+}
+/**
+* 会控应答类型
+* 
+*/
+BlinkConstant.MeetingAnswerType = {
+  /** 接受 */
+  Accept: 1,
+  /** 拒绝 */
+  Deny: 2,
+  /** 忙碌 */
+  Busy: 4
+}
+/** 视频分辨率 */
+BlinkConstant.VideoProfile_default = {
+  width: 640,
+  height: 480,
+  frameRate: 15
+}
+/** 小视频分辨率 */
+BlinkConstant.VideoProfile_min = {
+  width: 176,
+  height: 144,
+  frameRate: 15
+}
+/** 共享屏幕分辨率 */
+BlinkConstant.ShareProfile_default = {
+  width: 1280,
+  height: 720,
+  frameRate: 15
+}
+/** 带宽 */
+BlinkConstant.BandWidth_default = {
+  min: 100,
+  max: 500
+}
+/** 带宽全部 */
+BlinkConstant.BandWidth_320_240 = {
+  min: 100,
+  max: 320
+}
+BlinkConstant.BandWidth_640_480 = {
+  min: 100,
+  max: 500
+}
+BlinkConstant.BandWidth_1280_720 = {
+  min: 100,
+  max: 1500
+}
+BlinkConstant.BandWidth_ScreenShare_1280_720 = {
+min: 1000,
+max: 1500
+}
+/**
+* 屏幕共享状态码
+* 
+*/
+BlinkConstant.ScreenShareSupportCode = {
+/** 支持 */
+Support: 0,
+/** 浏览器不支持 */
+BrowserNotSupport: 1,
+/** 未安装插件 */
+NoPlugin: 2
+}
+/**
+* 视频类型
+* 
+*/
+BlinkConstant.VideoType = {
+/** 普通音视频 */
+NORMAL: 1,
+/** 屏幕共享 */
+SCREEN: 2
+}
+/**
+* 流后缀
+* 
+*/
+BlinkConstant.StreamSuffix = {
+TINY: '_tiny',
+SCREEN: '_screen'
+}
+/**
+* Track后缀
+* 
+*/
+BlinkConstant.TrackSuffix = {
+VIDEO: '_video',
+AUDIO: '_audio'
+}
+/** 用户关心的通知类型 */
+BlinkConstant.CareType = {
+/** 错误，不符合标准的值 */
+  Error: -1,
+  /** 不关心任何通知 */
+  None: 0,
+  /** 关心人员进出变更通知 */
+  MemberChange: 1,
+  /** 关心阅资源发布类型变更通知 */
+  ResourceChange: 2,
+  /** 关心人员进出和资源发布类型变更通知 */
+  MemberAndResourceChange: 3,
+  /** 关心订阅列表信息变更通知 */
+  SubscribeChange: 4,
+  /** 关心人员进出和订阅列表信息变更通知 */
+  MemberAndSubscribeChange: 5,
+  /** 关心资源发布类型和订阅列表信息变更通知 */
+  ResourceAndSubscribeChange: 6,
+  /** 关心所有类型通知 */
+  All: 7
+}
+/** 资源发布的类型 */
+BlinkConstant.ResourceType = {
+/** 错误，不符合标准的值 */
+  Error: -1,
+  /** 不发布任何资源 */
+  None: 0,
+  /** 只发布音频 */
+  AudioOnly: 1,
+  /** 只发布视频 */
+  VideoOnly: 2,
+  /** 发布音频和视频 */
+  AudioAndVideo: 3,
+  /** 发布屏幕共享 */
+  ScreenSharing: 4,
+  /** 发布音频和屏幕共享 */
+  AudioAndScreenSharing: 5,
+  /** 发布视频和屏幕共享 */
+  VideoAndScreenSharing: 6,
+  /** 发布音视频和屏幕共享 */
+  AudioAndVideoAndScreenSharing: 7
+}
+/** 资源订阅的类型 */
+BlinkConstant.SubscribeType = {
+/** 错误，不符合标准的值 */
+  Error: -1,
+  /** 不订阅任何资源 */
+  None: 0,
+  /** 只订阅音频 */
+  AudioOnly: 1,
+  /** 只订阅视频 */
+  VideoOnly: 2,
+  /** 订阅音频和视频 */
+  AudioAndVideo: 3,
+  /** 订阅屏幕共享 */
+  ScreenSharing: 4,
+  /** 订阅音频和屏幕共享 */
+  AudioAndScreenSharing: 5,
+  /** 订阅视频和屏幕共享 */
+  VideoAndScreenSharing: 6,
+  /** 订阅音视频和屏幕共享 */
+  AudioAndVideoAndScreenSharing: 7
+}
+/**
+* 管理类型
+* 
+*/
+BlinkConstant.ManageType = {
+Manage: 1,
+Apply: 2
 }
 /** 信令 */
-RongRTCConstant.SignalType = {
+BlinkConstant.SignalType = {
   /** 请求信令 */
   // LOGON : 'logon',
   // JOIN : 'join',
   // PING : 'ping',
   LOGONANDJOIN: 'logonAndJoin',
   CHANNEL_PING: 'channelPing',
-  UPDATETALKTYPE: 'updateTalkType',
   LEAVE: 'leave',
-  EWB_CREATE: 'ewb_create',
-  EWB_QUERY: 'ewb_query',
+  UPDATETALKTYPE: 'updateTalkType',
+  TURNTALKTYPE: 'turntalktype',
+  SCREENSHARING: 'screensharing',
   /** 应答信令 */
   LOGONANDJOIN_RESULT: 'logonAndJoin_result',
   CHANNEL_PING_RESULT: 'channelPing_result',
   LEAVE_RESULT: 'leave_result',
-  EWB_CREATE_RESULT: 'ewb_create_result',
-  EWB_QUERY_RESULT: 'ewb_query_result',
+  UPDATETALKTYPE_RESULT: 'updateTalkType_result',
+  TURNTALKTYPE_RESULT: 'turntalktype_result',
+  SCREENSHARING_RESULT: 'screensharing_result',
   /** 通知信令 */
   JOINED: 'joined',
-  UPDATE_TALKTYPE: 'update_talktype',
-  OFFER_REQUEST: 'offerRequest',
   LEFT: 'left',
-  EWB_CREATE_NOTIFY: 'ewb_create_notify',
-  FLOWSUBSCRIBE: 'flowSubscribe', //本地大小流切换 通知服务器
+  OFFER_REQUEST: 'offerRequest',
+  UPDATETALKTYPE_NOTIFY: 'update_talktype',
+  TURNTALKTYPE_NOTIFY: 'turntalktype',
+  SCREENSHARING_NOTIFY: 'screensharing',
   /** exchange信令 */
   EXCHANGE: 'exchange',
-  /** 白板创建信令 */
-  EWB_CREATE_NOTIFY: 'ewb_create_notify',
-  /** 会议控制*/
+  EXCHANGE_RESULT: 'exchange_result',
+  /** 白板信令 */
+  EWBCREATE: 'ewb_create',
+  EWBQUERY: 'ewb_query',
+  EWBCREATE_RESULT: 'ewb_create_result',
+  EWBQUERY_RESULT: 'ewb_query_result',
+  EWBCREATE_NOTIFY: 'ewb_create_notify',
+  /** 会控信令 */
+  // rolechange
   ROLECHANGE: 'rolechange',
   ROLECHANGE_RESULT: 'rolechange_result',
+  ROLECHANGE_NOTIFY: 'rolechange',
+  // apply
   APPLY: 'apply',
   APPLY_RESULT: 'apply_result',
+  APPLY_NOTIFY: 'apply',
+  // manageaction
   MANAGEACTION: 'manageaction',
   MANAGEACTION_RESULT: 'manageaction_result',
+  MANAGEACTION_NOTIFY: 'manageaction',
+  // channelanswer
   CHANNELANSWER: 'channelanswer',
   CHANNELANSWER_RESULT: 'channelanswer_result',
-  CREATENOTIFY: 'createnotify',
-  CREATENOTIFY_RESULT: 'createnotify_result',
-  EWBService: 'ewbservice',
-  SCREENSHARING: 'screensharing',
-  TURNTALKTYPE: 'turntalktype',
-  TURNTALKTYPE_RESULT: 'turntalktype_result'
-
-
-}
-/** 视频分辨率 */
-RongRTCConstant.VideoProfile_default = {
-  width: 640,
-  height: 480,
-  frameRate: 15
-}
-/** 小视频分辨率 */
-RongRTCConstant.VideoProfile_min = {
-  width: 176,
-  height: 144,
-  frameRate: 15
-}
-/** 共享屏幕分辨率 */
-RongRTCConstant.ShareProfile_default = {
-  width: 1280,
-  height: 720,
-  frameRate: 15
-}
-/** 带宽 */
-RongRTCConstant.BandWidth_default = {
-  min: 100,
-  max: 500
-}
-/** 带宽全部 */
-RongRTCConstant.BandWidth_320_240 = {
-  min: 100,
-  max: 320
-}
-RongRTCConstant.BandWidth_640_480 = {
-  min: 100,
-  max: 500
-}
-RongRTCConstant.BandWidth_1280_720 = {
-  min: 100,
-  max: 1500
-}
-RongRTCConstant.BandWidth_ScreenShare_1280_720 = {
-  min: 1000,
-  max: 1500
+  CHANNELANSWER_NOTIFY: 'channelanswer',
+  /** 大小流 */
+  FLOWSUBSCRIBE: 'flowSubscribe',
+  /** 订阅分发信令 */
+  // update_resource
+  UPDATE_RESOURCE: 'update_resource',
+  UPDATE_RESOURCE_RESULT: 'update_resource_result',
+  UPDATE_RESOURCE_NOTIFY: 'update_resource_notify',
+  // update_subscribe
+  UPDATE_SUBSCRIBE: 'update_subscribe',
+  UPDATE_SUBSCRIBE_RESULT: 'update_subscribe_result',
+  UPDATE_SUBSCRIBE_NOTIFY: 'update_subscribe_notify',
+  // manage_update_resource_subscribe
+  MANAGE_UPDATE_RESOURCE_SUBSCRIBE: 'manage_update_resource_subscribe',
+  MANAGE_UPDATE_RESOURCE_SUBSCRIBE_RESULT: 'manage_update_resource_subscribe_result',
+  MANAGE_UPDATE_RESOURCE_NOTIFY: 'manage_update_resource_notify',
+  MANAGE_UPDATE_SUBSCRIBE_NOTIFY: 'manage_update_subscribe_notify',
+  // manage_answer_update_resource
+  MANAGE_ANSWER_UPDATE_RESOURCE: 'manage_answer_update_resource',
+  MANAGE_ANSWER_UPDATE_RESOURCE_RESULT: 'manage_answer_update_resource_result',
+  MANAGE_ANSWER_UPDATE_RESOURCE_NOTIFY: 'manage_answer_update_resource',
+  // manage_answer_update_subscribe
+  MANAGE_ANSWER_UPDATE_SUBSCRIBE: 'manage_answer_update_subscribe',
+  MANAGE_ANSWER_UPDATE_SUBSCRIBE_RESULT: 'manage_answer_update_subscribe_result',
+  MANAGE_ANSWER_UPDATE_SUBSCRIBE_NOTIFY: 'manage_answer_update_subscribe'
 }
 /** ----- 常量定义 ----- */
 
-/** ----- RongRTCEngine ----- */
-//var RongRTCEngine = (function() {
+/** ----- BlinkEngine ----- */
+//var BlinkEngine = (function() {
 /**
 * 构造函数
 *
 */
-var rongRTCengine, rongRTCEngine;
-var RongRTCEngine = function (wsNavUrl) {
+var BlinkEngine = function (wsNavUrl) {
   this.init(wsNavUrl);
-  this.initShare();
-  this.rongRTCMeeting = new RongRTCMeeting();
-  rongRTCEngine = rongRTCengine = this;
+  // 初始化屏幕共享
+  this.initScreenShare();
   return this;
-}
-RongRTCEngine.prototype.initShare = function () {
-  // 绑定插件监听事件
-  this.addEventListener();
-  // 检测插件
-  setTimeout(function () {
-    window.postMessage('test', '*');
-  }, 1000)
 }
 /**
 * 初始化
 *
 */
-RongRTCEngine.prototype.init = function (wsNavUrl) {
-  /** 会议ID */
-  this.channelId = null;
-  /** 连接集合 */
-  this.peerConnections = {};
+BlinkEngine.prototype.init = function (wsNavUrl) {
+/** logon version */
+this.logonVersion = BlinkConstant.LogonVersion.SUBSCRIBE;
+
+  /** ----- Stream信息 ----- */
   /** 本地视频流 */
   this.localStream = null;
-  /** 远端视频流数组 */
-  this.remoteStreams = new Array();
-  /** 屏幕共享音频流*/
-  this.localAudioStream = null;
-  /** logonAndJoin status 登录类型，第一次登录加入房间传0，断线重连传1 */
-  this.logonAndJoinStatus = null;
-  /** offer status */
-  this.offerStatus = null;
+  /** 本地屏幕共享流 */
+  this.localScreenStream = null;
+  /** 本地视频小流 */
+  this.localMinStream = null;
+  /** 远端视频流集合 */
+  this.remoteStreams = new BlinkMap();
+  /** 远端屏幕共享流集合 */
+  this.remoteScreenStreams = new BlinkMap();
+  /** ----- Stream信息 ----- */
+
+  /** ----- Track信息 ----- */
+  /** 本地音频Track */
+  this.localAudioTrack = null;
+  /** 本地视频Track */
+  this.localVideoTrack = null;
+  /** 本地屏幕共享视频Track */
+  this.localScreenVideoTrack = null;
+  /** 本地Track的操作方式, true表示start/stop, false表示enable, 订阅分发版本开始支持start/stop */
+  this.isStartStopLocalTrack = true;
+  /** ----- Track信息 ----- */
+
+  /** 连接集合 */
+  this.peerConnections = {};
   /** 连接的用户集合 */
-  this.joinedUsers = new RongRTCMap();
+  this.joinedUsers = new BlinkMap();
   /** remote cname Map */
-  this.remoteCnameMap = new RongRTCMap();
+  this.remoteCnameMap = new BlinkMap();
   /** remote Sdp Map */
-  this.remoteSdpMap = new RongRTCMap();
-  /** 麦克风开关 */
-  this.microphoneEnable = true;
-  /** 本地视频开关 */
-  this.localVideoEnable = true;
-  /** 远端音频开关 */
-  this.remoteAudioEnable = true;
+  this.remoteSdpMap = new BlinkMap();
+  /** remote trackId Map */
+  this.remoteTrackIdMap = new BlinkMap();
+
+  /** ----- 连接信息 ----- */
   /** keepAlive连续失败次数计数器 */
   this.keepAliveFailedTimes = 0;
   /** keepAlive间隔 */
@@ -261,231 +483,268 @@ RongRTCEngine.prototype.init = function (wsNavUrl) {
   this.wsUrlList = [];
   /** websocket地址索引 */
   this.wsUrlIndex = 0;
-
   // 设置websocket nav url
   this.wsNavUrl = wsNavUrl;
+  /** ----- 连接信息 ----- */
 
-  /** 视频参数默认值 */
-  this.userType = RongRTCConstant.UserType.NORMAL;
+  /** ----- 房间信息 ----- */
+  /** 会议ID */
+  this.channelId = null;
+  /** token */
+  this.token = null;
+  /** 纯音频 */
   this.isAudioOnly = false;
+  /** 本地音频开关 */
+  this.localAudioEnable = true;
+  /** 本地视频开关 */
   this.localVideoEnable = true;
-  this.videoProfile = RongRTCConstant.VideoProfile_default;
-  this.videoMinProfile = RongRTCConstant.VideoProfile_min;
-  this.videoMaxRate = RongRTCConstant.BandWidth_default.max;
-  this.videoMinRate = RongRTCConstant.BandWidth_default.min;
+  /** 远端音频开关 */
+  this.remoteAudioEnable = true;
+  /** logonAndJoin status 登录类型，第一次登录加入房间传0，断线重连传1 */
+  this.logonAndJoinStatus = null;
+  /** offer status */
+  this.offerStatus = null;
+  /** 白板url */
+  this.ewbUrl = '';
+  /** ----- 房间信息 ----- */
+
+  /** ----- 用户信息 ----- */
+  this.userId;
+  this.userType = BlinkConstant.UserType.NORMAL;
+  this.talkType = BlinkConstant.TalkType.All;
+  this.userName;
+  /** 订阅分发 */
+  this.care = BlinkConstant.CareType.All;
+  this.resource = BlinkConstant.ResourceType.AudioAndVideo;
+  this.defaultSub = BlinkConstant.SubscribeType.AudioAndVideo;
+  this.specialSubs = [];
+  /** ----- 用户信息 ----- */
+
+  /** ----- 视频参数 ----- */
   /** media config */
   this.mediaConfig = {
-    video: this.videoProfile,
-    audio: true
-  }
-  /** mediaMin config */
-  this.mediaMinConfig = {
-    video: this.videoMinProfile,
-    audio: false//小流不需要视频
+      video: BlinkConstant.VideoProfile_default,
+      audio: true
   }
   /** bandwidth */
+  this.videoMaxRate = BlinkConstant.BandWidth_default.max;
+  this.videoMinRate = BlinkConstant.BandWidth_default.min;
   this.bandWidth = {
-    min: this.videoMinRate,
-    max: this.videoMaxRate
+      min: this.videoMinRate,
+      max: this.videoMaxRate
   };
-  /** 白板 */
-  this.ewbCreated = false;
-  //	/** sdp属性 */
-  //	// 统一设置，包含观察者模式和普通模式无摄像头情况
-  //	this.mediaConfig.sdpConstraints = {};
-  //	this.mediaConfig.sdpConstraints.mandatory = {};
-  //	this.mediaConfig.sdpConstraints.mandatory.OfferToReceiveAudio = true;
-  //	this.mediaConfig.sdpConstraints.mandatory.OfferToReceiveVideo = true;
+  /** ----- 视频参数 ----- */
 
+  /** ----- StatsReport ----- */
   /** 是否上报丢包率信息 */
   this.isSendLostReport = false;
-  /** RongRTCConnectionStatsReport */
-  this.rongRTCConnectionStatsReport = null;
+  /** BlinkConnectionStatsReport */
+  this.blinkConnectionStatsReport = null;
   /** getStatsReport间隔 */
   this.getStatsReportInterval = null;
-  /** 是否支持屏幕共享 */
-  this.isScreenShareSupport = false;
+  /** ----- StatsReport ----- */
+
+  /** ----- 屏幕共享 ----- */
+  /** 屏幕共享状态 */
+  this.screenSharingStatus = false;
+  /** 屏幕共享流是否分离 */
+  this.isScreenStreamSeparate = false;
+  if (this.isScreenStreamSeparate) { // 屏幕共享流分离
+    this.defaultSub = BlinkConstant.SubscribeType.AudioAndVideoAndScreenSharing;
+  }
+  /** ----- 屏幕共享 ----- */
+  
+  /** ----- 大小流 ----- */
+  /** 是否开启小流 */
+  this.isEnableMinStream = false; 
+  /** ----- 大小流 ----- */
 };
+/**
+* 初始化屏幕共享
+* 
+*/
+BlinkEngine.prototype.initScreenShare = function () {
+  // 绑定插件监听事件
+  this.addEventListener();
+  // 检测插件
+  setTimeout(function () {
+      window.postMessage('test', '*');
+  }, 1000);
+}
 /**
 * reset
 *
 */
-RongRTCEngine.prototype.reset = function () {
+BlinkEngine.prototype.reset = function () {
 
 }
 /**
 * clear
 *
 */
-RongRTCEngine.prototype.clear = function () {
+BlinkEngine.prototype.clear = function () {
   this.exitScheduleKeepAlive();
   this.exitScheduleKeepAliveTimer();
   this.disconnect(false);
-  this.closePeerConnection(this.selfUserId);
+  this.closePeerConnection(this.userId);
 }
 /** ----- 提供能力 ----- */
 /**
-* 获取RongRTC SDK版本号
+* 获取Blink SDK版本号
 *
 * @return sdkversion
 */
-RongRTCEngine.prototype.getSDKVersion = function () {
-  return RongRTCConstant.SDK_VERSION_NAME;
+BlinkEngine.prototype.getSDKVersion = function () {
+  return BlinkConstant.SDK_VERSION_NAME;
 }
 /**
-* 设置RongRTCEngineEventHandle监听
+* 设置BlinkEngineEventHandle监听
 *
 */
-RongRTCEngine.prototype.setRongRTCEngineEventHandle = function (rongRTCEngineEventHandle) {
-  this.rongRTCEngineEventHandle = rongRTCEngineEventHandle;
+BlinkEngine.prototype.setBlinkEngineEventHandle = function (blinkEngineEventHandle) {
+  this.blinkEngineEventHandle = blinkEngineEventHandle;
 }
 /**
 * 设置视频参数
 *
 */
-RongRTCEngine.prototype.setVideoParameters = function (config) {
-  if (config.USER_TYPE != null && config.USER_TYPE == RongRTCConstant.UserType.OBSERVER) {
-    this.userType = RongRTCConstant.UserType.OBSERVER;
+BlinkEngine.prototype.setVideoParameters = function (config) {
+  if (config.USER_TYPE != null && config.USER_TYPE == BlinkConstant.UserType.OBSERVER) {
+      this.userType = BlinkConstant.UserType.OBSERVER;
   }
   if (config.IS_AUDIO_ONLY != null) {
-    this.isAudioOnly = config.IS_AUDIO_ONLY;
+      this.isAudioOnly = config.IS_AUDIO_ONLY;
   }
   if (config.IS_CLOSE_VIDEO != null) {
-    this.localVideoEnable = !config.IS_CLOSE_VIDEO;
+      this.localVideoEnable = !config.IS_CLOSE_VIDEO;
   }
   if (config.VIDEO_PROFILE != null) {
-    this.videoProfile = config.VIDEO_PROFILE;
-    /** media config */
-    this.mediaConfig.video = this.videoProfile;
+      /** media config */
+      this.mediaConfig.video = config.VIDEO_PROFILE;
   }
   /** bandwidth */
   if (config.VIDEO_MAX_RATE != null) {
-    this.videoMaxRate = config.VIDEO_MAX_RATE;
-    this.bandWidth.max = this.videoMaxRate;
-  } else if (config.VIDEO_PROFILE.width != null && config.VIDEO_PROFILE.height != null) {
-    var bandWidth_resulotion = RongRTCConstant["BandWidth_" + config.VIDEO_PROFILE.width + "_" + config.VIDEO_PROFILE.height]
-    if (bandWidth_resulotion != null) {
-      this.videoMaxRate = bandWidth_resulotion.max;
+      this.videoMaxRate = config.VIDEO_MAX_RATE;
       this.bandWidth.max = this.videoMaxRate;
-    }
+  } else if (config.VIDEO_PROFILE.width != null && config.VIDEO_PROFILE.height != null) {
+      var bandWidth_resulotion = BlinkConstant["BandWidth_" + config.VIDEO_PROFILE.width + "_" + config.VIDEO_PROFILE.height]
+      if (bandWidth_resulotion != null) {
+          this.videoMaxRate = bandWidth_resulotion.max;
+          this.bandWidth.max = this.videoMaxRate;
+      }
   }
   if (config.VIDEO_MIN_RATE != null) {
-    this.videoMinRate = config.VIDEO_MIN_RATE;
-    this.bandWidth.min = this.videoMinRate;
-  } else if (config.VIDEO_PROFILE.width != null && config.VIDEO_PROFILE.height != null) {
-    var bandWidth_resulotion = RongRTCConstant["BandWidth_" + config.VIDEO_PROFILE.width + "_" + config.VIDEO_PROFILE.height]
-    if (bandWidth_resulotion != null) {
-      this.videoMinRate = bandWidth_resulotion.min;
+      this.videoMinRate = config.VIDEO_MIN_RATE;
       this.bandWidth.min = this.videoMinRate;
-    }
+  } else if (config.VIDEO_PROFILE.width != null && config.VIDEO_PROFILE.height != null) {
+      var bandWidth_resulotion = BlinkConstant["BandWidth_" + config.VIDEO_PROFILE.width + "_" + config.VIDEO_PROFILE.height]
+      if (bandWidth_resulotion != null) {
+          this.videoMinRate = bandWidth_resulotion.min;
+          this.bandWidth.min = this.videoMinRate;
+      }
   }
-  //	/** sdp属性 */
-  //	if (this.userType == RongRTCConstant.UserType.OBSERVER) { // 观察者模式
-  //		if (this.mediaConfig.sdpConstraints == null) {
-  //			this.mediaConfig.sdpConstraints = {};
-  //		}
-  //		if (this.mediaConfig.sdpConstraints.mandatory == null) {
-  //			this.mediaConfig.sdpConstraints.mandatory = {};
-  //		}
-  //		this.mediaConfig.sdpConstraints.mandatory.OfferToReceiveAudio = true;
-  //		this.mediaConfig.sdpConstraints.mandatory.OfferToReceiveVideo = true;
-  //	}
+
+  if (this.userType == BlinkConstant.UserType.OBSERVER) { // 观察者
+    this.talkType = BlinkConstant.TalkType.None;
+    this.resource = BlinkConstant.ResourceType.None;
+  } else {
+    this.talkType = this.localVideoEnable ? BlinkConstant.TalkType.All : BlinkConstant.TalkType.OnlyAudio;
+    this.resource = this.localVideoEnable ? BlinkConstant.ResourceType.AudioAndVideo : BlinkConstant.ResourceType.AudioOnly;
+  }
 }
 /**
 * 列举 麦克风  摄像头
 * @return audioState ：0 没有麦克风 1 有 ；videoState 0 没有摄像头 1 有
 */
-/**
-RongRTCEngine.prototype.audioVideoState = async function () {
-  // 列举设备 audioState  videoState
-  let audioState = 0;
-  let videoState = 0;
-  let audioAuthorized = 0;
-  let videoAuthorized = 0;
-  await navigator.mediaDevices.enumerateDevices().then(function (deviceInfos) {
-    let deviceArr = deviceInfos.map(function (deviceInfo, index) {
-      return deviceInfo.kind;
-    })
-    deviceArr.forEach(function (kind) {
-      if (kind.indexOf('video') > -1)
-        videoState = 1;
-      if (kind.indexOf('audio') > -1)
-        audioState = 1;
-    })
-  });
-  if (videoState) {
-    await navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then(function (data) {
-      videoAuthorized = 1;
-    }).catch(function (error) {
-      if (error.name == 'PermissionDeniedError')
-        videoAuthorized = 0;
-    })
+// BlinkEngine.prototype.audioVideoState = async function () {
+//   // 列举设备 audioState  videoState
+//   let audioState = 0;
+//   let videoState = 0;
+//   let audioAuthorized = 0;
+//   let videoAuthorized = 0;
+//   await navigator.mediaDevices.enumerateDevices().then(function (deviceInfos) {
+//       let deviceArr = deviceInfos.map(function(deviceInfo, index) {
+//           return deviceInfo.kind;
+//       })
+//       deviceArr.forEach(function(kind) {
+//           if (kind.indexOf('video') > -1)
+//               videoState = 1;
+//           if (kind.indexOf('audio') > -1)
+//               audioState = 1;
+//       })
+//   });
+//   if (videoState) {
+//       await  navigator.mediaDevices.getUserMedia({video: true, audio: false}).then(function(data)  {
+//           videoAuthorized = 1;
+//       }).catch(function(error)  {
+//           if (error.name == 'PermissionDeniedError')
+//               videoAuthorized = 0;
+//       })
 
-  }
-  if (audioState) {
-    await navigator.mediaDevices.getUserMedia({ video: false, audio: true }).then(function (data) {
-      audioAuthorized = 1;
-    }).catch(function (error) {
-      if (error.name == 'PermissionDeniedError')
-        audioAuthorized = 0;
-    })
-  }
-  return {
-    audioState: audioState,
-    audioAuthorized: audioAuthorized,
-    videoState: videoState,
-    videoAuthorized: videoAuthorized
-  }
-}
- */
+//   }
+//   if (audioState) {
+//       await  navigator.mediaDevices.getUserMedia({video: false, audio: true}).then(function(data)  {
+//           audioAuthorized = 1;
+//       }).catch(function(error)  {
+//           if (error.name == 'PermissionDeniedError')
+//               audioAuthorized = 0;
+//       })
+//   }
+//   return {
+//       audioState: audioState,
+//       audioAuthorized: audioAuthorized,
+//       videoState: videoState,
+//       videoAuthorized: videoAuthorized
+//   }
+// }
 /**
 * 加入会议
 *
 */
-RongRTCEngine.prototype.joinChannel = function (channelId, userId, token) {
-
-  this.channelId = RongRTCConstant.ConnectionType.MEDIASERVER + channelId;
-  this.selfUserId = userId;
+BlinkEngine.prototype.joinChannel = function (channelId, userId, token, userName) {
+  this.channelId = BlinkConstant.ConnectionType.MEDIASERVER + channelId;
+  this.userId = userId;
   this.token = token;
-  // 创建本地视频    pc.addStream(rongRTCEngine.localStreamMin);//加入小流
-  var rongRTCEngine = this;
-  if (rongRTCEngine.userType == 2) {
-    rongRTCEngine.createSignaling();
-    rongRTCEngine.logonAndJoin(RongRTCConstant.LogonAndJoinStatus.CONNECT);
+  this.userName = userName;
+  // 创建本地视频
+  if (this.userType == BlinkConstant.UserType.OBSERVER) { // 观察者模式
     this.localStream = new MediaStream();
-    return
-  }
-  navigator.getUserMedia(rongRTCEngine.mediaConfig, function (stream) {
-    RongRTCLogger.info("navigator.getUserMedia success");
-    rongRTCEngine.localStream = stream;
-    rongRTCengine.localStream.id = rongRTCengine.selfUserId;
-    if (!rongRTCEngine.localVideoEnable) {
-      rongRTCEngine.closeLocalVideoWithUpdateTalkType(
-        !rongRTCEngine.localVideoEnable, false);
-    }
     // 创建websocket连接
-    rongRTCEngine.createSignaling();
-    rongRTCEngine.logonAndJoin(RongRTCConstant.LogonAndJoinStatus.CONNECT);
-  }, function (error) {
-    RongRTCLogger.error("navigator.getUserMedia error: ", error);
-
+    this.createSignaling();
+    this.logonAndJoin(BlinkConstant.LogonAndJoinStatus.CONNECT);
+      return;
+  }
+  var blinkEngine = this;
+  var mediaConfig;
+  if (this.isSubscribeVersion()) { // 订阅分发版本
+    mediaConfig = this.getMediaConfig(this.localVideoEnable, this.localAudioEnable);
+  } else {
+    mediaConfig = this.getMediaConfig(true, true);
+  }
+  BlinkUtil.getMedia(mediaConfig).then(function (stream) {
+    console.info(new Date(), "joinChannel navigator.getUserMedia success");
+    blinkEngine.setLocalStream(stream);
+      // 创建websocket连接
+      blinkEngine.createSignaling();
+      blinkEngine.logonAndJoin(BlinkConstant.LogonAndJoinStatus.CONNECT);
+  }).catch(function (error) {
+    console.error(new Date(), "joinChannel navigator.getUserMedia error: ", error);
   });
-  /* //小流媒体
-   navigator.getUserMedia(rongRTCEngine.mediaMinConfig, function (stream) {
-       RongRTCLogger.info("navigator.geMinMedia success");
-       stream.id = rongRTCEngine.selfUserId + "_tiny";
-       rongRTCEngine.localStreamMin = stream;
- 
-   }, function (error) {
-       RongRTCLogger.error("navigator.getMinMedia error: ", error);
- 
-   });*/
+  if (this.isEnableMinStream) { // 开启了小流
+    var minMediaConfig = this.getMinMediaConfig();
+    BlinkUtil.getMedia(minMediaConfig, function (stream) {
+          console.info(new Date(), "joinChannel navigator.getMinUserMedia success");
+          blinkEngine.localMinStream = stream;
+    }).catch(function (error) {
+        console.error(new Date(), "joinChannel navigator.getMinUserMedia error: ", error);
+      });
+  }
 };
 /**
 * 离开会议
 *
 */
-RongRTCEngine.prototype.leaveChannel = function () {
+BlinkEngine.prototype.leaveChannel = function () {
   this.leave();
 }
 /**
@@ -493,7 +752,7 @@ RongRTCEngine.prototype.leaveChannel = function () {
 * @Deprecated
 *
 */
-RongRTCEngine.prototype.getLocalVideoView = function () {
+BlinkEngine.prototype.getLocalVideoView = function () {
   return this.getLocalStream();
 };
 /**
@@ -501,388 +760,629 @@ RongRTCEngine.prototype.getLocalVideoView = function () {
 * @Deprecated
 *
 */
-RongRTCEngine.prototype.getRemoteVideoView = function (userId) {
+BlinkEngine.prototype.getRemoteVideoView = function (userId) {
   return this.getRemoteStream(userId);
 };
 /**
-* 获取本地视频流
+* 获取本地视频流/屏幕共享流
 *
 */
-RongRTCEngine.prototype.getLocalStream = function () {
+BlinkEngine.prototype.getLocalStream = function (videoType) {
+if (videoType == BlinkConstant.VideoType.SCREEN) { // 屏幕共享流
+  return this.getLocalScreenStream();
+}
   return this.localStream;
 };
 /**
-* 获取远端视频流
-*
+* 获取本地屏幕共享流
+* 
 */
-RongRTCEngine.prototype.getRemoteStream = function (userId) {
-  for (var i in this.remoteStreams) {
-    if (this.remoteStreams[i].id == userId) {
-      return this.remoteStreams[i]
-      break;
-    }
-  }
-  return null;
+BlinkEngine.prototype.getLocalScreenStream = function () {
+  return this.localScreenStream;
 };
 /**
-* 获取远端视频流数量
+* 获取远端视频流/屏幕共享流
 *
 */
-RongRTCEngine.prototype.getRemoteStreamCount = function () {
-  return this.remoteStreams.length;
-};
-/**
-* 创建视频视图
-*
-*/
-RongRTCEngine.prototype.createVideoView = function () {
-  var videoView = document.createElement('video');
-  // 视频自动播放
-  videoView.autoplay = true;
-  videoView.setAttribute("playsinline", true); // isa
-  return videoView;
+BlinkEngine.prototype.getRemoteStream = function (userId, videoType) {
+if (videoType == BlinkConstant.VideoType.SCREEN) { // 屏幕共享流
+  return this.remoteScreenStreams.get(userId);
+}
+return this.remoteStreams.get(userId);
 };
 /**
 * 创建本地视频视图
 *
 */
-RongRTCEngine.prototype.createLocalVideoView = function () {
+BlinkEngine.prototype.createLocalVideoView = function (videoType) {
   var localVideoView = this.createVideoView();
+  // ID
+  if (videoType == BlinkConstant.VideoType.SCREEN) { // 屏幕共享流
+    localVideoView.id = this.userId + BlinkConstant.StreamSuffix.SCREEN;
+  } else {
+    localVideoView.id = this.userId;
+  }
   // 本地视频静音
   localVideoView.muted = true;
-  // ID
-  localVideoView.id = this.selfUserId;
   // 附加视频流
-  localVideoView.srcObject = this.getLocalStream();
+  localVideoView.srcObject = this.getLocalStream(videoType);
   return localVideoView;
 };
 /**
 * 创建远端视频视图
-*
+* 
 */
-RongRTCEngine.prototype.createRemoteVideoView = function (userId) {
-  var remoteStream = this.getRemoteStream(userId);
-  // if (remoteStream == null) {
-  // 	return null;
-  // }
+BlinkEngine.prototype.createRemoteVideoView = function (userId, videoType) {
   var remoteVideoView = this.createVideoView();
   // ID
-  remoteVideoView.id = userId;
+  if (videoType == BlinkConstant.VideoType.SCREEN) { // 屏幕共享流
+    remoteVideoView.id = userId + BlinkConstant.StreamSuffix.SCREEN;
+  } else {
+    remoteVideoView.id = userId;
+  }
   // 附加视频流
-  remoteVideoView.srcObject = remoteStream;
+  remoteVideoView.srcObject = this.getRemoteStream(userId, videoType);;
   return remoteVideoView;
 };
 /**
-* 关闭/打开麦克风 true, 关闭 false, 打开
-*
+* 关闭/打开麦克风, true:关闭, false:打开
+* @Deprecated
 */
-RongRTCEngine.prototype.muteMicrophone = function (isMute) {
-  this.updateTalkTypeMic(isMute);
+BlinkEngine.prototype.muteMicrophone = function (isMute) {
+console.info(new Date(), "Microphone mute=" + isMute);
+this.controlAudioVideoDevice(BlinkConstant.DeviceType.Microphone, !isMute);
 }
 /**
-* 关闭/打开本地摄像头 true, 关闭 false, 打开
-*
+* 关闭/打开本地摄像头, true:关闭, false:打开
+* @Deprecated
 */
-RongRTCEngine.prototype.closeLocalVideo = function (isCameraClose) {
-  this.updateTalkTypeCamera(isCameraClose);
+BlinkEngine.prototype.closeLocalVideo = function (isCameraClose) {
+console.info(new Date(), "Local video close=" + isCameraClose);
+this.controlAudioVideoDevice(BlinkConstant.DeviceType.Camera, !isCameraClose);
 }
 /**
-* 关闭/打开本地摄像头和发送updateTalkType信令
+* 打开/关闭本地音频/视频
 *
-* @param isCameraClose
-*            true, 关闭 false, 打开
-* @param isUpdateTalkType
-*            true, 发送 false, 不发送
 */
-RongRTCEngine.prototype.closeLocalVideoWithUpdateTalkType = function (isCameraClose, isUpdateTalkType) {
-  this.localStream && this.localStream.getVideoTracks().forEach(function (track) {
-    track.enabled = !isCameraClose;
-  })
-  RongRTCLogger.info("Local video close=" + isCameraClose);
-  this.localVideoEnable = !isCameraClose;
-  // 发送updateTalkType信令
-  /* if (isUpdateTalkType) {
-       this.updateTalkType();
-   }*/
+BlinkEngine.prototype.controlAudioVideoDevice = function (deviceType, isOpen) {
+if (this.isSubscribeVersion()) { // 订阅分发版本
+  var operationType = isOpen ? BlinkConstant.OperationType.OPEN : BlinkConstant.OperationType.CLOSE;
+  var resource = this.convertResource(this.resource, deviceType, operationType);
+  this.updateResource(resource);
+} else {
+  // 变更talkType
+  this.changeTalkType(this.userId, deviceType, isOpen);
+  // 发送信令
+  var index = isOpen ? BlinkConstant.OperationType.OPEN : BlinkConstant.OperationType.CLOSE;
+  this.turnTalkType(deviceType, index);
 }
-/**
-* 关闭/打开声音 true, 关闭 false, 打开
-*
-*/
-RongRTCEngine.prototype.closeRemoteAudio = function (isAudioClose) {
-  if (this.remoteStreams.length === 0) {
-    RongRTCLogger.info("No remote audio available.");
-    return;
-  }
-  for (x = 0; x < this.remoteStreams.length; x++) {
-    var tmpRemoteStream = this.remoteStreams[x];
-    if (tmpRemoteStream && tmpRemoteStream.getAudioTracks()
-      && tmpRemoteStream.getAudioTracks().length > 0) {
-      for (y = 0; y < tmpRemoteStream.getAudioTracks().length; y++) {
-        tmpRemoteStream.getAudioTracks()[y].enabled = !isAudioClose;
-      }
-    }
-  }
-  RongRTCLogger.info("Remote audio close=" + isAudioClose);
-  this.remoteAudioEnable = !isAudioClose;
 }
 /**
 * 关闭本地媒体流（视频流和音频流）
 *
 */
-RongRTCEngine.prototype.closeLocalStream = function () {
-  if (this.localStream == null || this.localStream.getTracks() == null
-    || this.localStream.getTracks().length === 0) {
-    RongRTCLogger.info("No local track available.");
-  } else {
-    for (i = 0; i < this.localStream.getTracks().length; i++) {
-      this.localStream.getTracks()[i].stop();
-    }
+BlinkEngine.prototype.closeLocalStream = function () {
+// 本地视频流
+if (this.localAudioTrack) {
+  this.localAudioTrack.stop();
+}
+if (this.localVideoTrack) {
+  this.localVideoTrack.stop();
+}
+  if (this.localStream && this.localStream.getTracks()) {
+      this.localStream.getTracks().forEach(function(track) {
+        track.stop();
+      });
   }
-  if (this.minStream) { // 小流
-    if (this.localStreamMin == null || this.localStreamMin.getTracks() == null
-      || this.localStreamMin.getTracks().length === 0) {
-      RongRTCLogger.info("No MinStream track available.");
-    } else {
-      for (i = 0; i < this.localStreamMin.getTracks().length; i++) {
-        this.localStreamMin.getTracks()[i].stop();
-      }
+  // 屏幕共享流
+  if (this.localScreenVideoTrack) {
+    this.localScreenVideoTrack.stop();
+  }
+  if (this.localScreenStream && this.localScreenStream.getTracks()) {
+      this.localScreenStream.getTracks().forEach(function(track) {
+        track.stop();
+      });
+  }
+  // 小流
+  if (this.isEnableMinStream && this.localMinStream) {
+    if (this.localMinStream && this.localMinStream.getTracks()) {
+        this.localMinStream.getTracks().forEach(function(track) {
+          track.stop();
+        });
     }
   }
 }
 /**
+* 关闭/打开远端声音, true:关闭, false:打开
+*
+*/
+BlinkEngine.prototype.closeRemoteAudio = function (isAudioClose) {
+console.info(new Date(), "Remote audio close=" + isAudioClose);
+this.remoteAudioEnable = !isAudioClose;
+  if (this.remoteStreams && this.remoteStreams.getEntrys()) {
+    this.remoteStreams.getEntrys().forEach(function(remoteStreamEntry) {
+      if (remoteStreamEntry) {
+        var remoteStream = remoteStreamEntry.value;
+        if (remoteStream && remoteStream.getAudioTracks()) {
+          remoteStream.getAudioTracks().forEach(function(track) {
+            track.enabled = !isAudioClose
+          });
+        }
+      }
+    });
+  }
+}
+/** ----- 白板能力 ----- */
+/**
 * 请求白板页面 HTTP URL
 *
 */
-RongRTCEngine.prototype.requestWhiteBoardURL = function () {
-  this.ewb_create();
+BlinkEngine.prototype.requestWhiteBoardURL = function () {
+  this.ewbCreate();
 }
 /**
 * 查询白板
 *
 */
-RongRTCEngine.prototype.queryWhiteBoard = function () {
-  this.ewb_query();
+BlinkEngine.prototype.queryWhiteBoard = function () {
+if (this.ewbUrl != null && this.ewbUrl != '') {
+  this.blinkEngineEventHandle.call('onWhiteBoardQuery', {
+        'isSuccess': true,
+        'url': this.ewbUrl
+    });
+} else {
+  this.ewbQuery();
 }
+}
+/** ----- 白板能力 ----- */
 /**
 * 设置是否上报丢包率信息
 *
 */
-RongRTCEngine.prototype.enableSendLostReport = function (enable) {
+BlinkEngine.prototype.enableSendLostReport = function (enable) {
   this.isSendLostReport = enable
 }
-RongRTCEngine.prototype.checkSupportScreen = function () {
-  // 检测浏览器是否支持
-  var supportBrowser = ['Chrome'];
-  var mb = RongRTCUtil.myBrowser();
-  if (supportBrowser.indexOf(mb) < 0) {
-    this.rongRTCEngineEventHandle.call('onStartScreenShareComplete', {
-      'isSuccess': false,
-      'code': 1 // 浏览器不支持
-    });
-    return;
-  }
-
-  var rongRTCEngine = this;
-
-  if (!rongRTCEngine.isScreenShareSupport) {
-    rongRTCEngine.rongRTCEngineEventHandle.call('onStartScreenShareComplete', {
-      'isSuccess': false,
-      'code': 2 // 未安装插件
-    });
-    return;
-  }
-}
-RongRTCEngine.prototype._startScreenShare = function (stream) {
-  this.checkSupportScreen();
-  if (stream) {
-    this.shareWithStream(stream);
+/** ----- 屏幕共享能力 ----- */
+/**
+* 设置屏幕共享流是否分离
+* 
+*/
+BlinkEngine.prototype.setScreenStreamSeparate = function (isScreenStreamSeparate) {
+this.isScreenStreamSeparate = isScreenStreamSeparate;
+if (this.isScreenStreamSeparate) { // 屏幕共享流分离
+    this.defaultSub = BlinkConstant.SubscribeType.AudioAndVideoAndScreenSharing;
   } else {
-    // 发起屏幕共享
-    rongRTCEngine.requestScreenShare();
-
+    this.defaultSub = BlinkConstant.SubscribeType.AudioAndVideo;
   }
 }
 /**
 * 开启屏幕共享
 *
 */
-RongRTCEngine.prototype.startScreenShare = function (stream) {
-
-  this._startScreenShare(stream);
-
+BlinkEngine.prototype.startScreenShare = function (stream) {
+  if (stream) { // rce electron 直接可以获取屏幕流 不安装插件
+      this.screenShareWithStream(stream);
+  } else {
+    // 检查是否支持
+    var screenShareSupportStatus = this.checkScreenShareSupport();
+    if (screenShareSupportStatus != 0) { // 不支持
+      this.blinkEngineEventHandle.call('onStartScreenShareComplete', {
+              'isSuccess': false,
+              'code': screenShareSupportStatus
+          });
+          return;
+    }
+      // 发起屏幕共享
+      this.requestScreenShare();
+  }
 }
 /**
 * 关闭屏幕共享
 *
 */
-RongRTCEngine.prototype.stopScreenShare = function () {
-  this.endShareScreen();
+BlinkEngine.prototype.stopScreenShare = function () {
+//	if (this.isScreenStreamSeparate) { // 屏幕共享流分离
+//		// stop后会关闭弹出的屏幕共享工具条
+//		this.localScreenStream.getVideoTracks()[0].stop();
+//		this._stopScreenShare();
+//	} else {
+//	    var blinkEngine = this;
+//		var mediaConfig = this.getMediaConfig(true, false);
+//		BlinkUtil.getMedia(mediaConfig).then(function (stream) {
+//			// 移除原屏幕共享流videoTrack
+//			var oldVideoTrack = blinkEngine.localStream.getVideoTracks()[0];
+//		    oldVideoTrack.stop();
+//			blinkEngine.localStream.removeTrack(oldVideoTrack);
+//		    // 将视频流videoTrack加入到流中
+//			blinkEngine.localStream.addTrack(stream.getVideoTracks()[0]);
+//			// // 刷新本地视频窗口的流
+//			// BlinkUtil.setMediaStream(blinkEngine.userId, blinkEngine.localStream);
+//			
+//			blinkEngine._stopScreenShare();
+//	    }).catch(function (error) {
+//	        console.error(new Date(), "stopScreenShare getMedia error: " + error);
+//	        blinkEngine.blinkEngineEventHandle.call('onStopScreenShareComplete', {
+//	            'isSuccess': false
+//	        });
+//	    });
+//	}
+if (this.localScreenVideoTrack) {
+  // 移除screenVideoTrack
+  if (this.isScreenStreamSeparate) { // 屏幕共享流分离
+    this.localScreenStream.removeTrack(this.localScreenVideoTrack);
+  } else {
+    this.localStream.removeTrack(this.localScreenVideoTrack);
+  }
+  // stop后会关闭弹出的屏幕共享工具条
+  this.localScreenVideoTrack.stop();
+  this.localScreenVideoTrack = null;
+}
+if (this.isScreenStreamSeparate) { // 屏幕共享流分离
+  
+} else {
+  if (this.isSubscribeVersion() && this.isStartStopLocalTrack) { // 订阅分发版本且是start/stop track
+    if (this.localVideoEnable) { // 原视频是enable的
+      var blinkEngine = this;
+      var callback = function(blinkEngine) {
+        blinkEngine._stopScreenShare();
+      }
+      this.startLocalTrack(BlinkConstant.DeviceType.Camera, callback);
+      return;
+    }
+    } else {
+      // 将视频流videoTrack加入到流中
+      if (this.localVideoTrack) {
+        this.localStream.addTrack(this.localVideoTrack);
+      }
+      // // 刷新本地视频窗口的流
+      // BlinkUtil.setMediaStream(this.userId, this.localStream);
+    }
+}
+this._stopScreenShare();
+}
+/** ----- 屏幕共享能力 ----- */
+/** ----- 会控能力 ----- */
+/**
+* 主持人调用发起, 将正常用户降级为观察者
+* 
+*/
+BlinkEngine.prototype.degradeNormalUserToObserver = function (userId) {
+if (this.isSubscribeVersion()) { // 订阅分发版本
+  var subscribeInfo = {
+    'userId': userId,
+    'userType': BlinkConstant.UserType.OBSERVER
+  }
+  var subscribeInfos = new Array();
+  subscribeInfos.push(subscribeInfo);
+  this.manageResourceSubscribe(false, subscribeInfos);
+} else {
+  this.roleChange(userId, BlinkConstant.MeetingActionType.RoleChange.DegradeToObserver);
+}
 }
 /**
-*结束屏幕共享
+* 主持人调用发起, 将观察者升级为正常用户(需要被操作的观察者应答)
+* 
 */
-RongRTCEngine.prototype.endShareScreen = function () {
-  this.rongRTCMeeting.screenShare(false);
-  var rongRTCEnv = this;
-  rongRTCEnv.getLocalStreamFromRtcApi(rongRTCEnv.mediaConfig).then(function (stream) {
-    //关闭音频
-    rongRTCEnv.localAudioStream ? rongRTCEnv.localAudioStream.getTracks().forEach(function (track) {
-      track.stop();
-    }) : void 0;
-    //还原音频状态
-    stream.getAudioTracks().forEach(function (track) {
-      track.enabled = rongRTCEnv.microphoneEnable;
-    });
-    rongRTCEngine.screenSharingStatus = false;
-    RongRTCUtil.setMediaStream(rongRTCEnv.selfUserId, stream);
-    rongRTCEnv.screenOffer(stream);
-
-    // talktype[0:无视频有音频, 1:有视频有音频, 2:有视频无音频, 3:无视频无音频]
-    var talkType;
-    if (!rongRTCEnv.localVideoEnable && rongRTCEnv.microphoneEnable)
-      talkType = 0;
-    else if (rongRTCEnv.localVideoEnable && rongRTCEnv.microphoneEnable)
-      talkType = 1;
-    else if (rongRTCEnv.localVideoEnable && !rongRTCEnv.microphoneEnable)
-      talkType = 2;
-    else
-      talkType = 3;
-    rongRTCengine.rongRTCEngineEventHandle.call('onShareComplete', {
-      'isShared': false,
-      stream: rongRTCengine.localStream,
-      userId: rongRTCengine.selfUserId,
-      talkType: talkType
-
-    });
-
-    rongRTCEngine.rongRTCEngineEventHandle.call('onStopScreenShareComplete', {
-      'isSuccess': true,
-      'isShared': false,
-      stream: rongRTCengine.localStream,
-      userId: rongRTCengine.selfUserId
-    });
-
-  }).catch(function (error) {
-    RongRTCLogger.error("stopScreenShare getLocalStreamFromRtcApi error: " + error);
-    rongRTCEngine.rongRTCEngineEventHandle.call('onStopScreenShareComplete', {
-      'isSuccess': false
-    });
-  });
-
+BlinkEngine.prototype.upgradeObserverToNormalUser = function (userId) {
+if (this.isSubscribeVersion()) { // 订阅分发版本
+  var subscribeInfo = {
+    'userId': userId,
+    'userType': BlinkConstant.UserType.NORMAL
+  }
+  var subscribeInfos = new Array();
+  subscribeInfos.push(subscribeInfo);
+  this.manageResourceSubscribe(false, subscribeInfos);
+} else {
+  this.roleChange(userId, BlinkConstant.MeetingActionType.RoleChange.UpgradeToNormal);
 }
+}
+/**
+* 主持人调用, 移除与会人员
+* 
+*/
+BlinkEngine.prototype.removeUser = function (userId) {
+  this.roleChange(userId, BlinkConstant.MeetingActionType.RoleChange.RemoveUser);
+}
+/**
+* 观察者调用, 请求发言(需要主持人应答)
+* 
+*/
+BlinkEngine.prototype.observerRequestBecomeNormalUser = function () {
+if (this.isSubscribeVersion()) { // 订阅分发版本
+  var subscribeInfo = {
+    'userId': this.userId,
+    'userType': BlinkConstant.UserType.NORMAL
+  }
+  var subscribeInfos = new Array();
+  subscribeInfos.push(subscribeInfo);
+  this.manageResourceSubscribe(true, subscribeInfos);
+} else {
+  this.apply(BlinkConstant.MeetingActionType.Apply.RequestUpgradeToNormal);
+}
+}
+/**
+* 与会正常用户调用, 请求获取主持人权限
+* 
+*/
+BlinkEngine.prototype.normalUserRequestHostAuthority = function () {
+this.apply(BlinkConstant.MeetingActionType.Apply.GetHostAuthority);
+}
+/**
+* 任何与会人员调用, 已在房间里的用户获取邀请链接
+* 
+*/
+BlinkEngine.prototype.getInviteURL = function () {
+this.apply(BlinkConstant.MeetingActionType.Apply.GetInviteUrl);
+}
+/**
+* 主持人调用, 操作与会人员麦克风/摄像头的打开/关闭(当打开设备时, 需要被操作人应答; 关闭设备时不需要应答直接关闭)
+*
+*/
+BlinkEngine.prototype.hostControlUserDevice = function (userId, deviceType, isOpen) {
+if (this.isSubscribeVersion()) { // 订阅分发版本
+  var operationType = isOpen ? BlinkConstant.OperationType.OPEN : BlinkConstant.OperationType.CLOSE;
+  var user = this.joinedUsers.get(userId);
+  var oldResource = user.resource;
+  var resource = this.convertResource(oldResource, deviceType, operationType);
+  var subscribeInfo = {
+    'userId': userId,
+    'resource': resource
+  }
+  var subscribeInfos = new Array();
+  subscribeInfos.push(subscribeInfo);
+  this.manageResourceSubscribe(false, subscribeInfos);
+} else {
+  this.manageAction(userId, deviceType, isOpen ? BlinkConstant.OperationType.OPEN : BlinkConstant.OperationType.CLOSE);
+}
+}
+/**
+* 主持人邀请观察者升级成正常用户时, 观察者的应答调用
+*
+*/
+BlinkEngine.prototype.answerUpgradeObserverToNormalUser = function (hostId, isAccept, subscribeInfo) {
+var status = isAccept ? BlinkConstant.MeetingAnswerType.Accept : BlinkConstant.MeetingAnswerType.Deny;
+if (this.isSubscribeVersion()) { // 订阅分发版本
+  this.answerManageResource(false, hostId, status, subscribeInfo);
+} else {
+  this.channelAnswer(hostId, BlinkConstant.MeetingActionType.ChannelAnswer.UpgradeToNormal, null, status);
+}
+//	if (isAccept) {
+//		// 变更为普通与会人员
+//		this.change2Normal(this.userId);
+//	}
+}
+/**
+* 观察者向主持人申请升级成正常用户时, 主持人的应答调用
+*
+*/
+BlinkEngine.prototype.answerObserverRequestBecomeNormalUser = function (userId, isAccept, subscribeInfo) {
+var status = isAccept ? BlinkConstant.MeetingAnswerType.Accept : BlinkConstant.MeetingAnswerType.Deny;
+if (this.isSubscribeVersion()) { // 订阅分发版本
+  this.answerManageResource(true, userId, status, subscribeInfo);
+} else {
+  this.channelAnswer(userId, BlinkConstant.MeetingActionType.ChannelAnswer.RequestUpgradeToNormal, null, status);
+}
+//	if (isAccept) {
+//		// 变更为普通与会人员
+//		this.change2Normal(userId);
+//	}
+}
+/**
+* 主持人把正常用户降级为观察者时, 用户的应答调用
+*
+*/
+BlinkEngine.prototype.answerDegradeNormalUserToObserver = function (hostId, isAccept, subscribeInfo) {
+var status = isAccept ? BlinkConstant.MeetingAnswerType.Accept : BlinkConstant.MeetingAnswerType.Deny;
+if (this.isSubscribeVersion()) { // 订阅分发版本
+  this.answerManageResource(false, hostId, status, subscribeInfo);
+} else {
+  this.channelAnswer(hostId, BlinkConstant.MeetingActionType.ChannelAnswer.DegradeToObserver, null, status);
+}
+//	if (isAccept) {
+//		// 变更为观察者
+//		this.change2Observer(this.userId);
+//	}
+}
+/**
+* 麦克风/摄像头被主持人打开时, 被打开人的应答调用
+*
+*/
+BlinkEngine.prototype.answerHostControlUserDevice = function (hostId, deviceType, isOpen, isAccept, subscribeInfo) {
+  var status = isAccept ? BlinkConstant.MeetingAnswerType.Accept : BlinkConstant.MeetingAnswerType.Deny;
+  if (this.isSubscribeVersion()) { // 订阅分发版本
+    this.answerManageResource(false, hostId, status, subscribeInfo);
+//    	
+//    	var resource = subscribeInfo.resource;
+//    	var oldResource = this.resource;
+//		var operation = this.convertOperation(oldResource, resource);
+//		var deviceType = operation.deviceType;
+//		var operationType = operation.operationType;
+//		var isOpen = operationType == BlinkConstant.OperationType.OPEN ? true : false;
+//      if (isAccept) {
+//        	// 变更资源
+//        	this._updateResource(resource);
+//      }
+  } else {
+    var index = isOpen ? BlinkConstant.MeetingActionType.ChannelAnswer.InviteToOpen : BlinkConstant.MeetingActionType.ChannelAnswer.InviteToClose;
+    this.channelAnswer(hostId, index, deviceType, status);
+//    	if (isAccept) {
+//			// 变更talkType
+//			this.changeTalkType(this.userId, deviceType, isOpen);
+//    	}
+  }
+}
+/** ----- 会控能力 ----- */
+/** ----- 大小流能力 ----- */
+/**
+* 大小流订阅
+* 
+*/
+BlinkEngine.prototype.subscribeStream = function(flowSubscribes) {
+this.flowSubscribe(JSON.stringify(flowSubscribes));
+}
+/** ----- 大小流能力 ----- */
+/** ----- 订阅分发能力 ----- */
+/**
+* 变更资源
+*
+*/
+BlinkEngine.prototype.updateResource = function(resource) {
+// 发信令
+this.update_resource(resource);
+// 变更资源
+this._updateResource(resource);
+}
+/**
+* 变更订阅
+* 
+*/
+BlinkEngine.prototype.updateSubscribe = function(defaultSub, specialSubs) {
+this.defaultSub = defaultSub;
+this.specialSubs = specialSubs;
+  this.update_subscribe(defaultSub, specialSubs);
+}
+/**
+* 自己申请修改自己的资源订阅或主持人修改其他人的资源订阅
+* 
+*/
+BlinkEngine.prototype.manageResourceSubscribe = function(isApply, subscribeInfos) {
+var index = isApply ? BlinkConstant.ManageType.Apply : BlinkConstant.ManageType.Manage;
+this.manage_update_resource_subscribe(index, subscribeInfos);
+}
+/**
+* 管理资源发布状态信令的应答
+* 
+*/
+BlinkEngine.prototype.answerManageResource = function(isApply, userId, status, subscribeInfo) {
+var index = isApply ? BlinkConstant.ManageType.Apply : BlinkConstant.ManageType.Manage;
+this.manage_answer_update_resource(index, userId, status, subscribeInfo);
+}
+/**
+* 管理资源订阅状态信令的应答
+* 
+*/
+BlinkEngine.prototype.answerManageSubscribe = function(isApply, userId, status, subscribeInfo) {
+var index = isApply ? BlinkConstant.ManageType.Apply : BlinkConstant.ManageType.Manage;
+this.manage_answer_update_subscribe(index, userId, status, subscribeInfo);
+}
+/** ----- 订阅分发能力 ----- */
 /** ----- 提供能力 ----- */
 /** ----- websocket ----- */
 /**
 * 创建WebSocket对象
 *
 */
-RongRTCEngine.prototype.createSignaling = function () {
+BlinkEngine.prototype.createSignaling = function () {
   // ws正在连接
-  this.wsConnectionState = RongRTCConstant.wsConnectionState.CONNECTING;
+  this.wsConnectionState = BlinkConstant.wsConnectionState.CONNECTING;
   if (this.wsUrlList.length > 0) { // 已取得websocket连接地址
-    this.wsUrlIndex++;
-    if (this.wsUrlIndex > this.wsUrlList.length - 1) {
-      this.wsUrlIndex = 0;
-    }
-    var url = this.wsUrlList[this.wsUrlIndex];
-    this.createSignalingWithUrl(url);
-  } else { // 还没有取得websocket连接地址
-    var rongRTCEngine = this;
-    RongRTCUtil.getWsUrlList(this.wsNavUrl, function (data) {
-      var wsUrlList = data;
-      if (wsUrlList.length < 1) {
-        throw new Error("websocket连接失败!");
+      this.wsUrlIndex++;
+      if (this.wsUrlIndex > this.wsUrlList.length - 1) {
+          this.wsUrlIndex = 0;
       }
-      rongRTCEngine.wsUrlList = RongRTCUtil.shuffle(wsUrlList);
-      var url = rongRTCEngine.wsUrlList[0];
-      rongRTCEngine.createSignalingWithUrl(url);
-    });
+      var url = this.wsUrlList[this.wsUrlIndex];
+      this.createSignalingWithUrl(url);
+  } else { // 还没有取得websocket连接地址
+      var blinkEngine = this;
+      BlinkUtil.getWsUrlList(this.wsNavUrl, function (data) {
+          var wsUrlList = data;
+          if (wsUrlList.length < 1) {
+              throw new Error("websocket连接失败!");
+          }
+          blinkEngine.wsUrlList = BlinkUtil.shuffle(wsUrlList);
+          var url = blinkEngine.wsUrlList[0];
+          blinkEngine.createSignalingWithUrl(url);
+      });
   }
 };
 /**
 * 创建WebScoket对象
 *
 */
-RongRTCEngine.prototype.createSignalingWithUrl = function (url) {
-  var rongRTCEngine = this;
-  rongRTCEngine.signaling = new WebSocket('wss://' + url + '/signaling');
-  rongRTCEngine.signaling.onopen = function () {
-    rongRTCEngine.onOpen();
+BlinkEngine.prototype.createSignalingWithUrl = function (url) {
+  var blinkEngine = this;
+  blinkEngine.signaling = new WebSocket('wss://' + url + '/signaling');
+  blinkEngine.signaling.onopen = function () {
+      blinkEngine.onOpen();
   };
-  rongRTCEngine.signaling.onmessage = function (ev) {
-    rongRTCEngine.onMessage(ev);
+  blinkEngine.signaling.onmessage = function (ev) {
+      blinkEngine.onMessage(ev);
   };
-  rongRTCEngine.signaling.onerror = function (ev) {
-    rongRTCEngine.onError(ev);
+  blinkEngine.signaling.onerror = function (ev) {
+      blinkEngine.onError(ev);
   };
-  rongRTCEngine.signaling.onclose = function (ev) {
-    rongRTCEngine.onClose(ev);
+  blinkEngine.signaling.onclose = function (ev) {
+      blinkEngine.onClose(ev);
   };
 };
 /**
-* RongRTCMessage实体
+* BlinkMessage实体
 *
 * @param signal
 * @param content
 * @param parameters
 * @returns
 */
-var RongRTCMessage = function (signal, content, parameters) {
+var BlinkMessage = function (signal, content, parameters, bodys) {
   this.signal = signal;
   this.content = content;
   this.parameters = parameters;
+  if (bodys != null && bodys.length > 0) {
+    this.bodys = bodys;
+  }
 };
 /**
 * 发送消息
 *
 */
-RongRTCEngine.prototype.sendMsg = function (signal, msgBody, parameters) {
+BlinkEngine.prototype.sendMsg = function (signal, msgBody, parameters, bodys) {
   this.csequence++;
   parameters.csequence = this.csequence;
-  var message = JSON.stringify(new RongRTCMessage(signal, msgBody, parameters));
+  var message = new BlinkMessage(signal, msgBody, parameters, bodys);
   this.send(message);
 };
 /**
 * 发送消息
 *
 */
-RongRTCEngine.prototype.send = function (message) {
-  var signal = JSON.parse(message).signal;
-  if (this.wsConnectionState == RongRTCConstant.wsConnectionState.CONNECTED) { // ws连接可用
-    if (signal == RongRTCConstant.SignalType.CHANNEL_PING) { // channelPing记录debug日志
-      RongRTCLogger.debug("req: " + message);
-    } else {
-      RongRTCLogger.info("req: " + message);
-    }
-    this.signaling.send(message);
+BlinkEngine.prototype.send = function (message) {
+var signal = message.signal;
+  if (this.wsConnectionState == BlinkConstant.wsConnectionState.CONNECTED) { // ws连接可用
+      if (signal == BlinkConstant.SignalType.CHANNEL_PING) { // channelPing记录debug日志
+          console.debug(new Date(), "req: ", message);
+      } else {
+          console.info(new Date(), "req: ", message);
+      }
+      message = JSON.stringify(message);
+      this.signaling.send(message);
   } else { // websocket不可用
-    RongRTCLogger.warn("websocket not connected!");
-    if (this.wsQueue.length == 0 // 消息队列只保留一条logonAndJoin
-      && signal == RongRTCConstant.SignalType.LOGONANDJOIN) { // logonAndJoin
-      // 加入消息队列
-      this.wsQueue.push(message);
-    }
+      console.warn(new Date(), "websocket not connected!");
+      if (this.wsQueue.length == 0 // 消息队列只保留一条logonAndJoin
+          && signal == BlinkConstant.SignalType.LOGONANDJOIN) { // logonAndJoin
+          // 加入消息队列
+          this.wsQueue.push(message);
+      }
   }
 };
 /**
 * 发送队列中的消息
+* 
 */
-RongRTCEngine.prototype.doWsQueue = function () {
+BlinkEngine.prototype.doWsQueue = function () {
   if (this.wsQueue.length > 0) {
-    // 消息队列只有一条logonAndJoin，取出并删除
-    var message = this.wsQueue.shift();
-    this.send(message);
+      // 消息队列只有一条logonAndJoin，取出并删除
+      var message = this.wsQueue.shift();
+      this.send(message);
   }
 };
 /**
 * onOpen
 *
 */
-RongRTCEngine.prototype.onOpen = function () {
-  RongRTCLogger.info('websocket open');
+BlinkEngine.prototype.onOpen = function () {
+  console.info(new Date(), 'websocket open');
   // ws连接可用
-  this.wsConnectionState = RongRTCConstant.wsConnectionState.CONNECTED;
+  this.wsConnectionState = BlinkConstant.wsConnectionState.CONNECTED;
   // 重置reconnectTimes
   this.reconnectTimes = 0;
   // websocket可用后，发送队列中的消息
@@ -892,455 +1392,1733 @@ RongRTCEngine.prototype.onOpen = function () {
 * onMessage
 *
 */
-RongRTCEngine.prototype.onMessage = function (ev) {
+BlinkEngine.prototype.onMessage = function (ev) {
   var data = JSON.parse(ev.data);
-  if (data.signal == RongRTCConstant.SignalType.CHANNEL_PING_RESULT) { // channelPing_result记录debug日志
-    RongRTCLogger.debug("res: " + ev.data);
+  if (data.signal == BlinkConstant.SignalType.CHANNEL_PING_RESULT) { // channelPing_result记录debug日志
+      console.debug(new Date(), "res: ", data);
   } else {
-    RongRTCLogger.info("res: " + ev.data);
+      console.info(new Date(), "res: ", data);
   }
   switch (data.signal) {
-    // 应答信令
-    case RongRTCConstant.SignalType.LOGONANDJOIN_RESULT:
-      this.logonAndJoin_result(data);
-      return;
-    case RongRTCConstant.SignalType.CHANNEL_PING_RESULT:
-      this.channelPing_result(data);
-      return;
-    case RongRTCConstant.SignalType.LEAVE_RESULT:
-      this.leave_result(data);
-      return;
-    case RongRTCConstant.SignalType.EWB_CREATE_RESULT:
-      this.ewb_create_result(data);
-      return;
-    case RongRTCConstant.SignalType.EWB_QUERY_RESULT:
-      this.ewb_query_result(data);
-      return;
-    // 通知信令
-    case RongRTCConstant.SignalType.JOINED:
-      this.joined(data);
-      return;
-    case RongRTCConstant.SignalType.LEFT:
-      this.left(data);
-      return;
-    case RongRTCConstant.SignalType.OFFER_REQUEST:
-      this.offerRequest(data);
-      return;
-    case RongRTCConstant.SignalType.UPDATE_TALKTYPE:
-      this.update_talktype(data);
-      return;
-    // exchange信令
-    case RongRTCConstant.SignalType.EXCHANGE:
-      this.exchange(data);
-      return;
-    // exchange信令
-    case RongRTCConstant.SignalType.EWB_CREATE_NOTIFY:
-      this.ewbCreateNotify(data);
-      return;
-    //会控信令 // todo
-    case RongRTCConstant.SignalType.ROLECHANGE:
-      this.rongRTCMeeting.roleChange(data);
-      return;
-    case RongRTCConstant.SignalType.APPLY:
-      this.rongRTCMeeting.applyMessage(data);
-      return;
-    case RongRTCConstant.SignalType.MANAGEACTION:
-      this.rongRTCMeeting.manageAction(data);
-      return;
-    case RongRTCConstant.SignalType.CHANNELANSWER:
-      this.rongRTCMeeting.channelAnswer(data);
-      return;
-    case RongRTCConstant.SignalType.CREATENOTIFY:
-      console.info(data)
-      return;
-    case RongRTCConstant.SignalType.SCREENSHARING:
-      console.info(data)
-      return;
-    case RongRTCConstant.SignalType.TURNTALKTYPE:
-      this.rongRTCMeeting.turntalktype(data);
-      return;
-    default:
-      RongRTCLogger.warn('Event ' + data.signal + ' do not have defined function', data.parameters);
+    /** 应答信令 */
+      case BlinkConstant.SignalType.LOGONANDJOIN_RESULT:
+          this.logonAndJoin_result(data);
+          return;
+      case BlinkConstant.SignalType.CHANNEL_PING_RESULT:
+          this.channelPing_result(data);
+          return;
+      case BlinkConstant.SignalType.LEAVE_RESULT:
+          this.leave_result(data);
+          return;
+      case BlinkConstant.SignalType.TURNTALKTYPE_RESULT:
+          this.turnTalkType_result(data);
+          return;
+      /** 通知信令 */
+      case BlinkConstant.SignalType.JOINED:
+          this.joined(data);
+          return;
+      case BlinkConstant.SignalType.LEFT:
+          this.left(data);
+          return;
+      case BlinkConstant.SignalType.OFFER_REQUEST:
+          this.offerRequest(data);
+          return;
+      case BlinkConstant.SignalType.UPDATETALKTYPE_NOTIFY:
+          this.updateTalktype_notify(data);
+          return;
+      case BlinkConstant.SignalType.TURNTALKTYPE_NOTIFY:
+          this.turnTalktype_notify(data);
+          return;
+      case BlinkConstant.SignalType.SCREENSHARING_NOTIFY:
+        this.screenSharing_notify(data);
+          return;
+      /** exchange信令 */
+      case BlinkConstant.SignalType.EXCHANGE:
+          this.exchange(data);
+          return;
+      /** 白板信令 */
+      case BlinkConstant.SignalType.EWBCREATE_RESULT:
+          this.ewbCreate_result(data);
+          return;
+      case BlinkConstant.SignalType.EWBQUERY_RESULT:
+          this.ewbQuery_result(data);
+          return;
+      case BlinkConstant.SignalType.EWBCREATE_NOTIFY:
+          this.ewbCreate_notify(data);
+          return;
+      /** 会控信令 */
+      // rolechange
+      case BlinkConstant.SignalType.ROLECHANGE_RESULT:
+          this.roleChange_result(data);
+          return;
+      case BlinkConstant.SignalType.ROLECHANGE_NOTIFY:
+          this.roleChange_notify(data);
+          return;
+      // apply
+      case BlinkConstant.SignalType.APPLY_RESULT:
+          this.apply_result(data);
+          return;
+      case BlinkConstant.SignalType.APPLY_NOTIFY:
+          this.apply_notify(data);
+          return;
+      // manageaction
+      case BlinkConstant.SignalType.MANAGEACTION_RESULT:
+          this.manageAction_result(data);
+          return;
+      case BlinkConstant.SignalType.MANAGEACTION_NOTIFY:
+          this.manageAction_notify(data);
+          return;
+      // channelanswer
+      case BlinkConstant.SignalType.CHANNELANSWER_RESULT:
+          this.channelAnswer_result(data);
+          return;
+      case BlinkConstant.SignalType.CHANNELANSWER_NOTIFY:
+          this.channelAnswer_notify(data);
+          return;
+      /** 订阅分发信令 */
+      // update_resource
+      case BlinkConstant.SignalType.UPDATE_RESOURCE_RESULT:
+        this.update_resource_result(data);
+        return;
+      case BlinkConstant.SignalType.UPDATE_RESOURCE_NOTIFY:
+        this.update_resource_notify(data);
+        return;
+      // update_subscribe
+      case BlinkConstant.SignalType.UPDATE_SUBSCRIBE_RESULT:
+        this.update_subscribe_result(data);
+        return;
+      case BlinkConstant.SignalType.UPDATE_SUBSCRIBE_NOTIFY:
+        this.update_subscribe_notify(data);
+        return;
+      // manage_update_resource_subscribe
+      case BlinkConstant.SignalType.MANAGE_UPDATE_RESOURCE_SUBSCRIBE_RESULT:
+        this.manage_update_resource_subscribe_result(data);
+        return;
+      case BlinkConstant.SignalType.MANAGE_UPDATE_RESOURCE_NOTIFY:
+        this.manage_update_resource_notify(data);
+        return;
+      case BlinkConstant.SignalType.MANAGE_UPDATE_SUBSCRIBE_NOTIFY:
+        this.manage_update_subscribe_notify(data);
+        return;
+      // manage_answer_update_resource
+      case BlinkConstant.SignalType.MANAGE_ANSWER_UPDATE_RESOURCE_RESULT:
+        this.manage_answer_update_resource_result(data);
+        return;
+      case BlinkConstant.SignalType.MANAGE_ANSWER_UPDATE_RESOURCE_NOTIFY:
+        this.manage_answer_update_resource_notify(data);
+        return;
+      // manage_answer_update_subscribe
+      case BlinkConstant.SignalType.MANAGE_ANSWER_UPDATE_SUBSCRIBE_RESULT:
+        this.manage_answer_update_subscribe_result(data);
+        return;
+      case BlinkConstant.SignalType.MANAGE_ANSWER_UPDATE_SUBSCRIBE_NOTIFY:
+        this.manage_answer_update_subscribe_notify(data);
+        return;
+      default:
+          console.debug(new Date(), data);
   }
 };
 /**
 * onClose
 *
 */
-RongRTCEngine.prototype.onClose = function (ev) {
-  var rongRTCEnv = this;
-  RongRTCLogger.warn('websocket close', ev);
+BlinkEngine.prototype.onClose = function (ev) {
+  var blinkEnv = this;
+  console.warn(new Date(), 'websocket close', ev);
   if (ev.code == 1000 && ev.reason == 'wsForcedClose') { // 如果自定义关闭ws连接，避免二次重连
-    return;
+      return;
   }
   // ws连接不可用
-  this.wsConnectionState = RongRTCConstant.wsConnectionState.DISCONNECTED;
+  this.wsConnectionState = BlinkConstant.wsConnectionState.DISCONNECTED;
   if (this.wsNeedConnect) { // ws需要重连
-    setTimeout(function () {
-      rongRTCEnv.reconnect()
-    }, RongRTCConstant.RECONNECT_TIMEOUT)
+      setTimeout(function () {
+          blinkEnv.reconnect()
+      }, BlinkConstant.RECONNECT_TIMEOUT)
   }
 };
 /**
 * onError
 *
 */
-RongRTCEngine.prototype.onError = function (ev) {
-  RongRTCLogger.error('websocket error', ev);
+BlinkEngine.prototype.onError = function (ev) {
+  console.error(new Date(), 'websocket error', ev);
 };
 /**
 * disconnect
 *
 */
-RongRTCEngine.prototype.disconnect = function (wsNeedConnect) {
-  RongRTCLogger.warn('websocket disconnect');
-  RongRTCLogger.warn('wsNeedConnect=' + wsNeedConnect);
+BlinkEngine.prototype.disconnect = function (wsNeedConnect) {
+  console.warn(new Date(), 'websocket disconnect');
+  console.warn(new Date(), 'wsNeedConnect=' + wsNeedConnect);
 
   this.wsForcedClose = true;
   this.wsNeedConnect = wsNeedConnect;
-  this.wsConnectionState = RongRTCConstant.wsConnectionState.DISCONNECTED;
+  this.wsConnectionState = BlinkConstant.wsConnectionState.DISCONNECTED;
   // 自定义关闭ws连接
   this.signaling.close(1000, 'wsForcedClose');
   // 网断后，执行close方法后不会立即触发onclose事件，所以需要手动重连
   if (this.wsNeedConnect) { // ws需要重连
-    this.reconnect();
+      this.reconnect();
   }
 };
 /**
 * reconnect
 *
 */
-RongRTCEngine.prototype.reconnect = function () {
-  if (this.wsConnectionState != RongRTCConstant.wsConnectionState.DISCONNECTED) { // ws连接可用或正在连接不重连
-    return;
+BlinkEngine.prototype.reconnect = function () {
+  if (this.wsConnectionState != BlinkConstant.wsConnectionState.DISCONNECTED) { // ws连接可用或正在连接不重连
+      return;
   }
   this.reconnectTimes++;
-  RongRTCLogger.warn('reconnectTimes=' + this.reconnectTimes);
-  if (this.reconnectTimes > RongRTCConstant.RECONNECT_MAXTIMES) {
-    this.keepAliveDisconnect();
+  console.warn(new Date(), 'reconnectTimes=' + this.reconnectTimes);
+  if (this.reconnectTimes > BlinkConstant.RECONNECT_MAXTIMES) {
+      this.keepAliveDisconnect();
   } else {
-    var rongRTCEngine = this;
-    if (rongRTCEngine.reconnectTimes > 1) { // 连续重连的话间隔一定时间
-      setTimeout(function () {
-        reconnectFunc(rongRTCEngine);
-      }, RongRTCConstant.RECONNECT_TIMEOUT);
-    } else {
-      reconnectFunc(rongRTCEngine);
-    }
-
-    function reconnectFunc(rongRTCEngine) {
-      if (rongRTCEngine.wsConnectionState == RongRTCConstant.wsConnectionState.DISCONNECTED) { // ws连接不可用
-        RongRTCLogger.info('websocket reconnect');
-        rongRTCEngine.createSignaling();
-        // 重新logonAndJoin
-        rongRTCEngine.logonAndJoin(RongRTCConstant.LogonAndJoinStatus.RECONNECT);
+      var blinkEngine = this;
+      if (blinkEngine.reconnectTimes > 1) { // 连续重连的话间隔一定时间
+          setTimeout(function () {
+              reconnectFunc(blinkEngine);
+          }, BlinkConstant.RECONNECT_TIMEOUT);
+      } else {
+          reconnectFunc(blinkEngine);
       }
-    }
+
+      function reconnectFunc(blinkEngine) {
+          if (blinkEngine.wsConnectionState == BlinkConstant.wsConnectionState.DISCONNECTED) { // ws连接不可用
+              console.info(new Date(), 'websocket reconnect');
+              blinkEngine.createSignaling();
+              // 重新logonAndJoin
+              blinkEngine.logonAndJoin(BlinkConstant.LogonAndJoinStatus.RECONNECT);
+          }
+      }
   }
 };
 /** ----- websocket ----- */
-/** ----- keepAlive ---- */
+/** ----- keepAlive ----- */
 /**
 * keepAlive
 *
 */
-RongRTCEngine.prototype.keepAlive = function () {
-  if (this.wsConnectionState == RongRTCConstant.wsConnectionState.CONNECTED) { // ws连接可用
-    // 开始计时
-    this.startScheduleKeepAliveTimer();
-    this.channelPing();
+BlinkEngine.prototype.keepAlive = function () {
+  if (this.wsConnectionState == BlinkConstant.wsConnectionState.CONNECTED) { // ws连接可用
+      // 开始计时
+      this.startScheduleKeepAliveTimer();
+      this.channelPing();
   } else {
-    this.keepAliveFailed();
+      this.keepAliveFailed();
   }
 }
 /**
 * keepAlive失败
 *
 */
-RongRTCEngine.prototype.keepAliveFailed = function () {
+BlinkEngine.prototype.keepAliveFailed = function () {
   this.keepAliveFailedTimes++;
-  RongRTCLogger.warn("keepAliveFailedTimes=" + this.keepAliveFailedTimes);
-  if (this.keepAliveFailedTimes > RongRTCConstant.KEEPALIVE_FAILEDTIMES_MAX) {
-    this.keepAliveDisconnect();
+  console.warn(new Date(), "keepAliveFailedTimes=" + this.keepAliveFailedTimes);
+  if (this.keepAliveFailedTimes > BlinkConstant.KEEPALIVE_FAILEDTIMES_MAX) {
+      this.keepAliveDisconnect();
   }
 }
 /**
 * 开始keepAlive
 *
 */
-RongRTCEngine.prototype.startScheduleKeepAlive = function () {
+BlinkEngine.prototype.startScheduleKeepAlive = function () {
   this.exitScheduleKeepAlive();
   this.exitScheduleKeepAliveTimer();
 
-  var rongRTCEngine = this;
-  rongRTCEngine.keepAlive(); // 立即执行1次
-  rongRTCEngine.keepAliveInterval = setInterval(function () {
-    rongRTCEngine.keepAlive();
-  }, RongRTCConstant.KEEPALIVE_INTERVAL);
+  var blinkEngine = this;
+  blinkEngine.keepAlive(); // 立即执行1次
+  blinkEngine.keepAliveInterval = setInterval(function () {
+      blinkEngine.keepAlive();
+  }, BlinkConstant.KEEPALIVE_INTERVAL);
 }
 /**
 * 停止keepAlive
 *
 */
-RongRTCEngine.prototype.exitScheduleKeepAlive = function () {
+BlinkEngine.prototype.exitScheduleKeepAlive = function () {
   this.keepAliveFailedTimes = 0;
   if (this.keepAliveInterval != null) {
-    clearInterval(this.keepAliveInterval);
-    this.keepAliveInterval = null;
+      clearInterval(this.keepAliveInterval);
+      this.keepAliveInterval = null;
   }
 }
 /**
 * keepAlive未收到result计时器方法
 *
 */
-RongRTCEngine.prototype.keepAliveTimerFunc = function () {
+BlinkEngine.prototype.keepAliveTimerFunc = function () {
   this.keepAliveTimerCount++;
-  if (this.keepAliveTimerCount > RongRTCConstant.KEEPALIVE_TIMER_TIMEOUT_MAX / 3) {
-    RongRTCLogger.warn("keepAliveTimerCount=" + this.keepAliveTimerCount);
+  if (this.keepAliveTimerCount > BlinkConstant.KEEPALIVE_TIMER_TIMEOUT_MAX / 3) {
+      console.warn(new Date(), "keepAliveTimerCount=" + this.keepAliveTimerCount);
   } else {
-    RongRTCLogger.debug("keepAliveTimerCount=" + this.keepAliveTimerCount);
+      console.debug(new Date(), "keepAliveTimerCount=" + this.keepAliveTimerCount);
   }
-  if (this.keepAliveTimerCount > RongRTCConstant.KEEPALIVE_TIMER_TIMEOUT_MAX) {
-    this.keepAliveDisconnect();
-    return;
+  if (this.keepAliveTimerCount > BlinkConstant.KEEPALIVE_TIMER_TIMEOUT_MAX) {
+      this.keepAliveDisconnect();
+      return;
   }
-  if (this.keepAliveTimerCount == RongRTCConstant.KEEPALIVE_TIMER_TIMEOUT_RECONNECT) {
-    // 断开本次连接，进行重连
-    this.disconnect(true);
+  if (this.keepAliveTimerCount == BlinkConstant.KEEPALIVE_TIMER_TIMEOUT_RECONNECT) {
+      // 断开本次连接，进行重连
+      this.disconnect(true);
   }
 }
 /**
 * 开始keepAlive未收到result计时器
 *
 */
-RongRTCEngine.prototype.startScheduleKeepAliveTimer = function () {
+BlinkEngine.prototype.startScheduleKeepAliveTimer = function () {
   if (this.keepAliveTimer == null) {
-    var rongRTCEngine = this;
-    // keepAlive5秒间隔，这个时候有可能已经断了5秒
-    rongRTCEngine.keepAliveTimerCount += RongRTCConstant.KEEPALIVE_INTERVAL / 1000;
-    rongRTCEngine.keepAliveTimer = setInterval(function () {
-      rongRTCEngine.keepAliveTimerFunc();
-    }, RongRTCConstant.KEEPALIVE_TIMER_INTERVAL);
+      var blinkEngine = this;
+      // keepAlive5秒间隔，这个时候有可能已经断了5秒
+      blinkEngine.keepAliveTimerCount += BlinkConstant.KEEPALIVE_INTERVAL / 1000;
+      blinkEngine.keepAliveTimer = setInterval(function () {
+          blinkEngine.keepAliveTimerFunc();
+      }, BlinkConstant.KEEPALIVE_TIMER_INTERVAL);
   }
 }
 /**
 * 停止keepAlive未收到result计时器
 *
 */
-RongRTCEngine.prototype.exitScheduleKeepAliveTimer = function () {
+BlinkEngine.prototype.exitScheduleKeepAliveTimer = function () {
   this.keepAliveTimerCount = 0;
   if (this.keepAliveTimer != null) {
-    clearInterval(this.keepAliveTimer);
-    this.keepAliveTimer = null;
+      clearInterval(this.keepAliveTimer);
+      this.keepAliveTimer = null;
   }
 }
 /**
 * 与服务器断开
 *
 */
-RongRTCEngine.prototype.keepAliveDisconnect = function () {
+BlinkEngine.prototype.keepAliveDisconnect = function () {
   this.clear();
-  this.rongRTCEngineEventHandle.call('onConnectionStateChanged', {
-    'connectionState': RongRTCConstant.ConnectionState.DISCONNECTED
+  this.blinkEngineEventHandle.call('onConnectionStateChanged', {
+      'connectionState': BlinkConstant.ConnectionState.DISCONNECTED
   });
 }
-/** ----- keepAlive ---- */
-/** ----- getStatsReport ---- */
+/** ----- keepAlive ----- */
+/** ----- 基本功能 ----- */
+/**
+* 获取mediaConfig
+* 
+*/
+BlinkEngine.prototype.getMediaConfig = function (isVideoEnable, isAudioEnable) {
+var mediaConfig = {
+  video: this.mediaConfig.video,
+  audio: this.mediaConfig.audio
+};
+if (!isVideoEnable) {
+  mediaConfig.video = false;
+}
+if (!isAudioEnable) {
+  mediaConfig.audio = false;
+}
+return mediaConfig;
+}
+/**
+* 获取screenMediaConfig
+* 
+*/
+BlinkEngine.prototype.getScreenMediaConfig = function (sourceId) {
+var screenMediaConfig = {
+  video: {
+        mandatory: {
+            chromeMediaSource: 'desktop',
+            maxWidth: BlinkConstant.ShareProfile_default.width,
+            maxHeight: BlinkConstant.ShareProfile_default.height,
+            chromeMediaSourceId: sourceId
+        },
+        optional: [
+            {googTemporalLayeredScreencast: true}
+        ]
+    }
+};
+return screenMediaConfig;
+}
+/**
+* 获取minMediaConfig
+* 
+*/
+BlinkEngine.prototype.getMinMediaConfig = function () {
+var minMediaConfig = {
+  video: BlinkConstant.VideoProfile_min,
+      audio: false // 小流不需要音频
+};
+return minMediaConfig;
+}
+/**
+* 设置本地视频流
+* 
+*/
+BlinkEngine.prototype.setLocalStream = function (stream) {
+if (this.localStream == null || this.localStream.getTracks().length == 0) {
+  this.localStream = stream;
+}
+// 音频Track
+var audioTrack = stream.getAudioTracks()[0];
+if (audioTrack) {
+  this.localAudioTrack = audioTrack;
+}
+  // 视频Track
+var videoTrack = stream.getVideoTracks()[0];
+if (videoTrack) {
+  this.localVideoTrack = videoTrack;
+}
+if (!this.localVideoEnable) {
+  this.enableLocalTrack(BlinkConstant.DeviceType.Camera, !this.localVideoEnable);
+}
+  if (this.isSubscribeVersion()) { // 订阅分发版本
+  // 绑定LocalTrack
+  this.updateLocalTrackBind(this.resource);
+}
+};
+/**
+* 获取远端视频流/屏幕共享流数量
+*
+*/
+BlinkEngine.prototype.getRemoteStreamCount = function () {
+  return this.remoteStreams.size() + this.remoteScreenStreams.size();
+};
+/**
+* 创建视频视图
+*
+*/
+BlinkEngine.prototype.createVideoView = function () {
+  var videoView = document.createElement('video');
+  // 视频自动播放
+  videoView.autoplay = true;
+  videoView.setAttribute("playsinline", true); // isa
+  return videoView;
+};
+/**
+* enable本地音频track
+* 
+*/
+BlinkEngine.prototype.enableLocalAudioTrack = function (enable) {
+this.localAudioEnable = enable;
+if (this.localAudioTrack) {
+    this.localAudioTrack.enabled = enable;
+  }
+if (this.localStream && this.localStream.getAudioTracks()) {
+  this.localStream.getAudioTracks().forEach(function (track) {
+    track.enabled = enable;
+  });
+}
+}
+/**
+* enable本地视频track
+* 
+*/
+BlinkEngine.prototype.enableLocalVideoTrack = function (enable) {
+this.localVideoEnable = enable;
+if (this.localVideoTrack) {
+  this.localVideoTrack.enabled = enable;
+}
+if (this.localStream && this.localStream.getVideoTracks()) {
+  this.localStream.getVideoTracks().forEach(function (track) {
+    track.enabled = enable;
+  });
+}
+}
+/**
+* enable本地音频/视频track
+* 
+*/
+BlinkEngine.prototype.enableLocalTrack = function (deviceType, enable) {
+if (deviceType == BlinkConstant.DeviceType.Camera) {
+  this.enableLocalVideoTrack(enable);
+} else if (deviceType == BlinkConstant.DeviceType.Microphone) {
+  this.enableLocalAudioTrack(enable);
+} else if (deviceType == BlinkConstant.DeviceType.CameraAndMicrophone) {
+  this.enableLocalVideoTrack(enable);
+  this.enableLocalAudioTrack(enable);
+}
+}
+/**
+* stop屏幕共享视频track
+* 
+*/
+BlinkEngine.prototype.stopLocalScreenVideoTrack = function () {
+if (this.localScreenVideoTrack) {
+  this.localScreenVideoTrack.stop();
+}
+if (this.isScreenStreamSeparate) { // 屏幕共享流分离
+  if (this.localScreenStream && this.localScreenStream.getVideoTracks()) {
+    this.localScreenStream.getVideoTracks().forEach(function (track) {
+      track.stop();
+    });
+  }
+} else {
+  if (this.localStream && this.localStream.getVideoTracks()) {
+    this.localStream.getVideoTracks().forEach(function (track) {
+      track.stop();
+    });
+  }
+}
+}
+/** ----- 基本功能 ----- */
+/** ----- offer ----- */
+/**
+* 建立连接
+*
+*/
+BlinkEngine.prototype.preparePeerConnection = function (userId) {
+  console.info(new Date(), "preparePeerConnection userId=" + userId);
+  var blinkEngine = this;
+  if (blinkEngine.peerConnections[userId] == null) {
+      var pc = new RTCPeerConnection();
+      pc.onaddstream = function (evt) {
+          console.debug(new Date(), "onaddstream", evt);
+
+          var streamId = evt.stream.id;
+          var userId = streamId;
+          var videoType = BlinkConstant.VideoType.NORMAL;
+          if (streamId.lastIndexOf(BlinkConstant.StreamSuffix.SCREEN) != -1) { // 屏幕共享流
+            userId = streamId.substring(0, streamId.lastIndexOf(BlinkConstant.StreamSuffix.SCREEN));
+            videoType = BlinkConstant.VideoType.SCREEN;
+            blinkEngine.remoteScreenStreams.put(userId, evt.stream);
+          } else {
+            blinkEngine.remoteStreams.put(userId, evt.stream);
+            var user = blinkEngine.joinedUsers.get(userId);
+            var isNoVideo = false;
+            if (blinkEngine.isSubscribeVersion()) { // 订阅分发版本
+              var resource = user.resource;
+              if (resource == BlinkConstant.ResourceType.None 
+                  || resource == BlinkConstant.ResourceType.AudioOnly) { // 无视频
+                isNoVideo = true;
+              }
+            } else {
+              var talkType = user.talkType;
+              if (talkType == BlinkConstant.TalkType.OnlyAudio 
+                  || talkType == BlinkConstant.TalkType.None) { // 无视频
+                isNoVideo = true;
+              }
+            }
+            if (isNoVideo) { // 无视频
+              evt.stream.getVideoTracks().forEach(function (track) {
+                track.enabled = false;
+              });
+            }
+          }
+          
+          // 增加trackId和userId的对应关系
+          evt.stream.getTracks().forEach(function (track) {
+              blinkEngine.remoteTrackIdMap.put(track.id, evt.stream.id);
+          })
+
+          // @Deprecated
+          blinkEngine.blinkEngineEventHandle.call('onAddStream', {
+              'userId': userId,
+              'videoType': videoType
+          });
+          blinkEngine.blinkEngineEventHandle.call('onNotifyUserVideoCreated', {
+              'userId': userId,
+              'videoType': videoType
+          });
+      };
+
+      pc.onremovestream = function (evt) {
+          console.debug(new Date(), "onremovestream", evt);
+          
+          var streamId = evt.stream.id;
+          var userId = streamId;
+          var videoType = BlinkConstant.VideoType.NORMAL;
+          if (streamId.lastIndexOf(BlinkConstant.StreamSuffix.SCREEN) != -1) { // 屏幕共享流
+            userId = streamId.substring(0, streamId.lastIndexOf(BlinkConstant.StreamSuffix.SCREEN));
+            videoType = BlinkConstant.VideoType.SCREEN;
+            blinkEngine.remoteScreenStreams.remove(userId);
+          } else {
+            blinkEngine.remoteStreams.remove(userId);
+          }
+          
+          // 移除trackId和userId的对应关系
+          evt.stream.getTracks().forEach(function (track) {
+              blinkEngine.remoteTrackIdMap.remove(track.id);
+          })
+          
+          // @Deprecated
+          blinkEngine.blinkEngineEventHandle.call('onRemoveStream', {
+              'userId': userId,
+              'videoType': videoType
+          });
+          blinkEngine.blinkEngineEventHandle.call('OnNotifyUserVideoDestroyed', {
+              'userId': userId,
+              'videoType': videoType
+          });
+      };
+
+      pc.ontrack = function (evt) {
+        console.debug(new Date(), "ontrack", evt);
+        
+        var track = evt.track;
+        var stream = evt.streams[0];
+        var userId = stream.id;
+//    		if (track.kind == 'video') { // add video track
+//    			// 刷新视频窗口的流
+//    			BlinkUtil.setMediaStream(userId, stream);
+//    		}
+      };
+
+      pc.onsignalingstatechange = function (evt) {
+          console.debug(new Date(), "onsignalingstatechange", evt);
+      };
+
+      pc.oniceconnectionstatechange = function (evt) {
+          console.debug(new Date(), "oniceconnectionstatechange", evt);
+          console.warn(new Date(), "pc.iceConnectionState=" + pc.iceConnectionState);
+
+          if (pc.iceConnectionState == 'failed') {
+              if (blinkEngine.wsConnectionState == BlinkConstant.wsConnectionState.CONNECTED) { // ws连接可用
+                  console.warn(new Date(), "oniceconnectionstatechange createOffer");
+                  blinkEngine.createOffer(pc, userId, true);
+              }
+          }
+      };
+
+      pc.onnegotiationneeded = function (evt) {
+        console.debug(new Date(), "onnegotiationneeded", evt);
+      };
+
+      pc.ondatachannel = function (evt) {
+        console.debug(new Date(), "ondatachannel", evt);
+      };
+
+      pc.onicecandidate = function (evt) {
+          console.debug(new Date(), "onicecandidate", evt);
+
+          handle(pc, evt);
+
+          function handle(pc, evt) {
+              if ((pc.signalingState || pc.readyState) == 'stable'
+                  && blinkEngine.peerConnections[userId]['rem'] == true) {
+                  if (evt.candidate) {
+                      blinkEngine.candidate(JSON.stringify(evt.candidate),
+                          userId);
+                  }
+                  return;
+              }
+              setTimeout(function () {
+                  handle(pc, evt);
+              }, 2 * 1000);
+          }
+      };
+      blinkEngine.peerConnections[userId] = {}
+      blinkEngine.peerConnections[userId]['pc'] = pc;
+      blinkEngine.peerConnections[userId]['rem'] = false;
+
+      // peerConnection创建成功，开始getStatsReport
+      blinkEngine.startScheduleGetStatsReport();
+      
+      if (this.isEnableMinStream) { // 开启了小流
+        var pcMin = new RTCPeerConnection();
+        blinkEngine.peerConnections[userId]['pcMin'] = pcMin;
+      }
+  }
+  return blinkEngine.peerConnections[userId];
+};
+/**
+* 关闭连接
+*
+*/
+BlinkEngine.prototype.closePeerConnection = function (userId) {
+  if (this.peerConnections[userId] != null) {
+      this.peerConnections[userId]['pc'].close();
+      this.peerConnections[userId] = null;
+  }
+  // 重置带宽设置计数器
+  BlinkGlobal.bandWidthCount = 0;
+  // peerConnection关闭，停止getStatsReport
+  this.exitScheduleGetStatsReport();
+}
+/**
+* handle offer
+*
+*/
+BlinkEngine.prototype.handleOffer = function (data) {
+  if (this.offerStatus == BlinkConstant.OfferStatus.SENDING) {
+      console.warn(new Date(), "handleOffer offerStatus sending");
+      return;
+  }
+
+  var from = data.parameters['from'];
+  var desc = JSON.parse(data.content.replace(new RegExp('\'', 'g'), '"'));
+  // set bandwidth
+  desc.sdp = BlinkUtil.setBandWidth(desc.sdp, this.getBandWidth());
+
+  var pcClient = this.preparePeerConnection(from);
+  var pc = pcClient['pc'];
+  if (this.userType != BlinkConstant.UserType.OBSERVER) {
+      pc.addStream(this.localStream);
+  }
+  if (this.isScreenStreamSeparate && this.localScreenStream && this.screenSharingStatus) { // 屏幕共享流分离且开启了屏幕共享
+    pc.addStream(this.localScreenStream);
+  }
+  var blinkEngine = this;
+  pc.setRemoteDescription(new RTCSessionDescription(desc), function () {
+      console.info(new Date(), "handleOffer setRemoteDescription success");
+      blinkEngine.offerStatus = BlinkConstant.OfferStatus.DONE;
+      // set remote cname map
+      blinkEngine.setRemoteCnameMap(desc.sdp);
+      pcClient['rem'] = true;
+      pc.createAnswer(function (desc2) {
+          console.info(new Date(), "createAnswer success");
+          pc.setLocalDescription(desc2, function () {
+              console.info(new Date(), "createAnswer setLocalDescription success");
+              blinkEngine.answer(JSON.stringify(desc2), from);
+          }, function (error) {
+              console.error(new Date(), "createAnswer setLocalDescription error: ", error);
+          });
+      }, function (error) {
+          console.error(new Date(), "createAnswer error: ", error);
+      }, blinkEngine.getSdpMediaConstraints(false));
+  }, function (error) {
+      console.error(new Date(), "handleOffer setRemoteDescription error: ", error);
+  });
+};
+/**
+* handle answer
+*
+*/
+BlinkEngine.prototype.handleAnswer = function (data) {
+  if (this.offerStatus == BlinkConstant.OfferStatus.DONE) { // 已经设置过一次SDP，放弃本次设置
+      console.warn(new Date(), "handleAnswer offerStatus done");
+      return;
+  }
+
+  var from = data.parameters['from'];
+  var desc = JSON.parse(data.content.replace(new RegExp('\'', 'g'), '"'));
+  var pcClient = this.preparePeerConnection(from);
+  var pc = pcClient['pc'];
+  if (this.isEnableMinStream && desc.type == "tinyStreamAnswer") { // 小流
+    desc.type = "answer";
+    pc = pcClient['pcMin'];
+  }
+  // set bandwidth
+  desc.sdp = BlinkUtil.setBandWidth(desc.sdp, this.getBandWidth());
+
+  var blinkEngine = this;
+  pc.setRemoteDescription(new RTCSessionDescription(desc), function () {
+      console.info(new Date(), "handleAnswer setRemoteDescription success");
+      blinkEngine.offerStatus = BlinkConstant.OfferStatus.DONE;
+      // set remote cname map
+      blinkEngine.setRemoteCnameMap(desc.sdp);
+      pcClient['rem'] = true;
+  }, function (error) {
+      console.error(new Date(), "handleAnswer setRemoteDescription error: ", error);
+  });
+};
+/**
+* handle candidate
+*
+*/
+BlinkEngine.prototype.handleCandidate = function (data) {
+  var from = data.parameters['from'];
+  var desc = JSON.parse(data.content.replace(new RegExp('\'', 'g'), '"'))
+
+  var pcClient = this.preparePeerConnection(from);
+  var pc = pcClient['pc'];
+  pc.addIceCandidate(new RTCIceCandidate(desc), function () {
+      console.info(new Date(), "addIceCandidate success");
+  }, function (error) {
+      console.error(new Date(), "addIceCandidate error: ", error);
+  });
+}
+/**
+* create offer
+*
+*/
+BlinkEngine.prototype.createOffer = function (pc, userId, isIceRestart, subscribeInfo) {
+  if (this.offerStatus == BlinkConstant.OfferStatus.SENDING) { // 已经创建过Offer，本次不创建
+      console.warn(new Date(), "createOffer offerStatus sending");
+      return;
+  }
+  console.info(new Date(), "createOffer userId=" + userId);
+  var blinkEngine = this;
+  pc.createOffer(function (desc) {
+      console.info(new Date(), "createOffer success");
+      // 变更SDP信息
+      desc.sdp = blinkEngine.changeSdp(desc.sdp);
+      pc.setLocalDescription(desc, function () {
+          console.info(new Date(), "createOffer setLocalDescription success");
+          blinkEngine.offerStatus = BlinkConstant.OfferStatus.SENDING;
+          var bodys = new Array();
+          if (subscribeInfo) {
+            bodys.push(JSON.stringify(subscribeInfo));
+          }
+          blinkEngine.offer(JSON.stringify(desc), userId, bodys);
+      }, function (error) {
+          console.error(new Date(), "createOffer setLocalDescription error: ", error);
+      });
+  }, function (error) {
+      console.error(new Date(), "createOffer error: ", error);
+  }, blinkEngine.getSdpMediaConstraints(isIceRestart));
+  // 小流
+  if (this.isEnableMinStream && this.localMinStream) {
+    var pcMin = this.peerConnections[userId]['pcMin'];
+      pcMin.addStream(blinkEngine.localMinStream);
+      pcMin.createOffer(function (desc) {
+          console.info(new Date(), "pcMin createOffer success");
+          // 变更SDP信息
+          desc.sdp = blinkEngine.changeSdp(desc.sdp);
+          pcMin.setLocalDescription(desc, function() {
+              console.info(new Date(), "pcMin createOffer setLocalDescription success");
+              blinkEngine.offerStatus = BlinkConstant.OfferStatus.SENDING;
+              // offer to tinyStreamOffer
+              desc.type = "tinyStreamOffer";
+              blinkEngine.offer(JSON.stringify(desc), userId);
+          }, function(error) {
+              console.error(new Date(), "pcMin createOffer setLocalDescription error: ", error);
+          });
+      }, function(error) {
+          console.error(new Date(), "pcMin createOffer error: ", error);
+      });
+  }
+}
+/**
+* 变更SDP信息
+* 
+*/
+BlinkEngine.prototype.changeSdp = function (sdp) {
+if (this.localStream) { // 本地视频流
+  // change streamId use userId
+    sdp = BlinkUtil.changeStreamId(sdp, this.localStream.id, this.userId);
+//	    // change videoTrackId
+//	    this.localStream.getVideoTracks().forEach(function (track) {
+//	    	sdp = BlinkUtil.changeTrackId(sdp, track.id, this.userId + BlinkConstant.TrackSuffix.VIDEO);
+//	    });
+//		// change audioTrackId
+//	    this.localStream.getAudioTracks().forEach(function (track) {
+//	    	sdp = BlinkUtil.changeTrackId(sdp, track.id, this.userId + BlinkConstant.TrackSuffix.AUDIO);
+//	    });
+}
+  if (this.isScreenStreamSeparate && this.localScreenStream && this.screenSharingStatus) { // 屏幕共享流分离且开启了屏幕共享
+    // change screenStreamId use userId
+    sdp = BlinkUtil.changeStreamId(sdp, this.localScreenStream.id, this.userId + BlinkConstant.StreamSuffix.SCREEN);
+//    	// change videoTrackId
+//      this.localScreenStream.getVideoTracks().forEach(function (track) {
+//        	sdp = BlinkUtil.changeTrackId(sdp, track.id, this.userId + BlinkConstant.StreamSuffix.SCREEN + BlinkConstant.StreamSuffix.SCREEN + BlinkConstant.TrackSuffix.VIDEO);
+//      });
+  }
+  if (this.isEnableMinStream && this.localMinStream && !this.screenSharingStatus) { // 有小流且没有开启屏幕共享
+    // change minStreamId use userId
+      sdp = BlinkUtil.changeStreamId(sdp, this.localMinStream.id, this.userId + BlinkConstant.StreamSuffix.TINY);
+//      // change videoTrackId
+//      this.localMinStream.getVideoTracks().forEach(function (track) {
+//        	sdp = BlinkUtil.changeTrackId(sdp, track.id, this.userId + BlinkConstant.StreamSuffix.TINY + BlinkConstant.StreamSuffix.TINY + BlinkConstant.TrackSuffix.VIDEO);
+//      });
+  }
+
+  // 替换video参数
+  sdp = BlinkUtil.changeVideoDesc(sdp);
+  return sdp;
+}
+/**
+* 设置sdp属性
+*
+*/
+BlinkEngine.prototype.getSdpMediaConstraints = function (isIceRestart) {
+  var sdpMediaConstraints = {};
+  sdpMediaConstraints.mandatory = {};
+  // 统一设置，包含观察者模式和普通模式无摄像头情况
+  sdpMediaConstraints.mandatory.OfferToReceiveAudio = true;
+  sdpMediaConstraints.mandatory.OfferToReceiveVideo = true;
+  // IceRestart
+  console.warn(new Date(), "isIceRestart=" + isIceRestart);
+  sdpMediaConstraints.mandatory.IceRestart = isIceRestart;
+  return sdpMediaConstraints;
+}
+/**
+* 设置remote cname map
+*
+*/
+BlinkEngine.prototype.setRemoteCnameMap = function (sdp) {
+  var userArr = this.joinedUsers.getEntrys();
+  for (var i in userArr) {
+      var userId = userArr[i].key;
+      if (userId == this.userId) { // 不是远端
+          continue;
+      }
+      if (!this.remoteCnameMap.contains(userId)) {
+          var cname = BlinkUtil.getCname(sdp, userId);
+          if (cname != null && cname != "") {
+              this.remoteCnameMap.put(userId, cname);
+              this.remoteSdpMap.put(userId, sdp);
+          }
+      } else {
+          var cname = this.remoteCnameMap.get(userId);
+          if (cname != null && cname != "") {
+            if (!BlinkUtil.isHasCname(sdp, cname)) { // userId不变，cname变化，视为客户端杀进程后重连，刷新远端视频流
+              var newCname = BlinkUtil.getCname(sdp, userId);
+                  if (newCname != null && newCname != "") {
+                      this.remoteCnameMap.put(userId, newCname);
+                      BlinkUtil.refreshMediaStream(userId);
+                  }
+            } else { // 屏幕共享cname不变
+              var newCname = BlinkUtil.getCname(sdp, userId);
+                  if (cname == newCname) {
+                      var oldSdp = this.remoteSdpMap.get(userId);
+                      var ts = BlinkUtil.getSsrc(oldSdp, userId, cname);
+                      var newTs = BlinkUtil.getSsrc(sdp, userId, cname);
+                      if (ts != newTs) {
+                        BlinkUtil.refreshMediaStream(userId);
+                      }
+                  }
+            }
+          }
+      }
+  }
+}
+/**
+* 获取带宽
+* 
+*/
+BlinkEngine.prototype.getBandWidth = function () {
+if (this.screenSharingStatus) { // 正在屏幕共享
+  return BlinkConstant.BandWidth_ScreenShare_1280_720;
+}
+return this.bandWidth;
+}
+/** ----- offer ----- */
+/** ----- getStatsReport ----- */
 /**
 * getStatsReport
 *
 */
-RongRTCEngine.prototype.getStatsReport = function () {
-  var pcClient = this.peerConnections[this.selfUserId];
+BlinkEngine.prototype.getStatsReport = function () {
+  var pcClient = this.peerConnections[this.userId];
   if (pcClient != null) {
-    var pc = pcClient['pc'];
-    var rongRTCEngine = this;
-    pc.getStats(null, function (report) {
-      rongRTCEngine.rongRTCConnectionStatsReport.parseStatsReport(report);
-      if (rongRTCEngine.isSendLostReport) {
-        RongRTCLogger.debug("onNetworkSentLost=" +
-          rongRTCEngine.rongRTCConnectionStatsReport.packetSendLossRate);
-        // 上报丢包率信息，返回本地数据流的丢包率
-        rongRTCEngine.rongRTCEngineEventHandle.call('onNetworkSentLost', {
-          packetSendLossRate: rongRTCEngine.rongRTCConnectionStatsReport.packetSendLossRate
-        });
-      }
-    }, function (error) {
-      RongRTCLogger.error("getStatsReport error: ", error);
-    });
+      var pc = pcClient['pc'];
+      var blinkEngine = this;
+    //   pc.getStats(null, function (report) {
+    //       blinkEngine.blinkConnectionStatsReport.parseStatsReport(report);
+    //       // 上报丢包率信息，返回本地数据流的丢包率
+    //       if (blinkEngine.isSendLostReport) {
+    //         var packetSendLossRate = blinkEngine.blinkConnectionStatsReport.packetSendLossRate;
+    //           console.debug(new Date(), "onNetworkSentLost=" + packetSendLossRate);
+    //           blinkEngine.blinkEngineEventHandle.call('onNetworkSentLost', {
+    //               packetSendLossRate: packetSendLossRate
+    //           });
+    //       }
+    //       // 上报音频输入电平
+    //       var audioInputLevel = blinkEngine.blinkConnectionStatsReport.audioInputLevel;
+    //       if (!blinkEngine.localAudioEnable) { // 本地静音
+    //         audioInputLevel = 0;
+    //       }
+    //       console.debug(new Date(), "audioInputLevel=" + audioInputLevel);
+    //       blinkEngine.blinkEngineEventHandle.call('onAudioInputLevel', {
+    //   audioInputLevel : audioInputLevel
+    // });
+    // // 上报音频接收电平
+    // var audioReceivedLevel = blinkEngine.blinkConnectionStatsReport.audioReceivedLevel;
+    // console.debug(new Date(), "audioReceivedLevel=" + audioReceivedLevel);
+    // blinkEngine.blinkEngineEventHandle.call('onAudioReceivedLevel', {
+    //   audioReceivedLevel : audioReceivedLevel
+    // });
+    //   }, function (error) {
+    //       console.error(new Date(), "getStatsReport error: ", error);
+    //   });
   }
 }
 /**
 * 开始getStatsReport
 *
 */
-RongRTCEngine.prototype.startScheduleGetStatsReport = function () {
+BlinkEngine.prototype.startScheduleGetStatsReport = function () {
   this.exitScheduleGetStatsReport();
 
-  this.rongRTCConnectionStatsReport = new RongRTCConnectionStatsReport();
-  var rongRTCEngine = this;
-  rongRTCEngine.getStatsReportInterval = setInterval(function () {
-    rongRTCEngine.getStatsReport();
-  }, RongRTCConstant.GETSTATSREPORT_INTERVAL);
+  this.blinkConnectionStatsReport = new BlinkConnectionStatsReport(this);
+  var blinkEngine = this;
+  blinkEngine.getStatsReportInterval = setInterval(function () {
+      blinkEngine.getStatsReport();
+  }, BlinkConstant.GETSTATSREPORT_INTERVAL);
 }
 /**
 * 停止getStatsReport
 *
 */
-RongRTCEngine.prototype.exitScheduleGetStatsReport = function () {
+BlinkEngine.prototype.exitScheduleGetStatsReport = function () {
   if (this.getStatsReportInterval != null) {
-    clearInterval(this.getStatsReportInterval);
-    this.getStatsReportInterval = null;
+      clearInterval(this.getStatsReportInterval);
+      this.getStatsReportInterval = null;
   }
-  this.rongRTCConnectionStatsReport = null;
+  this.blinkConnectionStatsReport = null;
 }
-/** ----- getStatsReport ---- */
-/** ----- screenShare ---- */
+/** ----- getStatsReport ----- */
+/** ----- screenShare ----- */
 /**
 * 绑定插件监听事件
-*
+* 
 */
-RongRTCEngine.prototype.addEventListener = function () {
+BlinkEngine.prototype.addEventListener = function () {
   if (this.isBindEvent) { // 已经绑定过事件
-    return;
+      return;
   }
-  var rongRTCEngine = this;
+  var blinkEngine = this;
   window.addEventListener("message", function (msg) {
-    var messageHandler = {
-      onResponseReqSouId: function (msg) {
-        rongRTCEngine.getLocalStreamFromRtcApi({ video: false, audio: true }).then(function (stream) {
-          rongRTCEngine.localAudioStream = stream;
-          stream.getAudioTracks().forEach(function (track) {
-            track.enabled = rongRTCEngine.microphoneEnable;
-          });
-        }).catch(function (error) {
-          RongRTCLogger.error("onResponseReqSouId getLocalStreamFromRtcApi error: " + error);
-          rongRTCEngine.rongRTCEngineEventHandle.call('onStartScreenShareComplete', {
-            'isSuccess': false
-          });
-        });
-        rongRTCEngine.getScreenStream(msg.data.sourceId).then(function (stream) {
-          stream.getVideoTracks()[0].onended = function () {
-            // 关闭屏幕共享
-            rongRTCEngine.endShareScreen();
-          };
-          // 进行屏幕共享
-          rongRTCEngine.screenShare(stream);
-        }).catch(function (error) {
-          RongRTCLogger.error("onResponseReqSouId getScreenStream error: " + error);
-          rongRTCEngine.rongRTCEngineEventHandle.call('onStartScreenShareComplete', {
-            'isSuccess': false
-          });
-        });
-      },
-      testMessage: function (msg) {
-        rongRTCEngine.isScreenShareSupport = true;
-      },
-      other: function (msg) {
-        RongRTCLogger.info(msg);
+      var messageHandler = {
+          onResponseReqSouId: function (msg) {
+            blinkEngine.screenShareWithSource(msg.data.sourceId);
+          },
+          testMessage: function (msg) {
+              blinkEngine.isScreenSharePluginInstalled = true;
+          },
+          other: function (msg) {
+              console.debug(new Date(), msg);
+          }
       }
-    }
-    var handle = messageHandler[msg.data.type] || messageHandler.other;
-    handle(msg, rongRTCEngine);
+      var handle = messageHandler[msg.data.type] || messageHandler.other;
+      handle(msg);
   }, false);
   this.isBindEvent = true;
 }
 /**
-* 发起屏幕共享
-*
+* 检查是否支持屏幕共享
+* 
 */
-RongRTCEngine.prototype.requestScreenShare = function () {
+BlinkEngine.prototype.checkScreenShareSupport = function () {
+  // 检测浏览器是否支持
+  var supportBrowser = ['Chrome'];
+  var mb = BlinkUtil.myBrowser();
+  if (supportBrowser.indexOf(mb) < 0) { // 浏览器不支持
+      return BlinkConstant.ScreenShareSupportCode.BrowserNotSupport;
+  }
+  // 检测是否安装了插件
+  if (!this.isScreenSharePluginInstalled) { // 未安装插件
+      return BlinkConstant.ScreenShareSupportCode.NoPlugin;
+  }
+  return BlinkConstant.ScreenShareSupportCode.Support;
+}
+/**
+* 向插件发起屏幕共享请求
+* 
+*/
+BlinkEngine.prototype.requestScreenShare = function () {
   window.postMessage('requestScreenSourceId', '*');
 }
 /**
-* 根据RtcApi获取本地视频
-*
+* 屏幕共享，有source
+* 
 */
-RongRTCEngine.prototype.getLocalStreamFromRtcApi = function (config) {
-  return new Promise(function (resolve, reject) {
-    navigator.getUserMedia(config, resolve, reject);
-  })
-}
-/**
-* 获取本地桌面共享流
-*
-*/
-RongRTCEngine.prototype.getScreenStream = function (sourceId) {
-  var constraints = {
-    mandatory: {
-      chromeMediaSource: 'desktop',
-      maxWidth: RongRTCConstant.ShareProfile_default.width,
-      maxHeight: RongRTCConstant.ShareProfile_default.height,
-      chromeMediaSourceId: sourceId
-    },
-    optional: [
-      { googTemporalLayeredScreencast: true }
-    ]
-  };
-  sourceId = null;
-  return new Promise(function (resolve, reject) {
-    navigator.getUserMedia({ video: constraints }, resolve, reject);
-  })
-}
-/**
-* 进行屏幕共享
-*
-*/
-RongRTCEngine.prototype.screenShare = function (stream) {
-  this.screenSharingStatus = true;
-  this.screenOffer(stream);
-  RongRTCUtil.setMediaStream(this.selfUserId, stream);
-  this.rongRTCEngineEventHandle.call('onStartScreenShareComplete', {
-    'isSuccess': true
+BlinkEngine.prototype.screenShareWithSource = function (sourceId) {
+var blinkEngine = this;
+var screenMediaConfig = this.getScreenMediaConfig(sourceId);
+BlinkUtil.getMedia(screenMediaConfig).then(function (stream) {
+  blinkEngine.screenShareWithStream(stream);
+  }).catch(function (error) {
+      console.error(new Date(), "startScreenShare getMedia error: " + error);
+      blinkEngine.blinkEngineEventHandle.call('onStartScreenShareComplete', {
+          'isSuccess': false
+      });
   });
 }
 /**
-* 屏幕共享发offer
-*
+* 屏幕共享，有screenStream
+* 
 */
-RongRTCEngine.prototype.screenOffer = function (stream) {
-  var oldStream = this.localStream;
-  this.localStream = stream;
-  var pcClient = this.peerConnections[this.selfUserId];
-  if (pcClient != null) { // 只有一人时，值为null
-    var pc = pcClient['pc'];
-    if (this.screenSharingStatus) {
-      pc.addStream(this.localAudioStream);
-      this.minStream && pc.removeStream(this.localStreamMin);
-    } else {
-      pc.removeStream(this.localAudioStream);
-      this.minStream && pc.addStream(this.localStreamMin);
+BlinkEngine.prototype.screenShareWithStream = function (screenStream) {
+//	var blinkEngine = this;
+//	var screenVideoTrack = screenStream.getVideoTracks()[0];
+//	screenVideoTrack.onended = function () {
+//  	// 关闭屏幕共享
+//      blinkEngine.stopScreenShare();
+//  };
+//  if (this.isScreenStreamSeparate) { // 屏幕共享流分离
+//  	this.localScreenStream = screenStream;
+//  } else {
+//    	// 移除视频流videoTrack
+// 		var oldVideoTrack = this.localStream.getVideoTracks()[0];
+// 		oldVideoTrack.stop();
+// 		this.localStream.removeTrack(oldVideoTrack);
+// 		// 将屏幕共享流videoTrack加入到流中
+// 		this.localStream.addTrack(screenVideoTrack);
+//    	// // 刷新本地视频窗口的流
+//    	// BlinkUtil.setMediaStream(this.userId, this.localStream);
+//  }
+//  this._startScreenShare();
+var blinkEngine = this;
+this.localScreenVideoTrack = screenStream.getVideoTracks()[0];
+this.localScreenVideoTrack.onended = function () {
+      // 关闭屏幕共享
+      blinkEngine.stopScreenShare();
+  };
+  if (this.isScreenStreamSeparate) { // 屏幕共享流分离
+    this.localScreenStream = screenStream;
+  } else {
+    if (this.isSubscribeVersion() && this.isStartStopLocalTrack) { // 订阅分发版本且是start/stop track
+      if (this.localVideoEnable) { // 原视频是enable的
+        this.stopLocalTrack(BlinkConstant.DeviceType.Camera);
+      }
     }
-    pc.removeStream(oldStream);
-    pc.addStream(stream);
-    RongRTCLogger.info("createOfferforShare");
-    this.createOffer(pc, this.selfUserId, true);
+    // 移除视频流videoTrack
+  if (this.localVideoTrack) {
+    this.localStream.removeTrack(this.localVideoTrack);
   }
-  oldStream.getTracks().forEach(function (track) {
-    track.stop()
-  });// 关闭
-  if (!this.localVideoEnable) {
-    this.closeLocalVideoWithUpdateTalkType(
-      !this.localVideoEnable, false);
+    // 将屏幕共享流videoTrack加入到流中
+    this.localStream.addTrack(this.localScreenVideoTrack);
+    // // 刷新本地视频窗口的流
+    // BlinkUtil.setMediaStream(this.userId, this.localStream);
+  }
+  this._startScreenShare();
+}
+/**
+* 开启屏幕共享
+* 
+*/
+BlinkEngine.prototype._startScreenShare = function () {
+this.screenSharingStatus = true;
+if (this.isSubscribeVersion()) { // 订阅分发版本
+  var resource = this.convertResource(this.resource, BlinkConstant.DeviceType.ScreenShare, BlinkConstant.OperationType.OPEN);
+  // 变更resource
+  this.changeResource(this.userId, resource);
+  // 发信令
+  this.update_resource(resource);
+} else {
+  // 发开启屏幕共享信令
+  // this.screenSharing(BlinkConstant.OperationType.OPEN);
+}
+  this.blinkEngineEventHandle.call('onStartScreenShareComplete', {
+      'isSuccess': true
+  });
+  
+  // offer
+  var pcClient = this.peerConnections[this.userId];
+if (pcClient != null) { // 只有一人时，值为null，在订阅分发版本中，只有一人时也有peerConnection
+  var pc = pcClient['pc'];
+  if (this.isScreenStreamSeparate && this.localScreenStream) { // 屏幕共享流分离
+    pc.addStream(this.localScreenStream);
+  }
+  console.warn(new Date(), "startScreenShare createOffer");
+  this.createOffer(pc, this.userId, false);
+}
+}
+/**
+* 关闭屏幕共享
+* 
+*/
+BlinkEngine.prototype._stopScreenShare = function () {
+this.screenSharingStatus = false;
+if (this.isSubscribeVersion()) { // 订阅分发版本
+  var resource = this.convertResource(this.resource, BlinkConstant.DeviceType.ScreenShare, BlinkConstant.OperationType.CLOSE);
+  // 变更resource
+  this.changeResource(this.userId, resource);
+  // 发信令
+  this.update_resource(resource);
+} else {
+  // 发关闭屏幕共享信令
+  // this.screenSharing(BlinkConstant.OperationType.CLOSE);
+}
+this.blinkEngineEventHandle.call('onStopScreenShareComplete', {
+    'isSuccess': true
+});
+
+// offer
+var pcClient = this.peerConnections[this.userId];
+if (pcClient != null) { // 只有一人时，值为null，在订阅分发版本中，只有一人时也有peerConnection
+  var pc = pcClient['pc'];
+  if (this.isScreenStreamSeparate && this.localScreenStream) { // 屏幕共享流分离
+    pc.removeStream(this.localScreenStream);
+    this.localScreenStream = null;
+  }
+  console.warn(new Date(), "stopScreenShare createOffer");
+  this.createOffer(pc, this.userId, false);
+} else {
+  if (this.isScreenStreamSeparate && this.localScreenStream) { // 屏幕共享流分离
+    this.localScreenStream = null;
   }
 }
-/** ----- screenShare ---- */
+}
+/** ----- screenShare ----- */
+/** ----- 会控 ----- */
+/**
+* 变更为观察者
+* 
+*/
+BlinkEngine.prototype.change2Observer = function (userId) {
+// 变更userType
+this.changeUserType(userId, BlinkConstant.UserType.OBSERVER);
+if (userId == this.userId) {
+  if (this.isSubscribeVersion()) { // 订阅分发版本
+    if (this.isStartStopLocalTrack) { // start/stop track
+      this.stopLocalTrack(BlinkConstant.DeviceType.CameraAndMicrophone);
+    }
+    // 变更Track绑定
+    this.updateLocalTrackBind(this.resource);
+  }
+  // 关闭屏幕共享
+  if (this.screenSharingStatus) { // 开启了屏幕共享
+    if (this.localScreenVideoTrack) {
+      // 移除screenVideoTrack
+      if (this.isScreenStreamSeparate) { // 屏幕共享流分离
+        this.localScreenStream.removeTrack(this.localScreenVideoTrack);
+      } else {
+        this.localStream.removeTrack(this.localScreenVideoTrack);
+      }
+      // stop后会关闭弹出的屏幕共享工具条
+      this.localScreenVideoTrack.stop();
+      this.localScreenVideoTrack = null;
+    }
+  }
+  // offer
+  var pcClient = this.peerConnections[this.userId];
+  if (pcClient != null) { // 只有一人时，值为null，在订阅分发版本中，只有一人时也有peerConnection
+    var pc = pcClient['pc'];
+    pc.removeStream(this.localStream);
+    if (this.isScreenStreamSeparate && this.localScreenStream && this.screenSharingStatus) { // 屏幕共享流分离且开启了屏幕共享
+      pc.removeStream(this.localScreenStream);
+      this.localScreenStream = null;
+    }
+    console.warn(new Date(), "change2Observer createOffer");
+    this.createOffer(pc, this.userId, false);
+  } else {
+    if (this.isScreenStreamSeparate && this.localScreenStream && this.screenSharingStatus) { // 屏幕共享流分离且开启了屏幕共享
+      this.localScreenStream = null;
+    }
+  }
+}
+}
+/**
+* 变更为普通与会人员
+* 
+*/
+BlinkEngine.prototype.change2Normal = function (userId) {
+// 变更userType
+this.changeUserType(userId, BlinkConstant.UserType.NORMAL);
+
+if (userId == this.userId) {
+  var createOffer = function(blinkEngine) {
+    // offer
+    var pcClient = blinkEngine.peerConnections[blinkEngine.userId];
+    if (pcClient != null) { // 只有一人时，值为null，在订阅分发版本中，只有一人时也有peerConnection
+      var pc = pcClient['pc'];
+      pc.addStream(blinkEngine.localStream);
+      console.warn(new Date(), "change2Normal createOffer");
+      blinkEngine.createOffer(pc, blinkEngine.userId, false);
+    }
+    };
+  if (this.isSubscribeVersion()) { // 订阅分发版本
+    if (this.isStartStopLocalTrack) { // start/stop track
+      this.startLocalTrack(BlinkConstant.DeviceType.CameraAndMicrophone, createOffer);
+      return;
+    }
+    // 变更Track绑定
+    this.updateLocalTrackBind(this.resource);
+  }
+  if (this.localStream == null || this.localStream.getTracks().length == 0) {
+    var blinkEngine = this;
+    var mediaConfig = this.getMediaConfig(true, true);
+    BlinkUtil.getMedia(mediaConfig).then(function (stream) {
+        console.info(new Date(), "change2Normal navigator.getUserMedia success");
+          blinkEngine.setLocalStream(stream);
+          // 刷新本地视频窗口的流
+        BlinkUtil.setMediaStream(blinkEngine.userId, blinkEngine.localStream);
+        // offer
+        createOffer(blinkEngine);
+      }).catch(function (error) {
+        console.error(new Date(), "change2Normal navigator.getUserMedia error: ", error);
+      });
+  } else {
+    // offer
+    createOffer(this);
+  }
+}
+}
+/**
+* 变更为主持人
+* 
+*/
+BlinkEngine.prototype.change2Host = function (userId) {
+// 变更userType
+this.changeUserType(userId, BlinkConstant.UserType.HOST);
+}
+/**
+* 变更userType
+* 
+*/
+BlinkEngine.prototype.changeUserType = function(userId, userType) {
+if (userType == BlinkConstant.UserType.HOST) { // 变更为主持人
+  // 原主持人变更为普通与会人员
+  var resetUserArr = [];
+  this.joinedUsers.getEntrys().forEach(function(userEntry) {
+    var user = userEntry.value;
+    if (user.userType == BlinkConstant.UserType.HOST) {
+          user.userType = BlinkConstant.UserType.NORMAL;
+          resetUserArr.push(user);
+    }
+  });
+    var blinkEngine = this;
+    resetUserArr.forEach(function (user) {
+      blinkEngine.joinedUsers.put(user.userId, user);
+    });
+    // 其他人获取主持人，若此时自己是主持人，自己变成普通与会人员
+    if (this.userId != userId && this.userType == BlinkConstant.UserType.HOST) {
+      this.userType = BlinkConstant.UserType.NORMAL;
+    }
+}
+
+if (userId == this.userId) {
+  this.userType = userType;
+}
+var user = this.joinedUsers.get(userId);
+if (user != null) {
+  user.userType = userType;
+  this.joinedUsers.put(userId, user);
+}
+
+if (this.isSubscribeVersion()) { // 订阅分发版本
+  // 变更resource
+  if (userType == BlinkConstant.UserType.NORMAL) { // 变更为普通与会人员
+    this.changeResource(userId, BlinkConstant.ResourceType.AudioAndVideo);
+  } else if (userType == BlinkConstant.UserType.OBSERVER) { // 变更为观察者
+    this.changeResource(userId, BlinkConstant.ResourceType.None);
+  } else if (userType == BlinkConstant.UserType.HOST) { // 变更为主持人
+    // 无变化
+  }
+} else {
+  // 变更talkType
+  if (userType == BlinkConstant.UserType.NORMAL) { // 变更为普通与会人员
+    this.changeTalkType(userId, BlinkConstant.DeviceType.CameraAndMicrophone, true);
+  } else if (userType == BlinkConstant.UserType.OBSERVER) { // 变更为观察者
+    this.changeTalkType(userId, BlinkConstant.DeviceType.CameraAndMicrophone, false);
+  } else if (userType == BlinkConstant.UserType.HOST) { // 变更为主持人
+    // 无变化
+  }
+}
+}
+/**
+* 变更talkType
+* 
+*/
+BlinkEngine.prototype.changeTalkType = function (userId, deviceType, isOpen) {
+// change talkType
+var operationType = isOpen ? BlinkConstant.OperationType.OPEN : BlinkConstant.OperationType.CLOSE;
+if (userId == this.userId) {
+  var oldTalkType = this.talkType;
+  var newTalkType = this.convertTalkType(oldTalkType, deviceType, operationType);
+  this.talkType = newTalkType;
+}
+var user = this.joinedUsers.get(userId);
+if (user != null) {
+  var oldTalkType = user.talkType;
+  var newTalkType = this.convertTalkType(oldTalkType, deviceType, operationType);
+  user.talkType = newTalkType;
+  this.joinedUsers.put(userId, user);
+}
+if (userId == this.userId) {
+  // change carema/microphone track
+  this.enableLocalTrack(deviceType, isOpen);
+}
+// 远端
+if (isOpen && deviceType == BlinkConstant.DeviceType.Camera) { // 打开摄像头
+    var remoteStream = this.getRemoteStream(userId);
+    if (remoteStream && remoteStream.getVideoTracks()) {
+      remoteStream.getVideoTracks().forEach(function (track) {
+        track.enabled = true;
+      })
+    }
+  }
+}
+/**
+* 转换talktype
+* 
+*/
+BlinkEngine.prototype.convertTalkType = function (oldTalkType, deviceType, operationType) {
+var videoEnable = true;
+var audioEnable = true;
+if (oldTalkType == BlinkConstant.TalkType.OnlyAudio || oldTalkType == BlinkConstant.TalkType.None) { // 无视频
+  videoEnable = false;
+}
+if (oldTalkType == BlinkConstant.TalkType.OnlyVideo || oldTalkType == BlinkConstant.TalkType.None) { // 无音频
+  audioEnable = false;
+}
+
+if (operationType == BlinkConstant.OperationType.OPEN) { // 打开
+  if (deviceType == BlinkConstant.DeviceType.Camera) {
+    videoEnable = true;
+  } else if (deviceType == BlinkConstant.DeviceType.Microphone) {
+    audioEnable = true;
+  } else if (deviceType == BlinkConstant.DeviceType.CameraAndMicrophone) {
+    videoEnable = true;
+    audioEnable = true;
+  }
+} else if (operationType == BlinkConstant.OperationType.CLOSE) { // 关闭
+  if (deviceType == BlinkConstant.DeviceType.Camera) {
+    videoEnable = false;
+  } else if (deviceType == BlinkConstant.DeviceType.Microphone) {
+    audioEnable = false;
+  } else if (deviceType == BlinkConstant.DeviceType.CameraAndMicrophone) {
+    videoEnable = false;
+    audioEnable = false;
+  }
+}
+
+var newTalkType = oldTalkType;
+if (videoEnable && audioEnable) {
+  newTalkType = BlinkConstant.TalkType.All;
+} else if (videoEnable && !audioEnable) {
+  newTalkType = BlinkConstant.TalkType.OnlyVideo;
+} else if (!videoEnable && audioEnable) {
+  newTalkType = BlinkConstant.TalkType.OnlyAudio;
+} else if (!videoEnable && !audioEnable) {
+  newTalkType = BlinkConstant.TalkType.None;
+}
+return newTalkType;
+}
+/** ----- 会控 ----- */
+/** ----- 订阅分发 ----- */
+/**
+* 是否订阅分发版本
+* 
+*/
+BlinkEngine.prototype.isSubscribeVersion = function() {
+if (this.logonVersion == BlinkConstant.LogonVersion.SUBSCRIBE) { // 订阅分发版本
+  return true;
+}
+return false;
+}
+/**
+* 变更资源
+* 
+*/
+BlinkEngine.prototype._updateResource = function(resource) {
+var oldResource = this.resource;
+// 变更resource
+this.changeResource(this.userId, resource);
+var createOffer = function(blinkEngine) {
+  // offer
+  var pcClient = blinkEngine.peerConnections[blinkEngine.userId];
+  if (pcClient != null) { // 只有一人时，值为null，在订阅分发版本中，只有一人时也有peerConnection
+    var pc = pcClient['pc'];
+    console.warn(new Date(), "_updateResource createOffer");
+    blinkEngine.createOffer(pc, blinkEngine.userId, false);
+  }
+};
+if (this.isStartStopLocalTrack) { // start/stop track
+  // 转换operation
+  var operation = this.convertOperation(oldResource, resource);
+  var deviceType = operation.deviceType;
+  var operationType = operation.operationType;
+  if (operationType == BlinkConstant.OperationType.OPEN) { // 打开
+    this.startLocalTrack(deviceType, createOffer);
+    return;
+  }
+  this.stopLocalTrack(deviceType);
+}
+// 变更Track绑定
+this.updateLocalTrackBind(this.resource);
+// offer
+createOffer(this);
+}
+/**
+* 变更resource
+* 
+*/
+BlinkEngine.prototype.changeResource = function(userId, resource) {
+// change resource
+var oldResource;
+if (userId == this.userId) {
+  oldResource = this.resource;
+  this.resource = resource;
+}
+var user = this.joinedUsers.get(userId);
+if (user != null) {
+  oldResource = user.resource;
+  user.resource = resource;
+  this.joinedUsers.put(userId, user);
+}
+// 转换operation
+var operation = this.convertOperation(oldResource, resource);
+var deviceType = operation.deviceType;
+var operationType = operation.operationType;
+var isOpen = operationType == BlinkConstant.OperationType.OPEN ? true : false;
+// 变更talkType
+this.changeTalkType(userId, deviceType, isOpen);
+}
+/**
+* 转换resource
+* 
+*/
+BlinkEngine.prototype.convertResource = function (oldResource, deviceType, operationType) {
+var enableType = operationType == BlinkConstant.OperationType.OPEN ? BlinkConstant.EnableType.Enable : BlinkConstant.EnableType.Disable;
+// 转换成二进制后反转，第一位是麦克风，第二位是摄像头，第三位是屏幕共享
+var oldBinaryArr = oldResource.toString(2).split("").reverse();
+var binaryArr = oldBinaryArr;
+if (deviceType == BlinkConstant.DeviceType.Microphone) { // 麦克风
+  binaryArr[0] = enableType;
+} else if (deviceType == BlinkConstant.DeviceType.Camera) { // 摄像头
+  binaryArr[1] = enableType;
+} else if (deviceType == BlinkConstant.DeviceType.CameraAndMicrophone) { // 麦克风+摄像头
+  binaryArr[0] = enableType;
+  binaryArr[1] = enableType;
+} else if (deviceType == BlinkConstant.DeviceType.ScreenShare) { // 屏幕共享
+  binaryArr[2] = enableType;
+}
+// 补0
+if (binaryArr[0] == null) {
+  binaryArr[0] = 0;
+}
+if (binaryArr[1] == null) {
+  binaryArr[1] = 0;
+}
+if (binaryArr[2] == null) {
+  binaryArr[2] = 0;
+}
+// 反转后转换成十进制
+var resource = parseInt(binaryArr.reverse().join(""), 2);
+return resource;
+}
+/**
+* 转换operation
+* 
+*/
+BlinkEngine.prototype.convertOperation = function (oldResource, resource) {
+var operation = {};
+// 转换成二进制后反转，第一位是麦克风，第二位是摄像头，第三位是屏幕共享
+var oldBinaryArr = oldResource.toString(2).split("").reverse();
+var binaryArr = resource.toString(2).split("").reverse();
+// 补0
+if (oldBinaryArr[0] == null) {
+  oldBinaryArr[0] = 0;
+}
+if (oldBinaryArr[1] == null) {
+  oldBinaryArr[1] = 0;
+}
+if (oldBinaryArr[2] == null) {
+  oldBinaryArr[2] = 0;
+}
+if (binaryArr[0] == null) {
+  binaryArr[0] = 0;
+}
+if (binaryArr[1] == null) {
+  binaryArr[1] = 0;
+}
+if (binaryArr[2] == null) {
+  binaryArr[2] = 0;
+}
+if (binaryArr[2] > oldBinaryArr[2]) { // 开启了屏幕共享
+  operation.deviceType = BlinkConstant.DeviceType.ScreenShare,
+  operation.operationType = BlinkConstant.OperationType.OPEN;
+} else if (binaryArr[2] < oldBinaryArr[2]) { // 关闭了屏幕共享
+  operation.deviceType = BlinkConstant.DeviceType.ScreenShare,
+  operation.operationType = BlinkConstant.OperationType.CLOSE;
+} else {
+  if (binaryArr[1] > oldBinaryArr[1] && binaryArr[0] > oldBinaryArr[0]) { // 开启了摄像头+麦克风
+    operation.deviceType = BlinkConstant.DeviceType.CameraAndMicrophone,
+    operation.operationType = BlinkConstant.OperationType.OPEN;
+  } else if (binaryArr[1] < oldBinaryArr[1] && binaryArr[0] < oldBinaryArr[0]) { // 关闭了摄像头+麦克风
+    operation.deviceType = BlinkConstant.DeviceType.CameraAndMicrophone,
+    operation.operationType = BlinkConstant.OperationType.CLOSE;
+  } else {
+    if (binaryArr[1] > oldBinaryArr[1]) { // 开启了摄像头
+      operation.deviceType = BlinkConstant.DeviceType.Camera,
+      operation.operationType = BlinkConstant.OperationType.OPEN;
+    } else if (binaryArr[1] < oldBinaryArr[1]) { // 关闭了摄像头
+      operation.deviceType = BlinkConstant.DeviceType.Camera,
+      operation.operationType = BlinkConstant.OperationType.CLOSE;
+    }
+    if (binaryArr[0] > oldBinaryArr[0]) { // 开启了麦克风
+      operation.deviceType = BlinkConstant.DeviceType.Microphone,
+      operation.operationType = BlinkConstant.OperationType.OPEN;
+    } else if (binaryArr[0] < oldBinaryArr[0]) { // 关闭了麦克风
+      operation.deviceType = BlinkConstant.DeviceType.Microphone,
+      operation.operationType = BlinkConstant.OperationType.CLOSE;
+    }
+  }
+}
+return operation;
+
+}
+/**
+* resourceType转talkType
+* 
+*/
+BlinkEngine.prototype.convertResourceType2TalkType = function (resourceType) {
+if (resourceType == BlinkConstant.ResourceType.AudioOnly || 
+    resourceType == BlinkConstant.ResourceType.AudioAndScreenSharing) { // 只音频
+  return BlinkConstant.TalkType.OnlyAudio;
+}
+if (resourceType == BlinkConstant.ResourceType.VideoOnly || 
+    resourceType == BlinkConstant.ResourceType.VideoAndScreenSharing) { // 只视频
+  return BlinkConstant.TalkType.OnlyVideo;
+}
+if (resourceType == BlinkConstant.ResourceType.ScreenSharing) { // 屏幕共享
+  if (this.isScreenStreamSeparate) { // 屏幕共享流分离
+    return BlinkConstant.TalkType.None;
+  }
+  return BlinkConstant.TalkType.OnlyVideo;
+}
+if (resourceType == BlinkConstant.ResourceType.AudioAndVideo || 
+    resourceType == BlinkConstant.ResourceType.AudioAndVideoAndScreenSharing) { // 音视频
+  return BlinkConstant.TalkType.All;
+}
+if (resourceType == BlinkConstant.ResourceType.None) { // 无音视频
+  return BlinkConstant.TalkType.None;
+}
+return null;
+}
+/**
+* talkType转resourceType
+* 
+*/
+BlinkEngine.prototype.convertTalkType2ResourceType = function (talkType, screenSharingStatus) {
+if (talkType == BlinkConstant.TalkType.OnlyAudio) { // 只音频
+  if (screenSharingStatus) {
+    return BlinkConstant.ResourceType.AudioAndScreenSharing;
+  }
+  return BlinkConstant.ResourceType.AudioOnly;
+}
+if (talkType == BlinkConstant.TalkType.OnlyVideo) { // 只视频
+  if (screenSharingStatus) {
+    return BlinkConstant.ResourceType.VideoAndScreenSharing;
+  }
+  return BlinkConstant.ResourceType.VideoOnly;
+}
+if (talkType == BlinkConstant.TalkType.All) { // 音视频
+  if (screenSharingStatus) {
+    return BlinkConstant.ResourceType.AudioAndVideoAndScreenSharing;
+  }
+  return BlinkConstant.ResourceType.AudioAndVideo;
+}
+if (talkType == BlinkConstant.TalkType.None) { // 无音视频
+  if (screenSharingStatus) {
+    return BlinkConstant.ResourceType.ScreenSharing;
+  }
+  return BlinkConstant.ResourceType.None;
+}
+return null;
+}
+/**
+* stop本地音频track
+* 
+*/
+BlinkEngine.prototype.stopLocalAudioTrack = function () {
+if (this.localAudioTrack) {
+    this.localAudioTrack.stop();
+  }
+if (this.localStream && this.localStream.getAudioTracks()) {
+  this.localStream.getAudioTracks().forEach(function (track) {
+    track.stop();
+  });
+}
+}
+/**
+* stop本地视频track
+* 
+*/
+BlinkEngine.prototype.stopLocalVideoTrack = function () {
+if (this.localVideoTrack) {
+  this.localVideoTrack.stop();
+}
+if (this.localStream && this.localStream.getVideoTracks()) {
+  this.localStream.getVideoTracks().forEach(function (track) {
+    track.stop();
+  });
+}
+}
+/**
+* stop本地track
+* 
+*/
+BlinkEngine.prototype.stopLocalTrack = function (deviceType) {
+if (deviceType == BlinkConstant.DeviceType.Camera) {
+  this.stopLocalVideoTrack();
+} else if (deviceType == BlinkConstant.DeviceType.Microphone) {
+  this.stopLocalAudioTrack();
+} else if (deviceType == BlinkConstant.DeviceType.CameraAndMicrophone) {
+  this.stopLocalVideoTrack();
+  this.stopLocalAudioTrack();
+}
+}
+/**
+* start本地track
+* 
+*/
+BlinkEngine.prototype.startLocalTrack = function (deviceType, callback) {
+var localVideoEnable = false;
+var localAudioEnable = false;
+var isNeedStart = true;
+if (deviceType == BlinkConstant.DeviceType.Camera) {
+  localVideoEnable = true;
+} else if (deviceType == BlinkConstant.DeviceType.Microphone) {
+  localAudioEnable = true;
+} else if (deviceType == BlinkConstant.DeviceType.CameraAndMicrophone) {
+  localVideoEnable = true;
+  localAudioEnable = true;
+} else {
+  isNeedStart = false;
+}
+if (isNeedStart) {
+  var blinkEngine = this;
+  var mediaConfig = this.getMediaConfig(localVideoEnable, localAudioEnable);
+  BlinkUtil.getMedia(mediaConfig).then(function (stream) {
+    console.info(new Date(), "startLocalTrack navigator.getUserMedia success");
+    blinkEngine.setLocalStream(stream);
+    // 刷新本地视频窗口的流
+      BlinkUtil.setMediaStream(blinkEngine.userId, blinkEngine.localStream);
+    callback(blinkEngine);
+  }).catch(function (error) {
+    console.error(new Date(), "startLocalTrack navigator.getUserMedia error: ", error);
+  });
+}
+}
+/**
+* 变更本地Track绑定
+* 
+*/
+BlinkEngine.prototype.updateLocalTrackBind = function(resource) {
+if (resource == BlinkConstant.ResourceType.None 
+    || resource == BlinkConstant.ResourceType.ScreenSharing) { // 无音视频
+  if (this.localAudioTrack) {
+    this.localStream.removeTrack(this.localAudioTrack);
+  }
+  if (this.localVideoTrack) {
+    this.localStream.removeTrack(this.localVideoTrack);
+  }
+  } else if (resource == BlinkConstant.ResourceType.AudioOnly 
+      || resource == BlinkConstant.ResourceType.AudioAndScreenSharing) { // 只音频
+    if (this.localAudioTrack) {
+    this.localStream.addTrack(this.localAudioTrack);
+  }
+  if (this.localVideoTrack) {
+    this.localStream.removeTrack(this.localVideoTrack);
+  }
+  } else if (resource == BlinkConstant.ResourceType.VideoOnly 
+      || resource == BlinkConstant.ResourceType.VideoAndScreenSharing) { // 只视频
+    if (this.localAudioTrack) {
+    this.localStream.removeTrack(this.localAudioTrack);
+  }
+  if (this.localVideoTrack) {
+    this.localStream.addTrack(this.localVideoTrack);
+  }
+  } else if (resource == BlinkConstant.ResourceType.AudioAndVideo 
+      || resource == BlinkConstant.ResourceType.AudioAndVideoAndScreenSharing) { // 音视频
+    if (this.localAudioTrack) {
+    this.localStream.addTrack(this.localAudioTrack);
+  }
+  if (this.localVideoTrack) {
+    this.localStream.addTrack(this.localVideoTrack);
+  }
+  }
+}
+/** ----- 订阅分发 ----- */
 /** ----- 请求信令 ----- */
 // /**
 // * 请求logon信令
 // *
 // */
-// RongRTCEngine.prototype.logon = function() {
-// this.sendMsg(RongRTCConstant.SignalType.LOGON, this.token, {
-// 'version' : RongRTCConstant.LOGON_VERSION
+// BlinkEngine.prototype.logon = function() {
+// this.sendMsg(BlinkConstant.SignalType.LOGON, this.token, {
+// 'version' : BlinkConstant.LOGON_VERSION
 // });
 // }
 // /**
 // * 请求join信令
 // *
 // */
-// RongRTCEngine.prototype.join = function() {
-// this.sendMsg(RongRTCConstant.SignalType.JOIN, null, {
+// BlinkEngine.prototype.join = function() {
+// this.sendMsg(BlinkConstant.SignalType.JOIN, null, {
 // 'key' : this.channelId,
 // 'type' : this.userType
 // });
@@ -1349,1196 +3127,1200 @@ RongRTCEngine.prototype.screenOffer = function (stream) {
 * 请求logonAndJoin信令
 *
 */
-RongRTCEngine.prototype.logonAndJoin = function (status) {
+BlinkEngine.prototype.logonAndJoin = function (status) {
   this.logonAndJoinStatus = (status == null || status == undefined ? 0 : status);
   this.offerStatus = null;
-  this.sendMsg(RongRTCConstant.SignalType.LOGONANDJOIN, this.token, {
-    'key': this.channelId,
-    'type': this.userType,
-    'index': this.localVideoEnable ? 1 : 0,
-    'status': this.logonAndJoinStatus,
-    'version': RongRTCConstant.LOGON_VERSION
-    // , 'mediaid': this.selfUserId // 只在融云RCE环境下开启
+  if (this.isSubscribeVersion()) { // 订阅分发版本
+    this.sendMsg(BlinkConstant.SignalType.LOGONANDJOIN, this.token, {
+          'key': this.channelId,
+          'type': this.userType,
+          'status': this.logonAndJoinStatus,
+          'version': this.logonVersion,
+          'userName': this.userName,
+          'clientType': BlinkConstant.CLIENT_TYPE,
+          'carelist': this.care,
+          'resourcelist': this.resource
+      });
+  } else {
+    this.sendMsg(BlinkConstant.SignalType.LOGONANDJOIN, this.token, {
+      'key': this.channelId,
+      'type': this.userType,
+      'index': this.talkType,
+      'status': this.logonAndJoinStatus,
+      'version': this.logonVersion,
+      'userName': this.userName,
+      'clientType': BlinkConstant.CLIENT_TYPE
+      // , 'mediaid': this.userId // 只在融云RCE环境下开启
   });
+  }
 }
 /**
 * 请求channelPing信令
 *
 */
-RongRTCEngine.prototype.channelPing = function () {
-  this.sendMsg(RongRTCConstant.SignalType.CHANNEL_PING, null, {
-    'key': this.channelId
-  });
-}
-/**@deprecated
-* 请求updateTalkType信令
-*
-*/
-RongRTCEngine.prototype.updateTalkType = function () {
-  this.sendMsg(RongRTCConstant.SignalType.UPDATETALKTYPE, null, {
-    'key': this.channelId,
-    'index': this.localVideoEnable ? 1 : 0
-  });
-}
-/**
-* 摄像头开关闭通知服务端
-*/
-RongRTCEngine.prototype.updateTalkTypeCamera = function (isClosed) {
-  var isUpdateTalkType = true;
-  if (this.userType == RongRTCConstant.UserType.OBSERVER) { // 观察者模式
-    isUpdateTalkType = false;
-  }
-  this.closeLocalVideoWithUpdateTalkType(isClosed, isUpdateTalkType);
-  this.sendMsg(RongRTCConstant.SignalType.TURNTALKTYPE, null, {
-    'key': this.channelId,
-    'index': this.localVideoEnable ? 1 : 2,
-    type: 1
-  });
-}
-/**
-* m麦克风开关闭通知服务端
-*/
-RongRTCEngine.prototype.updateTalkTypeMic = function (isMute) {
-  this.localStream && this.localStream.getAudioTracks().forEach(function (track) {
-    track.enabled = !isMute;
-  })
-  this.localAudioStream && this.localAudioStream.getAudioTracks().forEach(function (track) {
-    track.enabled = !isMute;
-  })
-
-  RongRTCLogger.info("Microphone mute=" + isMute);
-  this.microphoneEnable = !isMute;
-  this.sendMsg(RongRTCConstant.SignalType.TURNTALKTYPE, null, {
-    'key': this.channelId,
-    'index': this.microphoneEnable ? 1 : 2,
-    type: 2
+BlinkEngine.prototype.channelPing = function () {
+  this.sendMsg(BlinkConstant.SignalType.CHANNEL_PING, null, {
+      'key': this.channelId
   });
 }
 /**
 * 请求leave信令
 *
 */
-RongRTCEngine.prototype.leave = function () {
-  this.sendMsg(RongRTCConstant.SignalType.LEAVE, null, {
-    'key': this.channelId
+BlinkEngine.prototype.leave = function () {
+  this.sendMsg(BlinkConstant.SignalType.LEAVE, null, {
+      'key': this.channelId
+  });
+}
+/**
+* 请求updateTalkType信令
+* @Deprecated
+*/
+BlinkEngine.prototype.updateTalkType = function () {
+  this.sendMsg(BlinkConstant.SignalType.UPDATETALKTYPE, null, {
+      'key': this.channelId,
+      'index': this.localVideoEnable ? BlinkConstant.TalkType.All : BlinkConstant.TalkType.OnlyAudio
+  });
+}
+/**
+* 请求turnTalkType信令
+* 
+*/
+BlinkEngine.prototype.turnTalkType = function (type, index) {
+  this.sendMsg(BlinkConstant.SignalType.TURNTALKTYPE, null, {
+      'key': this.channelId,
+      'type': type,
+      'index': index
+  });
+}
+/**
+* 请求screenSharing信令
+* 
+*/
+BlinkEngine.prototype.screenSharing = function (index) {
+  this.sendMsg(BlinkConstant.SignalType.SCREENSHARING, null, {
+      'key': this.channelId,
+      'index': index
   });
 }
 /**
 * 请求offer信令
 *
 */
-RongRTCEngine.prototype.offer = function (desc, from) {
-  this.sendMsg(RongRTCConstant.SignalType.EXCHANGE, desc, {
-    'key': this.channelId,
-    'type': RongRTCConstant.ExchangeType.OFFER,
-    'to': from
-  });
+BlinkEngine.prototype.offer = function (content, from, bodys) {
+  this.sendMsg(BlinkConstant.SignalType.EXCHANGE, content, {
+      'key': this.channelId,
+      'type': BlinkConstant.ExchangeType.OFFER,
+      'to': from
+  }, bodys);
 }
 /**
 * 请求answer信令
 *
 */
-RongRTCEngine.prototype.answer = function (desc, from) {
-  this.sendMsg(RongRTCConstant.SignalType.EXCHANGE, desc, {
-    'key': this.channelId,
-    'type': RongRTCConstant.ExchangeType.ANSWER,
-    'to': from
+BlinkEngine.prototype.answer = function (desc, from) {
+  this.sendMsg(BlinkConstant.SignalType.EXCHANGE, desc, {
+      'key': this.channelId,
+      'type': BlinkConstant.ExchangeType.ANSWER,
+      'to': from
   });
 }
 /**
 * 请求candidate信令
 *
 */
-RongRTCEngine.prototype.candidate = function (candidate, userId) {
-  this.sendMsg(RongRTCConstant.SignalType.EXCHANGE, candidate, {
-    'key': this.channelId,
-    'type': RongRTCConstant.ExchangeType.CANDIDATE,
-    'to': userId
+BlinkEngine.prototype.candidate = function (candidate, userId) {
+  this.sendMsg(BlinkConstant.SignalType.EXCHANGE, candidate, {
+      'key': this.channelId,
+      'type': BlinkConstant.ExchangeType.CANDIDATE,
+      'to': userId
   });
 }
 /**
 * 请求白板信令
 *
 */
-RongRTCEngine.prototype.ewb_create = function () {
-  this.sendMsg(RongRTCConstant.SignalType.EWB_CREATE, null, {
-    'key': this.channelId
+BlinkEngine.prototype.ewbCreate = function () {
+  this.sendMsg(BlinkConstant.SignalType.EWBCREATE, null, {
+      'key': this.channelId
   });
 }
 /**
 * 查询白板信令
 *
 */
-RongRTCEngine.prototype.ewb_query = function () {
-  this.sendMsg(RongRTCConstant.SignalType.EWB_QUERY, null, {
-    'key': this.channelId
+BlinkEngine.prototype.ewbQuery = function () {
+  this.sendMsg(BlinkConstant.SignalType.EWBQUERY, null, {
+      'key': this.channelId
+  });
+}
+/** ----- 会控请求 ----- */
+/**
+* 与会人员能力管理
+* 
+*/
+BlinkEngine.prototype.roleChange = function(userId, index) {
+this.sendMsg(BlinkConstant.SignalType.ROLECHANGE, null, {
+      'key': this.channelId,
+      'to': userId,
+      'index': index
   });
 }
 /**
-* 本地视频切换 大小流变化通知
-* @param candidate
-* @param userId
+* 申请管理
+* 
 */
-RongRTCEngine.prototype.flowSubscribe = function (msgBody) {
-  this.sendMsg(RongRTCConstant.SignalType.FLOWSUBSCRIBE, msgBody, {
-    'key': this.channelId
+BlinkEngine.prototype.apply = function(index) {
+  this.sendMsg(BlinkConstant.SignalType.APPLY, null, {
+      'key': this.channelId,
+      'index': index
   });
 }
-// ========= 会控 begin
-RongRTCEngine.prototype.changeMicPhone = function (isOpen, needSendMessage) {
-  this.localStream.getAudioTracks().forEach(function (track) {
-    track.enabled = isOpen;
-  })
+/**
+* 与会人员设备管理
+* 
+*/
+BlinkEngine.prototype.manageAction = function(userId, type, index) {
+this.sendMsg(BlinkConstant.SignalType.MANAGEACTION, null, {
+      'key': this.channelId,
+      'to': userId,
+      'index': index,
+      'type': type
+  });
+}
+/**
+* 会控应答
+* 
+*/
+BlinkEngine.prototype.channelAnswer = function(userId, index, type, status) {
+var parameters = {
+      'key': this.channelId,
+      'to': userId,
+      'index': index,
+      'status': status
+  }
+if (type != null && type != '') {
+  parameters.type = type;
+}
+this.sendMsg(BlinkConstant.SignalType.CHANNELANSWER, null, parameters);	
+}
+/** ----- 会控请求 ----- */
+/** ----- 大小流请求 ----- */
+/**
+* 大小流订阅
+* 
+*/
+BlinkEngine.prototype.flowSubscribe = function (flowSubscribes) {
+  this.sendMsg(BlinkConstant.SignalType.FLOWSUBSCRIBE, flowSubscribes, {
+      'key': this.channelId
+  });
+}
+/** ----- 大小流请求 ----- */
+/** ----- 订阅分发请求 ----- */
+/**
+* 请求update_resource信令
+* 
+*/
+BlinkEngine.prototype.update_resource = function(resource) {
+var content = {
+  'userId': this.userId,
+  'resource': resource
 };
-RongRTCEngine.prototype.changeVideo = function (isOpen, needSendMessage) {
-  this.localStream.getVideoTracks().forEach(function (track) {
-    track.enabled = isOpen;
-  })
-};
-/**
-* 处理channelAnswer通知信令
-*
-*/
-var channelHandler = {
-
-  1: function (data) { // 邀请观察者发言同意后收到通知
-    console.error(data)
-    rongRTCengine.rongRTCEngineEventHandle.call("onBecomeUser", {
-      userId: data.parameters.from,
-      userType: 1
-    });
-  },
-  2: function (data) {// 观察者主动要求发言 todo wenti
-    console.error(data)
-    var userId = data.parameters.serverData;
-    var status = data.parameters.status;
-    if (status == 1 && userId == rongRTCengine.selfUserId) {
-      console.error("fffffffffffffffffffffffff")
-      rongRTCengine.rongRTCMeeting.observerBecomeUser(userId);
-    } else {
-      rongRTCengine.rongRTCEngineEventHandle.call("onBecomeUser", {
-        userId: userId
-      });
-    }
-  },
-  3: function (data) { //邀请打开设备
-    rongRTCengine.rongRTCEngineEventHandle.call("onUserAgreeOpen", {
-      userId: data.parameters.from,
-      type: data.parameters.type,
-      userType: 1,
-      status: data.parameters.status
-    });
-  },
-  4: function (data) { // 将与会人降级为观察者
-    rongRTCengine.remoteStreams = rongRTCengine.remoteStreams.filter(function (stream) {
-      return stream.id != data.parameters.from;
-    })
-    rongRTCengine.rongRTCEngineEventHandle.call("onUserDown", {
-      userId: data.parameters.from,
-      userType: 1
-    });
-  },
-  5: function (data) { //邀请关闭设备
-    rongRTCengine.rongRTCEngineEventHandle.call("onUserLeft5", {
-      userId: data.to,
-      userType: 1
-    });
-  },
-  other: function (data) {
-    console.warn("no handler to handle data", data);
-  }
-}
-
-RongRTCEngine.prototype.closeStream = function (stream) {
-  stream ? stream.getTracks().forEach(function (track) {
-    track.stop();
-  }) : console.error(" stream is not exist")
-}
-RongRTCEngine.prototype.getPeerConnection = function (userId) {
-  var pcClient = this.peerConnections[userId];
-  var pc = pcClient['pc'];
-  if (!pc) {
-    throw new Error("userId => peerConnection is not exist", userId);
-  }
-  return pc;
-}
-var RongRTCMeeting = function () {
-
-}
-RongRTCMeeting.prototype.turntalktype = function (data) {
-  var type = data.parameters.type;
-  var index = data.parameters.index;
-  var userId = data.parameters.serverData;
-  var remoteStream = rongRTCengine.getRemoteStream(userId);
-  if (index == 1 && type == 1) {
-    remoteStream.getVideoTracks().forEach(function (track) {
-      track.enabled = true;
-    })
-
-  }
-  rongRTCengine.rongRTCEngineEventHandle.call("onTurnTalkType", {
-    userId: data.parameters.serverData,
-    type: type,
-    open: index == 1 ? true : false
-  });
-}
-RongRTCMeeting.prototype.channelAnswer = function (data) {
-  var type = data.parameters['index'] || "other";
-  ;
-  var handler = channelHandler[type];
-  handler(data);
-
-};
-var applyHandler = {
-
-  1: function (data) { //收到观察者主动要求发言
-    var requestUserId = data.parameters.from
-    rongRTCengine.rongRTCEngineEventHandle.call("OnReciveRequestToUser", {
-      userId: requestUserId
-    });
-  },
-  2: function (data) { //获取主持人权限响应
-    rongRTCengine.rongRTCEngineEventHandle.call("OnOtherUserBecomeHost", {
-      hostId: data.parameters.from
-    });
-  },
-  other: function (data) {
-    console.warn("no handler to handle data", data);
-  }
-}
-/**
-* 处理apply通知信令
-*
-*/
-
-RongRTCMeeting.prototype.applyMessage = function (data) {
-  var type = data.parameters['index'];
-  var to = data.parameters.to;
-  var handler = applyHandler[type];
-  handler(data);
-
-};
-/**
-* 处理roleChange通知信令
-*
-*/
-
-RongRTCMeeting.prototype.roleChange = function (data) {
-  var type = data.parameters['index'];
-  var to = data.parameters.to;
-  if (type == RongRTCConstant.Meeting.RoleChange.DEMOTION) { // 将与会人降级为观察者
-    this.noramlUserDoHostRequestDegradeNormalUserToObserver(to, true);
-  }
-  else if (type == RongRTCConstant.Meeting.RoleChange.INVITE) { // 邀请观察者发言
-    rongRTCengine.rongRTCEngineEventHandle.call("onBeRequestToUser", {
-      hostId: data.parameters.to
-    });// 说明：被邀请观察者收到邀请通知
-
-  }
-  else if (type == RongRTCConstant.Meeting.RoleChange.REMOVE) { //移除与会人员
-    if (to == rongRTCengine.selfUserId) {
-      rongRTCengine.rongRTCEngineEventHandle.call("onHostRemoved", {
-        userId: to
-      });// 说明：当被操作用户被踢出房间时，被操作用户会收到此通知
-    }
-  }
-};
-/**
-函数名：ObserverRequestBecomeNormalUser
-参数：
-返回值：
-说明：观察者请求成为正常人员，只有用户为观察身份时，此接口才有效
-*/
-RongRTCMeeting.prototype.observerRequestBecomeNormalUser = function () {
-  rongRTCengine.sendMsg(RongRTCConstant.SignalType.APPLY, null, {
-    'key': rongRTCengine.channelId,
-    'index': 0x01
-  });
-};
-/**
-函数名：HostDoObserverRequestBecomeNormalUser
-参数：strUserId，请求者ID，enumEngineOperationType，主持人回复请求类型
-返回值：
-说明：当观察者请求发言，主持人通过该接口处理，接受，拒绝，或者忙碌
-*/
-RongRTCMeeting.prototype.hostDoObserverRequestBecomeNormalUser = function (userId, isAccept) {
-  rongRTCengine.sendMsg(RongRTCConstant.SignalType.CHANNELANSWER, null, {
-    'key': rongRTCengine.channelId,
-    'to': userId,
-    'index': 0x02,
-    'status': isAccept
-  });
-}
-
-/**
-* 函数名：HostRequestDegradeNormalUserToObserver
-* 参数：strUserId，被操作人员的用户ID
-* 返回值：
-* 说明：主持人请求将正常用户降级为观察者
-*/
-RongRTCMeeting.prototype.hostRequestNormalUserToObserver = function (userId) {
-  rongRTCengine.sendMsg(RongRTCConstant.SignalType.ROLECHANGE, null, {
-    'key': rongRTCengine.channelId,
-    'to': userId,
-    'index': 0x01
-  });
-}
-
-/**
-函数名：NoramlUserDoHostRequestDegradeNormalUserToObserver
-参数：strHostId，主持人的用户ID，bAccept，接受请求还是拒绝
-返回值：
-说明：被请求降级的用户处理主持人的降级请求 //todo 观察者模式加入
-*/
-RongRTCMeeting.prototype.noramlUserDoHostRequestDegradeNormalUserToObserver = function (userId, bAccept) {
-  rongRTCengine.sendMsg(RongRTCConstant.SignalType.CHANNELANSWER, null, {
-    'key': rongRTCengine.channelId,
-    'to': userId,
-    'index': 0x04,
-    'status': 0x01
-  });
-  rongRTCengine.closeStream(rongRTCengine.localStream);
-  var pc = rongRTCengine.getPeerConnection(rongRTCengine.selfUserId);
-  pc.removeStream(rongRTCengine.localStream);
-
-  rongRTCengine.createOffer(pc, rongRTCengine.selfUserId, false);
-  rongRTCengine.rongRTCEngineEventHandle.call("onUserDown", {
-    userId: userId
-  });
-
-}
-var deviceControl = {
-  1: function (isOpen) { //摄像头
-    rongRTCengine.changeVideo(isOpen);
-  },
-  2: function (isOpen) {//麦克风
-    rongRTCengine.changeMicPhone(isOpen);
-  }
-}
-/**
-函数名：UserDoHostRequestControlUserDevice
-参数：strHostId，主持人的用户ID，enumControlAction，操作类型，关闭或者打开，enumControlMediaType，操作的媒体类型，bAccept，是否同意打开音、视频或者音视频
-返回值：
-说明：用户通过该接口处理主持人打开或关闭音视频的开关进行请求或者观察者处理主持人邀请发言
-*/
-RongRTCMeeting.prototype.userDoHostRequestControlUserDevice = function (hostId, isOpen, type, accept) {
-  var index = isOpen ? 0x03 : 0x05;
-  var type = type;
-  var handler = deviceControl[type];
-  handler(isOpen);
-  rongRTCengine.sendMsg(RongRTCConstant.SignalType.CHANNELANSWER, null, {
-    'key': rongRTCengine.channelId,
-    'to': hostId,
-    'index': index,
-    'type': type,
-    'status': accept
-  });
-};
-/**
-函数名：HostRequestUpgradeObserverToNormalUser
-参数：strUserId，被操作观察者的用户ID
-返回值：
-说明：主持人请求观察者升级为正常用户
-*/
-RongRTCMeeting.prototype.hostUpUser = function (userId) {
-  rongRTCengine.sendMsg(RongRTCConstant.SignalType.ROLECHANGE, null, {
-    'key': rongRTCengine.channelId,
-    'to': userId,
-    'index': 0x02
-  });
-};
-RongRTCMeeting.prototype.observerBecomeUser = function (userId) {
-  var rongRTCEnv = rongRTCengine;
-  rongRTCengine.getLocalStreamFromRtcApi(rongRTCengine.mediaConfig).then(function (stream) {
-    rongRTCengine.localStream = stream;
-    var peerConnection = rongRTCengine.getPeerConnection(rongRTCengine.selfUserId);
-    peerConnection.addStream(stream);
-    rongRTCengine.createOffer(peerConnection, rongRTCengine.selfUserId, false);
-    RongRTCUtil.refreshMediaStream(rongRTCengine.selfUserId);
-    rongRTCengine.rongRTCEngineEventHandle.call('onBecomeUser', {
-      userId: rongRTCengine.selfUserId,
-      stream: rongRTCengine.localStream
-    });
-
-    // talktype[0:无视频有音频, 1:有视频有音频, 2:有视频无音频, 3:无视频无音频]
-
-    var talkType;
-    if (!rongRTCEnv.localVideoEnable && rongRTCEnv.microphoneEnable)
-      talkType = 0;
-    else if (rongRTCEnv.localVideoEnable && rongRTCEnv.microphoneEnable)
-      talkType = 1;
-    else if (rongRTCEnv.localVideoEnable && !rongRTCEnv.microphoneEnable)
-      talkType = 2;
-    else
-      talkType = 3;;
-    rongRTCengine.localVideoEnable = true
-    rongRTCengine.microphoneEnable = true;
-    rongRTCengine.rongRTCEngineEventHandle.call('onaddstream', {
-      userId: rongRTCengine.selfUserId,
-      stream: rongRTCengine.localStream,
-      userType: RongRTCConstant.UserType.NORMAL,
-      talkType: 1,//升级后音视频默认都开
-      isLocal: false
-
-    });
+content = JSON.stringify(content);
+this.sendMsg(BlinkConstant.SignalType.UPDATE_RESOURCE, content, {
+      'key': this.channelId
   });
 }
 /**
-函数名：ObserverDoHostRequestUpgradeObserverToNormalUser
-参数：strUserId，主持人的用户ID，bAccept，是否同意升级为正常用户，打开音视频
-返回值：
-说明：观察者处理主持人邀请发言 或者死自己主动调用加入
+* 请求update_subscribe信令
+* 
 */
-RongRTCMeeting.prototype.doHostRequestToUser = function (hostId, bAccept) {
-  var status = bAccept == 1 ? 0x01 : bAccept == 2 ? 0x02 : 0x02;
-
-  if (status == 0x01) {
-    this.observerBecomeUser(this.selfUserId);
-  }
-  rongRTCengine.sendMsg(RongRTCConstant.SignalType.CHANNELANSWER, null, {
-    'key': rongRTCengine.channelId,
-    'to': hostId,
-    'index': 0x01,
-    'status': status
+BlinkEngine.prototype.update_subscribe = function(defaultSub, specialSubs) {
+var content = {
+  'userId': this.userId,
+  'defaultSub': defaultSub,
+  'specialSub': specialSubs
+}
+content = JSON.stringify(content);
+this.sendMsg(BlinkConstant.SignalType.UPDATE_SUBSCRIBE, content, {
+      'key': this.channelId
   });
 }
 /**
-函数名：HostReomveUser
-参数：strUserId，被操作人员的用户ID
-返回值：
-说明：主持人将用户踢出房间
+* 请求manage_update_resource_subscribe信令
+* 
 */
-RongRTCMeeting.prototype.hostRemoveUser = function (userId) {
-  rongRTCengine.sendMsg(RongRTCConstant.SignalType.ROLECHANGE, null, {
-    'key': rongRTCengine.channelId,
-    'to': userId,
-    'index': 0x03
-  });
-};
-/**
-函数名：HostReomveUser
-参数：strUserId，被操作人员的用户ID
-返回值：
-说明：主持人将用户踢出房间
-*/
-RongRTCMeeting.prototype.screenShare = function (isopen) {
-  var isopen = isopen == true ? 0x01 : 0x02;
-  rongRTCengine.sendMsg(RongRTCConstant.SignalType.SCREENSHARING, null, {
-    'key': rongRTCengine.channelId,
-    'index': isopen
-  });
-};
-var manageActionHandler = {
-  1: function (data) { //收到邀请打开
-    rongRTCengine.rongRTCEngineEventHandle.call("OnHostRequestControlDevice", {
-      userId: data.parameters.to,
-      content: data.parameters
-    });
-  },
-  2: function (data) { //收到邀请打开
-    rongRTCengine.rongRTCEngineEventHandle.call("OnHostRequestControlDevice", {
-
-      userId: data.parameters.to,
-      content: data.parameters
-    });
-  },
-  other: function (data) {
-    console.warn("no handler to handle data", data);
-  }
-}
-/**
-* 处理apply通知信令
-*
-*/
-
-RongRTCMeeting.prototype.manageAction = function (data) {
-  var type = data.parameters['index'];
-  var to = data.parameters.to;
-  var handler = manageActionHandler[type];
-  handler(data);
-
-};
-/**
-* 函数名：hostRequestControlUserDevice
-* 参数：userId，被操作人员的用户ID
-* 返回值：0x01：邀请打开
-0x02：邀请关闭
-type
-0x01：摄像头
-0x02：麦克风
-0x03：摄像头+麦克风
-* 说明：主持人通过该接口对与会人员音视频的开关进行管理
-*/
-RongRTCMeeting.prototype.hostRequestControlUserDevice = function (userId, type, closeOrOpen) {
-  rongRTCengine.sendMsg(RongRTCConstant.SignalType.MANAGEACTION, null, {
-    'key': rongRTCengine.channelId,
-    'to': userId,
-    'index': closeOrOpen,
-    'type': type
+BlinkEngine.prototype.manage_update_resource_subscribe = function(index, subscribeInfos) {
+var content = JSON.stringify(subscribeInfos);
+this.sendMsg(BlinkConstant.SignalType.MANAGE_UPDATE_RESOURCE_SUBSCRIBE, content, {
+      'key': this.channelId,
+      'index': index 
   });
 }
 /**
-函数名：GetHostPower
-参数：
-返回值：
-说明：获取主持人权限
+* 请求manage_answer_update_resource信令
+* 
 */
-RongRTCMeeting.prototype.getHostPower = function () {
-  rongRTCengine.sendMsg(RongRTCConstant.SignalType.APPLY, null, {
-    'key': rongRTCengine.channelId,
-    'index': 0x02
+BlinkEngine.prototype.manage_answer_update_resource = function(index, userId, status, subscribeInfo) {
+var content = JSON.stringify(subscribeInfo);
+this.sendMsg(BlinkConstant.SignalType.MANAGE_ANSWER_UPDATE_RESOURCE, content, {
+      'key': this.channelId,
+      'index': index,
+      'to': userId,
+      'status': status
   });
 }
 /**
-函数名：GetInviteUrl
-参数：
-返回值：
-说明：获取邀请链接 todo 未完成
+* 请求manage_answer_update_subscribe信令
+* 
 */
-RongRTCMeeting.prototype.GetInviteUrl = function () {
-
-};
-// ========= 会控 end
-
-//======屏幕共享 begin
-/**
-* 当前浏览器
-*/
-RongRTCEngine.prototype.myBrowser = function () {
-  var userAgent = navigator.userAgent; //取得浏览器的userAgent字符串
-  var isOpera = userAgent.indexOf("Opera") > -1;
-  if (isOpera) {
-    return "Opera"
-  }
-  ; //判断是否Opera浏览器
-  if (userAgent.indexOf("Firefox") > -1) {
-    return "FF";
-  } //判断是否Firefox浏览器
-  if (userAgent.indexOf("Chrome") > -1) {
-    return "Chrome";
-  }
-  if (userAgent.indexOf("Safari") > -1) {
-    return "Safari";
-  } //判断是否Safari浏览器
-  if (userAgent.indexOf("compatible") > -1 && userAgent.indexOf("MSIE") > -1 && !isOpera) {
-    return "IE";
-  }
-  ; //判断是否IE浏览器
-
-}
-/**
-*rce electron 直接可以获取屏幕流 不安装插件
-*/
-RongRTCEngine.prototype.shareWithStream = function (videoStream) { //todo bug 加入前根据麦克风状态静音
-  this.rongRTCMeeting.screenShare(true);
-  rongRTCengine.getLocalStreamFromRtcApi({ video: false, audio: true }).then(function (stream) {
-    rongRTCengine.localAudioStream = stream;
-    stream.getAudioTracks().forEach(function (track) {
-      track.enabled = rongRTCengine.microphoneEnable;
-    });
-    videoStream.getVideoTracks()[0].onended = function () {
-      rongRTCengine.endShareScreen();
-    };
-    rongRTCengine.screenSharingStatus = true;
-    rongRTCengine.screenOffer(videoStream);
-  }).catch(function (err) {
-    RongRTCLogger.error(err);
+BlinkEngine.prototype.manage_answer_update_subscribe = function(index, userId, status, subscribeInfo) {
+var content = JSON.stringify(subscribeInfo);
+this.sendMsg(BlinkConstant.SignalType.MANAGE_ANSWER_UPDATE_SUBSCRIBE, content, {
+      'key': this.channelId,
+      'index': index,
+      'to': userId,
+      'status': status
   });
-
 }
-
-
-//======= end
+/** ----- 订阅分发请求 ----- */
 /** ----- 请求信令 ----- */
 /** ----- 处理应答信令 ----- */
 /**
 * 处理join_result应答信令
 *
 */
-RongRTCEngine.prototype.logonAndJoin_result = function (data) {
+BlinkEngine.prototype.logonAndJoin_result = function (data) {
   var statusCode = data.parameters['statusCode'];
   var isJoined = statusCode == 'OK' ? true : false;
   if (isJoined) {
     var content = data.content; // 返回的结果是包含自己的
-    var contentArr = content.split("],");
-    var member = contentArr.length > 1 ? contentArr[1] : contentArr[0];
-    var memberArr = JSON.parse(member);
-    for (var i in memberArr) {
-      var userId = memberArr[i].userId;
-      if (!this.joinedUsers.contains(userId)) {
-        var userType = memberArr[i].type;
-        var talkType = memberArr[i].talktype;
-        var joinedUser = new Array();
-        joinedUser.push(userType);
-        joinedUser.push(talkType);
-        joinedUser.push(null);
-        this.joinedUsers.put(userId, joinedUser);
-        //if (userId != this.selfUserId) {
-        //    this.rongRTCEngineEventHandle.call('onUserJoined', { // 观
-        //        userId: userId,
-        //        userType: userType,
-        //        talkType: talkType
-        //    });
-        //}
-
+      if (this.isSubscribeVersion()) { // 订阅分发版本
+        var memberArr = JSON.parse(content);
+        for (var i in memberArr) {
+              var userId = memberArr[i].userId;
+              if (!this.joinedUsers.contains(userId)) {
+                  var userType = memberArr[i].userType;
+                  var userName = memberArr[i].userName;
+                  var resource = memberArr[i].resource;
+                  var talkType = this.convertResourceType2TalkType(resource);
+                  var defaultSub = memberArr[i].defaultSub;
+                var specialSubs = memberArr[i].specialSub;
+                  var joinedUser = {
+                    'userId': userId,
+                    'userType': userType,
+                    'talkType': talkType,
+                    'userName': userName,
+                  'resource': resource,
+                  'defaultSub': defaultSub,
+                  'specialSubs': specialSubs
+                  };
+                  this.joinedUsers.put(userId, joinedUser);
+                  if (userId != this.userId) {
+                      this.blinkEngineEventHandle.call('onUserJoined', {
+                          'userId': userId,
+                          'userType': userType,
+                          'talkType': talkType,
+                        'userName': userName,
+                      'resource': resource,
+                      'defaultSub': defaultSub,
+                      'specialSubs': specialSubs
+                      });
+                  } else {
+                    this.userType = userType;
+                    this.talkType = talkType;
+                  }
+              }
+          }
+      } else {
+        var contentArr = content.split("],");
+        var member = contentArr.length > 1 ? contentArr[1] : contentArr[0];
+        var memberArr = JSON.parse(member);
+        for (var i in memberArr) {
+              var userId = memberArr[i].userId;
+              if (!this.joinedUsers.contains(userId)) {
+                  var userType = memberArr[i].type;
+                  var talkType = memberArr[i].talktype;
+                  var userName = memberArr[i].userName;
+                  var screenSharingStatus = memberArr[i].screenSharingStatus;
+                  var joinedUser = {
+                    'userId': userId,
+                    'userType': userType,
+                    'talkType': talkType,
+                    'userName': userName,
+                    'screenSharingStatus': screenSharingStatus
+                  };
+                  this.joinedUsers.put(userId, joinedUser);
+                  if (userId != this.userId) {
+                      this.blinkEngineEventHandle.call('onUserJoined', {
+                          'userId': userId,
+                          'userType': userType,
+                          'talkType': talkType,
+                          'userName': userName,
+                        'screenSharingStatus': screenSharingStatus
+                      });
+                  } else {
+                    this.userType = userType;
+                    this.talkType = talkType;
+                  }
+              }
+          }
       }
-
-    }
-    // 开始keepAlive
-    this.startScheduleKeepAlive();
-    if (this.logonAndJoinStatus == RongRTCConstant.LogonAndJoinStatus.RECONNECT) { // 断线重连，主动发offer
-      var pcClient = this.peerConnections[this.selfUserId];
-      if (pcClient != null) { // 只有一人时，值为null
-        var pc = pcClient['pc'];
-        RongRTCLogger.warn("reLogonAndJoin createOffer");
-        this.createOffer(pc, this.selfUserId, true);
+      // 开始keepAlive
+      this.startScheduleKeepAlive();
+      if (this.logonAndJoinStatus == BlinkConstant.LogonAndJoinStatus.RECONNECT) { // 断线重连，主动发offer
+          var pcClient = this.peerConnections[this.userId];
+          if (pcClient != null) { // 只有一人时，值为null，在订阅分发版本中，只有一人时也有peerConnection
+              var pc = pcClient['pc'];
+              console.warn(new Date(), "reLogonAndJoin createOffer");
+              this.createOffer(pc, this.userId, true);
+          }
       }
-    }
   }
-  var joinedUser = this.joinedUsers.get(this.selfUserId);
-  var talkType = joinedUser[1];
-  if (this.logonAndJoinStatus == RongRTCConstant.LogonAndJoinStatus.CONNECT // 正常加入
-    || (this.logonAndJoinStatus == RongRTCConstant.LogonAndJoinStatus.RECONNECT && !isJoined) // 重连加入且加入失败
-    || !this.onJoinComplete
+  if (this.logonAndJoinStatus == BlinkConstant.LogonAndJoinStatus.CONNECT // 正常加入
+      || (this.logonAndJoinStatus == BlinkConstant.LogonAndJoinStatus.RECONNECT && !isJoined) // 重连加入且加入失败
+      || !this.onJoinComplete
   ) {
-    this.rongRTCEngineEventHandle.call('onJoinComplete', {
-      'isJoined': isJoined,
-      'userId': this.selfUserId,
-      talkType: talkType
-    });
-    this.onJoinComplete = true;
+      this.blinkEngineEventHandle.call('onJoinComplete', {
+          'isJoined': isJoined,
+          'userType': this.userType
+      });
+      this.onJoinComplete = true;
   }
 }
 /**
 * 处理channelPing_result应答信令
 *
 */
-RongRTCEngine.prototype.channelPing_result = function (data) {
+BlinkEngine.prototype.channelPing_result = function (data) {
   // 收到result，停止计时
   this.exitScheduleKeepAliveTimer();
 
   var statusCode = data.parameters['statusCode'];
   var isOK = statusCode == 'OK' ? true : false;
   if (!isOK) {
-    this.keepAliveFailed();
+      this.keepAliveFailed();
   } else {
-    // 重置keepAliveFailedTimes
-    this.keepAliveFailedTimes = 0;
+      // 重置keepAliveFailedTimes
+      this.keepAliveFailedTimes = 0;
   }
 }
 /**
 * 处理leave_result应答信令
 *
 */
-RongRTCEngine.prototype.leave_result = function (data) {
+BlinkEngine.prototype.leave_result = function (data) {
   var statusCode = data.parameters['statusCode'];
   var isLeft = statusCode == 'OK' ? true : false;
   if (isLeft) {
-    this.clear();
+      this.clear();
   }
-  this.rongRTCEngineEventHandle.call('onLeaveComplete', {
-    'isLeft': isLeft
+  this.blinkEngineEventHandle.call('onLeaveComplete', {
+      'isLeft': isLeft
+  });
+}
+/**
+* 处理turnTalkType_result应答信令
+* 
+*/
+BlinkEngine.prototype.turnTalkType_result = function (data) {
+  var statusCode = data.parameters['statusCode'];
+  var isSuccess = statusCode == 'OK' ? true : false;
+  this.blinkEngineEventHandle.call('onControlAudioVideoDevice', {
+    'isSuccess': isSuccess
   });
 }
 /**
 * 处理ewb_create_result应答信令
 *
 */
-RongRTCEngine.prototype.ewb_create_result = function (data) {
+BlinkEngine.prototype.ewbCreate_result = function (data) {
   var statusCode = data.parameters['statusCode'];
   var isSuccess = statusCode == 'OK' ? true : false;
   var url = '';
-  if (isSuccess) {
-    url = data.content;
+  if (isSuccess && data.content) {
+      url = data.content;
   }
-  this.rongRTCEngineEventHandle.call('onWhiteBoardURL', {
-    'isSuccess': isSuccess,
-    'url': url // 观察者模式url返回为空
+  this.ewbUrl = url; // 观察者模式url返回为空
+  this.blinkEngineEventHandle.call('onWhiteBoardURL', {
+      'isSuccess': isSuccess,
+      'url': this.ewbUrl
   });
 }
 /**
 * 处理ewb_query_result应答信令
 *
 */
-RongRTCEngine.prototype.ewb_query_result = function (data) {
+BlinkEngine.prototype.ewbQuery_result = function (data) {
   var statusCode = data.parameters['statusCode'];
   var isSuccess = statusCode == 'OK' ? true : false;
   var url = '';
-  if (isSuccess) {
-    url = data.content;
-    url ? this.ewbCreated = true : void 0;
+  if (isSuccess && data.content) {
+      url = data.content;
   }
-  this.rongRTCEngineEventHandle.call('onWhiteBoardQuery', {
-    'isSuccess': isSuccess,
-    'url': url // 当前会议没有白板url返回为空
+  this.ewbUrl = url; // 当前会议没有白板url返回为空
+  this.blinkEngineEventHandle.call('onWhiteBoardQuery', {
+      'isSuccess': isSuccess,
+      'url': this.ewbUrl
   });
 }
+/** ----- 会控应答 ----- */
+/**
+* 处理roleChange应答信令
+*
+*/
+BlinkEngine.prototype.roleChange_result = function (data) {
+var statusCode = data.parameters['statusCode'];
+var isSuccess = statusCode == 'OK' ? true : false;
+var index = data.parameters['index'];
+var to = data.parameters['to'];
+  if (index == BlinkConstant.MeetingActionType.RoleChange.DegradeToObserver) { // 将与会人降级为观察者
+    this.blinkEngineEventHandle.call('onDegradeNormalUserToObserver', {
+          'isSuccess': isSuccess,
+          'userId': to
+      });
+  } else if (index == BlinkConstant.MeetingActionType.RoleChange.UpgradeToNormal) { // 邀请观察者发言
+    this.blinkEngineEventHandle.call('onDegradeNormalUserToObserver', {
+          'isSuccess': isSuccess,
+          'userId': to
+      });
+  } else if (index == BlinkConstant.MeetingActionType.RoleChange.RemoveUser) { // 移除与会人员
+    this.blinkEngineEventHandle.call('onRemoveUser', {
+          'isSuccess': isSuccess,
+          'userId': to
+      });
+  }
+};
+/**
+* 处理pply应答信令
+*
+*/
+BlinkEngine.prototype.apply_result = function (data) {
+var statusCode = data.parameters['statusCode'];
+var isSuccess = statusCode == 'OK' ? true : false;
+var index = data.parameters['index'];
+  if (index == BlinkConstant.MeetingActionType.Apply.RequestUpgradeToNormal) { // 观察者主动要求发言
+    this.blinkEngineEventHandle.call('onObserverRequestBecomeNormalUser', {
+          'isSuccess': isSuccess,
+      });
+  } else if (index == BlinkConstant.MeetingActionType.Apply.GetHostAuthority) { // 获取主持人权限
+    if (isSuccess) {
+      // 变更为主持人
+      this.change2Host(this.userId);
+    }
+    this.blinkEngineEventHandle.call('onNormalUserRequestHostAuthority', {
+          'isSuccess': isSuccess,
+      });
+  } else if (index == BlinkConstant.MeetingActionType.Apply.GetInviteUrl) { // 生成邀请链接
+    var inviteUrl = '';
+    if (isSuccess && data.content) {
+      inviteUrl = data.content;
+    }
+    this.blinkEngineEventHandle.call('onGetInviteURL', {
+          'isSuccess': isSuccess,
+          'url': inviteUrl
+      });
+  }
+};
+/**
+* 处理manageAction应答信令
+*
+*/
+BlinkEngine.prototype.manageAction_result = function (data) {
+var statusCode = data.parameters['statusCode'];
+  var isSuccess = statusCode == 'OK' ? true : false;
+  var type = data.parameters['type'];
+  var index = data.parameters['index'];
+  var to = data.parameters['to'];
+this.blinkEngineEventHandle.call('onHostControlUserDevice', {
+      'isSuccess': isSuccess,
+      'userId': to,
+      'deviceType': type,
+      'isOpen': index == BlinkConstant.OperationType.OPEN ? true : false
+  });
+};
+/**
+* 处理channelAnswer应答信令
+*
+*/
+BlinkEngine.prototype.channelAnswer_result = function (data) {
+var statusCode = data.parameters['statusCode'];
+  var isSuccess = statusCode == 'OK' ? true : false;
+  var index = data.parameters['index'];
+  var type = data.parameters['type'];
+  var to = data.parameters['to'];
+  var status = data.parameters['status'];
+  var isAccept = status == BlinkConstant.MeetingAnswerType.Accept ? true : false;
+  if (index == BlinkConstant.MeetingActionType.ChannelAnswer.UpgradeToNormal) { // 邀请观察者发言
+    if (isSuccess && isAccept) {
+      // 变更为普通与会人员
+        this.change2Normal(this.userId);
+    }
+    this.blinkEngineEventHandle.call("onAnswerUpgradeObserverToNormalUser", {
+      'isSuccess': isSuccess,
+      'isAccept': isAccept
+      });
+  } else if (index == BlinkConstant.MeetingActionType.ChannelAnswer.RequestUpgradeToNormal) { // 观察者主动要求发言
+    if (isSuccess && isAccept) {
+      // 变更为普通与会人员
+      this.change2Normal(to);
+    }
+      this.blinkEngineEventHandle.call("onAnswerObserverRequestBecomeNormalUser", {
+        'isSuccess': isSuccess,
+      'isAccept': isAccept
+      });
+  } else if (index == BlinkConstant.MeetingActionType.ChannelAnswer.DegradeToObserver) { // 将与会人降级为观察者
+    if (isSuccess && isAccept) {
+      // 变更为观察者
+        this.change2Observer(this.userId);
+    }
+      this.blinkEngineEventHandle.call("onAnswerDegradeNormalUserToObserver", {
+        'isSuccess': isSuccess,
+      'isAccept': isAccept
+      });
+  } else if (index == BlinkConstant.MeetingActionType.ChannelAnswer.InviteToOpen || index == BlinkConstant.MeetingActionType.ChannelAnswer.InviteToClose) { // 邀请打开/关闭设备
+    var isOpen = index == BlinkConstant.MeetingActionType.ChannelAnswer.InviteToOpen ? true : false;
+    if (isSuccess && isAccept) {
+      // 变更talkType
+      this.changeTalkType(this.userId, type, isOpen);
+    }
+    this.blinkEngineEventHandle.call("onAnswerHostControlUserDevice", {
+      'isSuccess': isSuccess,
+          'deviceType': type,
+          'isOpen': isOpen,
+      'isAccept': isAccept
+      });
+  }
+};
+/** ----- 会控应答 ----- */
+/** ----- 订阅分发应答 ----- */
+/**
+* 处理update_resource应答信令
+* 
+*/
+BlinkEngine.prototype.update_resource_result = function(data) {
+
+}
+/**
+* 处理update_subscribe应答信令
+* 
+*/
+BlinkEngine.prototype.update_subscribe_result = function(data) {
+
+}
+/**
+* 处理manage_update_resource_subscribe应答信令
+* 
+*/
+BlinkEngine.prototype.manage_update_resource_subscribe_result = function(data) {
+
+}
+/**
+* 处理manage_answer_update_resource应答信令
+* 
+*/
+BlinkEngine.prototype.manage_answer_update_resource_result = function(data) {
+var statusCode = data.parameters['statusCode'];
+var isSuccess = statusCode == 'OK' ? true : false;
+var index = data.parameters['index'];
+var to = data.parameters['to'];
+  var status = data.parameters['status'];
+  var isAccept = status == BlinkConstant.MeetingAnswerType.Accept ? true : false;
+var subscribeInfo = JSON.parse(data.content.replace(new RegExp('\'', 'g'), '"'));
+var userId = subscribeInfo.userId;
+var userType = subscribeInfo.userType;
+var resource = subscribeInfo.resource;
+
+if (resource != null && userType == null) { // 邀请打开/关闭设备
+  var oldResource = this.resource;
+  var operation = this.convertOperation(oldResource, resource);
+  var deviceType = operation.deviceType;
+  var operationType = operation.operationType;
+  var isOpen = operationType == BlinkConstant.OperationType.OPEN ? true : false;
+  if (isSuccess && isAccept) {
+    // 变更资源
+    this._updateResource(resource);
+  }
+    this.blinkEngineEventHandle.call("onAnswerHostControlUserDevice", {
+      'isSuccess': isSuccess,
+          'deviceType': deviceType,
+          'isOpen': isOpen,
+      'isAccept': isAccept,
+        'subscribeInfo': subscribeInfo
+      });
+} else if (userType != null) { // 升降级
+  if (index == BlinkConstant.ManageType.Manage) {
+    var oldUserType = this.userType;
+    if (oldUserType == BlinkConstant.UserType.NORMAL && userType == BlinkConstant.UserType.OBSERVER) { // 将与会人降级为观察者
+      if (isSuccess && isAccept) {
+          // 变更为观察者
+            this.change2Observer(this.userId);
+        }
+          this.blinkEngineEventHandle.call("onAnswerDegradeNormalUserToObserver", {
+            'isSuccess': isSuccess,
+          'isAccept': isAccept,
+            'subscribeInfo': subscribeInfo
+          });
+    } else if (oldUserType == BlinkConstant.UserType.OBSERVER && userType == BlinkConstant.UserType.NORMAL) { // 邀请观察者发言
+      if (isSuccess && isAccept) {
+          // 变更为普通与会人员
+            this.change2Normal(this.userId);
+        }
+        this.blinkEngineEventHandle.call("onAnswerUpgradeObserverToNormalUser", {
+          'isSuccess': isSuccess,
+          'isAccept': isAccept,
+            'subscribeInfo': subscribeInfo
+          });
+    }
+  } else if (index == BlinkConstant.ManageType.Apply) { // 观察者主动要求发言
+    if (isSuccess && isAccept) {
+        // 变更为普通与会人员
+        this.change2Normal(to);
+      }
+        this.blinkEngineEventHandle.call("onAnswerObserverRequestBecomeNormalUser", {
+          'isSuccess': isSuccess,
+        'isAccept': isAccept,
+          'subscribeInfo': subscribeInfo
+        });
+  }
+}
+}
+/**
+* 处理manage_answer_update_subscribe应答信令
+* 
+*/
+BlinkEngine.prototype.manage_answer_update_subscribe_result = function(data) {
+
+}
+/** ----- 订阅分发应答 ----- */
 /** ----- 处理应答信令 ----- */
 /** ----- 处理通知信令 ----- */
 /**
 * 处理joined通知信令
 *
 */
-RongRTCEngine.prototype.joined = function (data) {
-  var userId = data.parameters['serverData'];
-  var userType = data.parameters['type'];
-  var talkType = data.parameters['index'];
+BlinkEngine.prototype.joined = function (data) {
+if (this.isSubscribeVersion()) { // 订阅分发版本
+  var content = data.content;
+  var member = JSON.parse(content);
+  var userId = member.userId;
+    var userType = member.userType;
+    var userName = member.userName;
+    var resource = member.resource;
+    var talkType = this.convertResourceType2TalkType(resource);
+    var defaultSub = member.defaultSub;
+    var specialSubs = member.specialSub;
   if (!this.joinedUsers.contains(userId)) {
-    var joinedUser = new Array();
-    joinedUser.push(userType);
-    joinedUser.push(talkType);
-    joinedUser.push(null);
-    this.joinedUsers.put(userId, joinedUser);
-  }
-  //if (userType == RongRTCConstant.UserType.OBSERVER) {
-  this.rongRTCEngineEventHandle.call('onUserJoined', { // 观察者模式
-    userId: userId,
-    userType: userType,
-    talkType: talkType
-  });
-  //}
+      var joinedUser = {
+          'userId': userId,
+          'userType': userType,
+          'talkType': talkType,
+          'userName': userName,
+          'resource': resource,
+          'defaultSub': defaultSub,
+          'specialSubs': specialSubs
+        };
+        this.joinedUsers.put(userId, joinedUser);
+    }
+//	    if (userType == BlinkConstant.UserType.OBSERVER) { // 观察者
+    this.blinkEngineEventHandle.call('onUserJoined', {
+        'userId': userId,
+        'userType': userType,
+        'talkType': talkType,
+        'userName': userName,
+        'resource': resource,
+        'defaultSub': defaultSub,
+        'specialSubs': specialSubs
+    });
+//	    }
+} else {
+  var userId = data.parameters['serverData'];
+    var userType = data.parameters['type'];
+    var talkType = data.parameters['index'];
+    var userName = data.parameters['userName'];
+    if (!this.joinedUsers.contains(userId)) {
+      var joinedUser = {
+          'userId': userId,
+          'userType': userType,
+          'talkType': talkType,
+          'userName': userName
+        };
+        this.joinedUsers.put(userId, joinedUser);
+    }
+//	    if (userType == BlinkConstant.UserType.OBSERVER) { // 观察者
+    this.blinkEngineEventHandle.call('onUserJoined', {
+        'userId': userId,
+        'userType': userType,
+        'talkType': talkType,
+        'userName': userName
+    });
+//	    }
 }
-/** @deprecated
+}
+/**
 * 处理update_talktype通知信令
-*
+* @Deprecated
 */
-RongRTCEngine.prototype.update_talktype = function (data) {
+BlinkEngine.prototype.updateTalktype_notify = function (data) {
   var userId = data.parameters['serverData'];
   var userType = data.parameters['type'];
   var talkType = data.parameters['index'];
-  this.rongRTCEngineEventHandle.call('onUserUpdatedTalkType', {
-    userId: userId,
-    userType: userType,
-    talkType: talkType
+  this.blinkEngineEventHandle.call('onUserUpdatedTalkType', {
+      'userId': userId,
+      'userType': userType,
+      'talkType': talkType
   });
 };
 /**
-* 请求本地设备开关
-*
+* 处理turn_talktype通知信令
+* 
 */
-RongRTCEngine.prototype.turnTalkType = function (serverData, index, type) {
-  this.sendMsg(RongRTCConstant.SignalType.TURNTALKTYPE, null, {
-    'key': this.channelId,
-    'serverdata': serverData,
-    'index': index,
-    'type': type
-
+BlinkEngine.prototype.turnTalktype_notify = function (data) {
+var userId = data.parameters['serverData'];
+  var type = data.parameters['type'];
+  var index = data.parameters['index'];
+  var isOpen = index == BlinkConstant.OperationType.OPEN ? true : false;
+  // 变更talkType
+  this.changeTalkType(userId, type, isOpen);
+  // @Deprecated
+  this.blinkEngineEventHandle.call('onTurnTalkType', {
+      'userId': userId,
+      'deviceType': type,
+      'isOpen': isOpen
+  });
+  this.blinkEngineEventHandle.call('onNotifyControlAudioVideoDevice', {
+      'userId': userId,
+      'deviceType': type,
+      'isOpen': isOpen
+  });
+}
+/**
+* 处理screen_sharing通知信令
+* 
+*/
+BlinkEngine.prototype.screenSharing_notify = function (data) {
+var userId = data.parameters['serverData'];
+  var index = data.parameters['index'];
+  var isOpen = index == BlinkConstant.OperationType.OPEN ? true : false;
+  this.blinkEngineEventHandle.call('onNotifySharingScreen', {
+      'userId': userId,
+      'isOpen': isOpen
   });
 }
 /**
 * 处理left通知信令
 *
 */
-RongRTCEngine.prototype.left = function (data) {
+BlinkEngine.prototype.left = function (data) {
   var userId = data.parameters['serverData'];
   var userType = data.parameters['type'];
+  var user = this.joinedUsers.get(userId);
   this.joinedUsers.remove(userId);
+  this.remoteStreams.remove(userId);
+  this.remoteScreenStreams.remove(userId);
   this.remoteCnameMap.remove(userId);
   this.remoteSdpMap.remove(userId);
-  this.remoteStreams = this.remoteStreams.filter(function (stream) {
-    return stream.id != userId;
-  })
-  if (this.joinedUsers.size() == 1) { // 当没有其它用户在会议时
-    // 重置offerStatus状态
-    this.offerStatus = null;
-    // 关闭连接
-    this.closePeerConnection(this.selfUserId);
+  // 移除trackId和userId的对应关系
+  var removeTrackIdArr = [];
+  this.remoteTrackIdMap.getEntrys().forEach(function (trackIdEntry) {
+    if (userId == trackIdEntry.value) {
+      removeTrackIdArr.push(trackIdEntry.key);
+    }
+  });
+  var blinkEngine = this;
+  removeTrackIdArr.forEach(function (trackId) {
+    blinkEngine.remoteTrackIdMap.remove(trackId);
+  });
+  if (this.isSubscribeVersion()) { // 订阅分发版本
+    // 不关闭连接
+  } else {
+    if (this.joinedUsers.size() == 1) { // 当没有其它用户在会议时
+      // 重置offerStatus状态
+      this.offerStatus = null;
+      // 关闭连接
+      this.closePeerConnection(this.userId);
+    }
   }
-  this.rongRTCEngineEventHandle.call('onUserLeft', {
-    userId: userId,
-    userType: userType
+  this.blinkEngineEventHandle.call('onUserLeft', {
+    'userId': userId,
+    'userType': userType
   });
 }
-/**
-* 建立连接
-*
-*/
-RongRTCEngine.prototype.preparePeerConnection = function (userId) {
-  RongRTCLogger.info("preparePeerConnection userId=" + userId);
-  var rongRTCEngine = this;
-  if (rongRTCEngine.peerConnections[userId] == null) {
-    var pc = new RTCPeerConnection();
-    var pcMin = new RTCPeerConnection();
-    pc.onaddstream = function (evt) {
-      RongRTCLogger.debug("onaddstream", evt);
 
-      rongRTCEngine.remoteStreams.push(evt.stream);
-      var joinedUser = rongRTCEngine.joinedUsers.get(evt.stream.id);
-      joinedUser.splice(2, 1, evt.stream);
-      var talkType = joinedUser[1];
-      console.log("talkType", talkType);
-      if (talkType == 0 || talkType == 3) {
-        console.log("remove Video track", talkType);
-        evt.stream.getVideoTracks().forEach(function (track) {
-          track.enabled = false;
-        })
-      }
-      rongRTCEngine.rongRTCEngineEventHandle.call('onaddstream', { //
-        userId: evt.stream.id,
-        userType: RongRTCConstant.UserType.NORMAL,
-        talkType: talkType,
-        stream: evt.stream,
-        isLocal: false
-
-      });
-    };
-
-    pc.onremovestream = function (evt) {
-      RongRTCLogger.debug("onremovestream", evt);
-    };
-
-    pc.ontrack = null;
-
-    pc.onsignalingstatechange = function (evt) {
-      RongRTCLogger.debug("onsignalingstatechange", evt);
-    };
-
-    pc.oniceconnectionstatechange = function (evt) {
-      RongRTCLogger.debug("oniceconnectionstatechange", evt);
-      RongRTCLogger.warn("pc.iceConnectionState=" + pc.iceConnectionState);
-
-      if (pc.iceConnectionState == 'failed') {
-        if (rongRTCEngine.wsConnectionState == RongRTCConstant.wsConnectionState.CONNECTED) { // ws连接可用
-          RongRTCLogger.warn("oniceconnectionstatechange createOffer");
-          rongRTCEngine.createOffer(pc, userId, true);
-        }
-      }
-    };
-
-    pc.onnegotiationneeded = null;
-    pc.ondatachannel = null;
-
-    pc.onicecandidate = function (evt) {
-      RongRTCLogger.debug("onicecandidate", evt);
-
-      handle(pc, evt);
-
-      function handle(pc, evt) {
-        if ((pc.signalingState || pc.readyState) == 'stable'
-          && rongRTCEngine.peerConnections[userId]['rem'] == true) {
-          if (evt.candidate) {
-            rongRTCEngine.candidate(JSON.stringify(evt.candidate),
-              userId);
-          }
-          return;
-        }
-        setTimeout(function () {
-          handle(pc, evt);
-        }, 2 * 1000);
-      }
-    };
-    rongRTCEngine.peerConnections[userId] = {}
-    rongRTCEngine.peerConnections[userId]['pc'] = pc;
-    rongRTCEngine.peerConnections[userId]['pcMin'] = pcMin;
-    rongRTCEngine.peerConnections[userId]['rem'] = false;
-
-    // peerConnection创建成功，开始getStatsReport
-    rongRTCEngine.startScheduleGetStatsReport();
-  }
-  return rongRTCEngine.peerConnections[userId];
-};
-/**
-* 关闭连接
-*
-*/
-RongRTCEngine.prototype.closePeerConnection = function (userId) {
-  if (this.peerConnections[userId] != null) {
-    this.peerConnections[userId]['pc'].close();
-    this.peerConnections[userId] = null;
-  }
-  // 重置带宽设置计数器
-  RongRTCGlobal.bandWidthCount = 0;
-  // peerConnection关闭，停止getStatsReport
-  this.exitScheduleGetStatsReport();
-}
 /**
 * 处理OfferRequest通知信令
 *
 */
-RongRTCEngine.prototype.offerRequest = function (data) {
+BlinkEngine.prototype.offerRequest = function (data) {
   var from = data.parameters['serverData'];
 
   var pcClient = this.preparePeerConnection(from);
   var pc = pcClient['pc'];
-  if (this.userType == RongRTCConstant.UserType.NORMAL) {
-    pc.addStream(this.localStream);
-    rongRTCengine.screenSharingStatus && pc.addStream(this.localAudioStream);//未有人加入时开启共享
-
+  if (this.userType != BlinkConstant.UserType.OBSERVER && this.localStream) { // 本地视频流
+      pc.addStream(this.localStream);
   }
-  if (data.parameters.type && data.parameters.type == '2' && this.userType == RongRTCConstant.UserType.NORMAL) {
-    /* pc.addStream(rongRTCEngine.localStreamMin);
-     this.minStream = true;*/
+  if (this.userType != BlinkConstant.UserType.OBSERVER && this.isScreenStreamSeparate && this.localScreenStream && this.screenSharingStatus) { // 屏幕共享流分离且开启了屏幕共享
+    pc.addStream(this.localScreenStream);
   }
-  RongRTCLogger.warn("offerRequest createOffer");
-  this.createOffer(pc, from, false);
+  var type = data.parameters['type'];
+  if (type == '2' && this.userType != BlinkConstant.UserType.OBSERVER && this.isEnableMinStream && this.localMinStream) { // 小流
+      pc.addStream(this.localMinStream);
+  }
+  console.warn(new Date(), "offerRequest createOffer");
+  var subscribeInfo;
+  if (this.isSubscribeVersion()) { // 订阅分发版本
+    subscribeInfo = {
+    'userId': this.userId,
+    'defaultSub': this.defaultSub,
+    'specialSub': this.specialSubs
+    }
+  }
+  this.createOffer(pc, from, false, subscribeInfo);
 };
 /**
 * 处理exchange通知信令
 *
 */
-RongRTCEngine.prototype.exchange = function (data) {
+BlinkEngine.prototype.exchange = function (data) {
   var type = data.parameters['type'];
-  if (type == RongRTCConstant.ExchangeType.OFFER) {
-    this.handleOffer(data);
-  } else if (type == RongRTCConstant.ExchangeType.ANSWER) {
-    this.handleAnswer(data);
-  } else if (type == RongRTCConstant.ExchangeType.CANDIDATE) {
-    this.handleCandidate(data);
+  if (type == BlinkConstant.ExchangeType.OFFER) {
+      this.handleOffer(data);
+  } else if (type == BlinkConstant.ExchangeType.ANSWER) {
+      this.handleAnswer(data);
+  } else if (type == BlinkConstant.ExchangeType.CANDIDATE) {
+      this.handleCandidate(data);
   }
 };
 /**
-* 处理白板创建通知信令
-*
-*/
-RongRTCEngine.prototype.ewbCreateNotify = function (data) {
-  this.ewbCreated = true;
-};
-/**
-* handle offer
-*
-*/
-RongRTCEngine.prototype.handleOffer = function (data) {
-  if (this.offerStatus == RongRTCConstant.OfferStatus.SENDING) {
-    RongRTCLogger.warn("handleOffer offerStatus sending");
-    return;
-  }
-
-  var from = data.parameters['from'];
-  var desc = JSON.parse(data.content.replace(new RegExp('\'', 'g'), '"'));
-  // set bandwidth
-  desc.sdp = RongRTCUtil.setBandWidth(desc.sdp, this.getBandWidth());
-
-  var pcClient = this.preparePeerConnection(from);
-  var pc = pcClient['pc'];
-  if (this.userType == RongRTCConstant.UserType.NORMAL) {
-    pc.addStream(this.localStream);
-  }
-  var rongRTCEngine = this;
-  pc.setRemoteDescription(new RTCSessionDescription(desc), function () {
-    RongRTCLogger.info("handleOffer setRemoteDescription success");
-    rongRTCEngine.offerStatus = RongRTCConstant.OfferStatus.DONE;
-    // set remote cname map
-    rongRTCEngine.setRemoteCnameMap(desc.sdp);
-    pcClient['rem'] = true;
-    pc.createAnswer(function (desc2) {
-      RongRTCLogger.info("createAnswer success");
-      pc.setLocalDescription(desc2, function () {
-        RongRTCLogger.info("createAnswer setLocalDescription success");
-        rongRTCEngine.answer(JSON.stringify(desc2), from);
-      }, function (error) {
-        RongRTCLogger.error("createAnswer setLocalDescription error: ", error);
-      });
-    }, function (error) {
-      RongRTCLogger.error("createAnswer error: ", error);
-    }, rongRTCEngine.getSdpMediaConstraints(false));
-  }, function (error) {
-    RongRTCLogger.error("handleOffer setRemoteDescription error: ", error);
-  });
-};
-/**
-* handle answer
-*
-*/
-RongRTCEngine.prototype.handleAnswer = function (data) {
-  if (this.offerStatus == RongRTCConstant.OfferStatus.DONE) { // 已经设置过一次SDP，放弃本次设置
-    RongRTCLogger.warn("handleAnswer offerStatus done");
-    return;
-  }
-
-  var from = data.parameters['from'];
-  var desc = JSON.parse(data.content.replace(new RegExp('\'', 'g'), '"'));
-  var pcClient = this.preparePeerConnection(from);
-  var pc;
-  // if (desc.type=="tinyStreamAnswer") {
-  //     desc.type = "answer";
-  //     pc = pcClient['pcMin'];
-  // }else {
-  pc = pcClient['pc'];
-  // }
-  // set bandwidth
-  desc.sdp = RongRTCUtil.setBandWidth(desc.sdp, this.getBandWidth());
-
-
-  var rongRTCEngine = this;
-  pc.setRemoteDescription(new RTCSessionDescription(desc), function () {
-    RongRTCLogger.info("handleAnswer setRemoteDescription success");
-    rongRTCEngine.offerStatus = RongRTCConstant.OfferStatus.DONE;
-    // set remote cname map
-    rongRTCEngine.setRemoteCnameMap(desc.sdp);
-    pcClient['rem'] = true;
-  }, function (error) {
-    RongRTCLogger.error("handleAnswer setRemoteDescription error: ", error);
-  });
-};
-/**
-* handle candidate
-*
-*/
-RongRTCEngine.prototype.handleCandidate = function (data) {
-  var from = data.parameters['from'];
-  var desc = JSON.parse(data.content.replace(new RegExp('\'', 'g'), '"'))
-
-  var pcClient = this.preparePeerConnection(from);
-  var pc = pcClient['pc'];
-  pc.addIceCandidate(new RTCIceCandidate(desc), function () {
-    RongRTCLogger.info("addIceCandidate success");
-  }, function (error) {
-    RongRTCLogger.error("addIceCandidate error: ", error);
-  });
-}
-/**
-* create offer
-*
-*/
-RongRTCEngine.prototype.createOffer = function (pc, userId, isIceRestart) {
-  if (this.offerStatus == RongRTCConstant.OfferStatus.SENDING) { // 已经创建过Offer，本次不创建
-    RongRTCLogger.warn("createOffer offerStatus sending");
-    return;
-  }
-  RongRTCLogger.info("createOffer userId=" + userId);
-  var rongRTCEngine = this;
-  pc.createOffer(function (desc) {
-    RongRTCLogger.info("createOffer success");
-    // change streamId use userId
-    desc.sdp = RongRTCUtil.changeStreamId(desc.sdp,
-      rongRTCEngine.localStream.id, rongRTCEngine.selfUserId);
-    if (rongRTCEngine.minStream && !rongRTCEngine.screenSharingStatus) {
-      desc.sdp = RongRTCUtil.changeStreamId(desc.sdp,
-        rongRTCEngine.localStreamMin.id, rongRTCEngine.selfUserId + '_tiny');
-    }
-    // change streamId use userId
-    if (rongRTCEngine.screenSharingStatus && rongRTCengine.localAudioStream) {
-      desc.sdp = RongRTCUtil.changeStreamId(desc.sdp,
-        rongRTCEngine.localAudioStream.id, rongRTCEngine.selfUserId);
-    }
-
-    // 替换video参数
-    desc.sdp = RongRTCUtil.changeVideoDesc(desc.sdp);
-    pc.setLocalDescription(desc, function () {
-      RongRTCLogger.info("createOffer setLocalDescription success");
-      rongRTCEngine.offerStatus = RongRTCConstant.OfferStatus.SENDING;
-      rongRTCEngine.offer(JSON.stringify(desc), userId);
-    }, function (error) {
-      RongRTCLogger.error("createOffer setLocalDescription error: ", error);
-    });
-  }, function (error) {
-    RongRTCLogger.error("createOffer error: ", error);
-  }, rongRTCEngine.getSdpMediaConstraints(isIceRestart));
-
-
-  /*    var pcMin=rongRTCEngine.peerConnections[userId]['pcMin']
-      pcMin.addStream(rongRTCEngine.localStreamMin);
-      pcMin.createOffer(function (desc) {
-          RongRTCLogger.info("createOfferMin success");
-          // change streamId use userId
-          desc.sdp = RongRTCUtil.changeStreamId(desc.sdp,
-              rongRTCEngine.localStreamMin.id, rongRTCEngine.selfUserId+"_tiny");
-          // 替换video参数
-          desc.sdp = RongRTCUtil.changeVideoDesc(desc.sdp);
-          pcMin.setLocalDescription(desc, function() {
-              RongRTCLogger.info("createpcMinOffer setLocalDescription success");
-              rongRTCEngine.offerStatus = RongRTCConstant.OfferStatus.SENDING;
-              rongRTCEngine.offer(JSON.stringify(desc).replace(/offer/, "tinyStreamOffer"), userId);
-          }, function(error) {
-              RongRTCLogger.error("createpcMinOffer setLocalDescription error: ", error);
-          });
-
-      }, function(error) {
-          RongRTCLogger.error("createOfferMin  error: ", error);
-      })*/
-}
-/**
-* 设置sdp属性
-*
-*/
-RongRTCEngine.prototype.getSdpMediaConstraints = function (isIceRestart) {
-  //	if (this.userType == RongRTCConstant.UserType.OBSERVER) { // 观察者模式
-  //		if (this.mediaConfig.sdpConstraints == null) {
-  //			this.mediaConfig.sdpConstraints = {};
-  //		}
-  //		if (this.mediaConfig.sdpConstraints.mandatory == null) {
-  //			this.mediaConfig.sdpConstraints.mandatory = {};
-  //		}
-  //		this.mediaConfig.sdpConstraints.mandatory.OfferToReceiveAudio = true;
-  //		this.mediaConfig.sdpConstraints.mandatory.OfferToReceiveVideo = true;
-  //	}
-
-  var sdpMediaConstraints = {};
-  sdpMediaConstraints.mandatory = {};
-  // 统一设置，包含观察者模式和普通模式无摄像头情况
-  sdpMediaConstraints.mandatory.OfferToReceiveAudio = true;
-  sdpMediaConstraints.mandatory.OfferToReceiveVideo = true;
-  // IceRestart
-  RongRTCLogger.warn("isIceRestart=" + isIceRestart);
-  sdpMediaConstraints.mandatory.IceRestart = isIceRestart;
-  return sdpMediaConstraints;
-}
-/**
-* 设置remote cname map
-*
-*/
-RongRTCEngine.prototype.setRemoteCnameMap = function (sdp) {
-  var userArr = this.joinedUsers.getEntrys();
-  for (var i in userArr) {
-    var userId = userArr[i].key;
-    if (userId == this.selfUserId) { // 不是远端
-      continue;
-    }
-    if (!this.remoteCnameMap.contains(userId)) {
-      var cname = RongRTCUtil.getCname(sdp, userId);
-      if (cname != null && cname != "") {
-        this.remoteCnameMap.put(userId, cname);
-        this.remoteSdpMap.put(userId, sdp);
-      }
-    } else {
-      var cname = this.remoteCnameMap.get(userId);
-      if (cname != null && cname != ""
-        && !RongRTCUtil.isHasCname(sdp, cname)) {
-        var newCname = RongRTCUtil.getCname(sdp, userId);
-        if (newCname != null && newCname != "") {
-          this.remoteCnameMap.put(userId, newCname);
-          RongRTCUtil.refreshMediaStream(userId);// 屏幕共享cname不变
-          // userId不变，cname变化，视为客户端杀进程后重连，刷新远端视频流
-        }
-      } else if (cname != null && cname != ""
-        && RongRTCUtil.isHasCname(sdp, cname)) {
-        var newCname = RongRTCUtil.getCname(sdp, userId);
-        if (cname == newCname) {
-          var oldSdp = this.remoteSdpMap.get(userId);
-          var ts = RongRTCUtil.getSsrc(oldSdp, userId, cname);
-          var newTs = RongRTCUtil.getSsrc(sdp, userId, cname);
-          if (ts != newTs)
-            RongRTCUtil.refreshMediaStream(userId)
-
-        }
-      }
-
-    }
-  }
-}
-/**
-* 获取带宽
+* 处理ewb_create_notify通知信令
 * 
 */
-RongRTCEngine.prototype.getBandWidth = function () {
-  if (this.screenSharingStatus) { // 正在屏幕共享
-    return RongRTCConstant.BandWidth_ScreenShare_1280_720;
+BlinkEngine.prototype.ewbCreate_notify = function (data) {
+var userId = data.parameters['serverData'];
+  this.blinkEngineEventHandle.call('onNotifyCreateWhiteBoard', {
+      'userId': userId,
+  });
+};
+/** ----- 会控通知 ----- */
+/**
+* 处理roleChange通知信令
+* 
+*/
+BlinkEngine.prototype.roleChange_notify = function (data) {
+  var index = data.parameters['index'];
+  var from = data.parameters['from'];
+  if (index == BlinkConstant.MeetingActionType.RoleChange.DegradeToObserver) { // 将与会人降级为观察者
+    this.blinkEngineEventHandle.call("onNotifyDegradeNormalUserToObserver", {
+          'hostId': from
+      });
+  } else if (index == BlinkConstant.MeetingActionType.RoleChange.UpgradeToNormal) { // 邀请观察者发言
+      this.blinkEngineEventHandle.call("onNotifyUpgradeObserverToNormalUser", {
+          'hostId': from
+      });
+  } else if (index == BlinkConstant.MeetingActionType.RoleChange.RemoveUser) { // 移除与会人员
+      this.blinkEngineEventHandle.call("onNotifyRemoveUser", {
+          'hostId': from
+      });
   }
-  return this.bandWidth;
+};
+/**
+* 处理apply通知信令
+* 
+*/
+BlinkEngine.prototype.apply_notify = function (data) {
+  var index = data.parameters['index'];
+  var from = data.parameters['from'];
+  if (index == BlinkConstant.MeetingActionType.Apply.RequestUpgradeToNormal) { // 观察者主动要求发言
+    this.blinkEngineEventHandle.call("onNotifyObserverRequestBecomeNormalUser", {
+          'userId': from
+      });
+  } else if (index == BlinkConstant.MeetingActionType.Apply.GetHostAuthority) { // 获取主持人权限
+    // 变更为主持人
+    this.change2Host(from);
+      this.blinkEngineEventHandle.call("onNotifyNormalUserRequestHostAuthority", {
+          'userId': from
+      });
+  }
+};
+/**
+* 处理manageAction通知信令
+* 
+*/
+BlinkEngine.prototype.manageAction_notify = function (data) {
+  var from = data.parameters['from'];
+  var type = data.parameters['type'];
+  var index = data.parameters['index'];
+this.blinkEngineEventHandle.call("onNotifyHostControlUserDevice", {
+      'hostId': from,
+      'deviceType': type,
+      'isOpen': index == BlinkConstant.OperationType.OPEN ? true : false
+  });
+};
+/**
+* 处理channelAnswer通知信令
+* 
+*/
+BlinkEngine.prototype.channelAnswer_notify = function (data) {
+var index = data.parameters['index'];
+// 发起者的uid
+  var from = data.parameters['from'];
+  // 原操作发起者的uid
+  var serverData = data.parameters['serverData'];
+  var type = data.parameters['type'];
+  var status = data.parameters['status'];
+  var isAccept = status == BlinkConstant.MeetingAnswerType.Accept ? true : false;
+  if (index == BlinkConstant.MeetingActionType.ChannelAnswer.UpgradeToNormal) { // 邀请观察者发言
+    if (isAccept) {
+      // 变更为普通与会人员
+      this.change2Normal(from);
+    }
+    this.blinkEngineEventHandle.call("onNotifyAnswerUpgradeObserverToNormalUser", {
+          'userId': from,
+          'isAccept': isAccept
+      });
+  } else if (index == BlinkConstant.MeetingActionType.ChannelAnswer.RequestUpgradeToNormal) { // 观察者主动要求发言
+    if (isAccept) {
+      // 变更为普通与会人员
+      this.change2Normal(serverData);
+    }
+      this.blinkEngineEventHandle.call("onNotifyAnswerObserverRequestBecomeNormalUser", {
+          'userId': serverData,
+          'isAccept': isAccept
+      });
+  } else if (index == BlinkConstant.MeetingActionType.ChannelAnswer.DegradeToObserver) { // 将与会人降级为观察者
+    if (isAccept) {
+      // 变更为观察者
+      this.change2Observer(from);
+    }
+      this.blinkEngineEventHandle.call("onNotifyAnswerDegradeNormalUserToObserver", {
+          'userId': from,
+          'isAccept': isAccept
+      });
+  } else if (index == BlinkConstant.MeetingActionType.ChannelAnswer.InviteToOpen || index == BlinkConstant.MeetingActionType.ChannelAnswer.InviteToClose) { // 邀请打开/关闭设备
+      var isOpen = index == BlinkConstant.MeetingActionType.ChannelAnswer.InviteToOpen ? true : false;
+      if (isAccept) {
+        // 变更talkType
+        this.changeTalkType(from, type, isOpen);
+      }
+    this.blinkEngineEventHandle.call("onNotifyAnswerHostControlUserDevice", {
+          'userId': from,
+          'deviceType': type,
+          'isOpen': isOpen,
+          'isAccept': isAccept
+      });
+  }
+};
+/** ----- 会控通知 ----- */
+/** ----- 订阅分发通知 ----- */
+/**
+* 处理update_resource通知信令
+* 
+*/
+BlinkEngine.prototype.update_resource_notify = function (data) {
+var subscribeInfo = JSON.parse(data.content);
+var userId = subscribeInfo.userId;
+var resource = subscribeInfo.resource;
+this.blinkEngineEventHandle.call('onNotifyResourceUpdated', {
+      'userId': userId,
+      'resource': resource
+  });
+
+var user = this.joinedUsers.get(userId);
+var oldResource = user.resource;
+// 变更resource
+this.changeResource(userId, resource);
+// 转换operation
+var operation = this.convertOperation(oldResource, resource);
+// 通知
+var deviceType = operation.deviceType;
+var operationType = operation.operationType;
+if (deviceType != null && operationType != null) {
+  var isOpen = operationType == BlinkConstant.OperationType.OPEN ? true : false;
+  if (deviceType == BlinkConstant.DeviceType.ScreenShare) { // 屏幕共享
+//			this.blinkEngineEventHandle.call('onNotifySharingScreen', {
+//				'userId': userId,
+//				'isOpen': isOpen
+//		    });
+  } else {
+    // 摄像头或麦克风
+    // @Deprecated
+    this.blinkEngineEventHandle.call('onTurnTalkType', {
+      'userId': userId,
+      'deviceType': deviceType,
+      'isOpen': isOpen
+    });
+    this.blinkEngineEventHandle.call('onNotifyControlAudioVideoDevice', {
+      'userId': userId,
+      'deviceType': deviceType,
+      'isOpen': isOpen
+    });
+  }
 }
+}
+/**
+* 处理update_subscribe通知信令
+* 
+*/
+BlinkEngine.prototype.update_subscribe_notify = function (data) {
+var subscribeInfo = JSON.parse(data.content);
+var userId = subscribeInfo.userId;
+var defaultSub = subscribeInfo.defaultSub;
+var specialSubs = subscribeInfo.specialSub;
+this.blinkEngineEventHandle.call('onNotifySubscribeUpdated', {
+      'userId': userId,
+      'defaultSub': defaultSub,
+      'specialSubs': specialSubs
+  });
+}
+/**
+* 处理manage_update_resource_subscribe通知信令
+* 
+*/
+BlinkEngine.prototype.manage_update_resource_notify = function (data) {
+var index = data.parameters['index'];
+var from = data.parameters['from'];
+var subscribeInfo = JSON.parse(data.content);
+var userId = subscribeInfo.userId;
+var userType = subscribeInfo.userType;
+var resource = subscribeInfo.resource;
+
+if (resource != null && userType == null) { // 邀请打开/关闭设备
+  var oldResource = this.resource;
+  var operation = this.convertOperation(oldResource, resource);
+  var deviceType = operation.deviceType;
+  var operationType = operation.operationType;
+  var isOpen = operationType == BlinkConstant.OperationType.OPEN ? true : false;
+  this.blinkEngineEventHandle.call("onNotifyHostControlUserDevice", {
+        'hostId': from,
+        'deviceType': deviceType,
+        'isOpen': isOpen,
+        'subscribeInfo': subscribeInfo
+    });
+} else if (userType != null) { // 升降级
+  if (index == BlinkConstant.ManageType.Manage) {
+    var oldUserType = this.userType;
+    if (oldUserType == BlinkConstant.UserType.NORMAL && userType == BlinkConstant.UserType.OBSERVER) { // 将与会人降级为观察者
+      this.blinkEngineEventHandle.call("onNotifyDegradeNormalUserToObserver", {
+              'hostId': from,
+            'subscribeInfo': subscribeInfo
+          });
+    } else if (oldUserType == BlinkConstant.UserType.OBSERVER && userType == BlinkConstant.UserType.NORMAL) { // 邀请观察者发言
+      this.blinkEngineEventHandle.call("onNotifyUpgradeObserverToNormalUser", {
+              'hostId': from,
+            'subscribeInfo': subscribeInfo
+          });
+    }
+  } else if (index == BlinkConstant.ManageType.Apply) { // 观察者主动要求发言
+    this.blinkEngineEventHandle.call("onNotifyObserverRequestBecomeNormalUser", {
+            'userId': from,
+          'subscribeInfo': subscribeInfo
+        });
+  }
+}
+}
+/**
+* 处理manage_update_subscribe_subscribe通知信令
+* 
+*/
+BlinkEngine.prototype.manage_update_subscribe_notify = function (data) {
+// onNotifySubscribeManaged
+}
+/**
+* 处理manage_answer_update_resource通知信令
+* 
+*/
+BlinkEngine.prototype.manage_answer_update_resource_notify = function (data) {
+var index = data.parameters['index'];
+  var from = data.parameters['from'];
+  var serverData = data.parameters['serverData'];
+  var status = data.parameters['status'];
+  var isAccept = status == BlinkConstant.MeetingAnswerType.Accept ? true : false;
+  var subscribeInfo = JSON.parse(data.content.replace(new RegExp('\'', 'g'), '"'));
+var userId = subscribeInfo.userId;
+var userType = subscribeInfo.userType;
+var resource = subscribeInfo.resource;
+
+if (resource != null && userType == null) { // 邀请打开/关闭设备
+  var user = this.joinedUsers.get(from);
+  if (user != null) {
+    var oldResource = user.resource;
+    var operation = this.convertOperation(oldResource, resource);
+    var deviceType = operation.deviceType;
+    var operationType = operation.operationType;
+    var isOpen = operationType == BlinkConstant.OperationType.OPEN ? true : false;
+    if (isAccept) {
+      // 变更resource
+          this.changeResource(from, resource);
+    }
+    this.blinkEngineEventHandle.call("onNotifyAnswerHostControlUserDevice", {
+            'userId': from,
+            'deviceType': deviceType,
+            'isOpen': isOpen,
+            'isAccept': isAccept,
+          'subscribeInfo': subscribeInfo
+        });
+  }
+} else if (userType != null) { // 升降级
+  if (index == BlinkConstant.ManageType.Manage) {
+    var user = this.joinedUsers.get(from);
+    if (user != null) {
+      var oldUserType = user.userType;
+      if (oldUserType == BlinkConstant.UserType.NORMAL && userType == BlinkConstant.UserType.OBSERVER) { // 将与会人降级为观察者
+        if (isAccept) {
+            // 变更为观察者
+            this.change2Observer(from);
+          }
+            this.blinkEngineEventHandle.call("onNotifyAnswerDegradeNormalUserToObserver", {
+                'userId': from,
+                'isAccept': isAccept,
+              'subscribeInfo': subscribeInfo
+            });
+      } else if (oldUserType == BlinkConstant.UserType.OBSERVER && userType == BlinkConstant.UserType.NORMAL) { // 邀请观察者发言
+        if (isAccept) {
+            // 变更为普通与会人员
+            this.change2Normal(from);
+          }
+          this.blinkEngineEventHandle.call("onNotifyAnswerUpgradeObserverToNormalUser", {
+                'userId': from,
+                'isAccept': isAccept,
+              'subscribeInfo': subscribeInfo
+            });
+      }
+    }
+  } else if (index == BlinkConstant.ManageType.Apply) { // 观察者主动要求发言
+    if (isAccept) {
+        // 变更为普通与会人员
+        this.change2Normal(serverData);
+      }
+        this.blinkEngineEventHandle.call("onNotifyAnswerObserverRequestBecomeNormalUser", {
+            'userId': serverData,
+            'isAccept': isAccept,
+          'subscribeInfo': subscribeInfo
+        });
+  }
+}
+}
+/**
+* 处理manage_answer_update_subscribe通知信令
+* 
+*/
+BlinkEngine.prototype.manage_answer_update_subscribe_notify = function (data) {
+
+}
+/** ----- 订阅分发通知 ----- */
 /** ----- 处理通知信令 ----- */
 //
-// return RongRTCEngine;
+// return BlinkEngine;
 // });
-/** ----- RongRTCEngine ----- */
+/** ----- BlinkEngine ----- */
 
-/** ----- RongRTCEngineEventHandle ----- */
-// var RongRTCEngineEventHandle = (function() {
+/** ----- BlinkEngineEventHandle ----- */
+// var BlinkEngineEventHandle = (function() {
 /**
 * 构造函数
 *
 */
-var RongRTCEngineEventHandle = function (config) {
+var BlinkEngineEventHandle = function (config) {
   /** 事件集合 */
   this.eventHandles = {};
   return this;
@@ -2547,127 +4329,198 @@ var RongRTCEngineEventHandle = function (config) {
 * 绑定事件
 *
 */
-RongRTCEngineEventHandle.prototype.on = function (eventName, event) {
+BlinkEngineEventHandle.prototype.on = function (eventName, event) {
   this.eventHandles[eventName] = event;
 };
 /**
 * 调用事件
 *
 */
-RongRTCEngineEventHandle.prototype.call = function (eventName, data) {
+BlinkEngineEventHandle.prototype.call = function (eventName, data) {
   for (var eventHandle in this.eventHandles) {
-    if (eventName === eventHandle) {
-      return this.eventHandles[eventName](data);
-    }
+      if (eventName === eventHandle) {
+          return this.eventHandles[eventName](data);
+      }
   }
-  RongRTCLogger.info('EventHandle ' + eventName + ' do not have defined function');
+  console.info(new Date(), 'EventHandle ' + eventName + ' do not have defined function');
 };
 //
-// return RongRTCEngineEventHandle;
+// return BlinkEngineEventHandle;
 // });
-/** ----- RongRTCEngineEventHandle ----- */
+/** ----- BlinkEngineEventHandle ----- */
 
-/** ----- RongRTCConnectionStatsReport ----- */
-var RongRTCConnectionStatsReport = function () {
+/** ----- BlinkConnectionStatsReport ----- */
+var BlinkConnectionStatsReport = function (blinkEngine) {
+this.blinkEngine = blinkEngine;
+
   this.statsReportSend = {};
-  this.statsReportRecvs = new Array();
+  this.statsReportRecv = {};
+
+  // 本地丢包率
   this.packetSendLossRate = 0;
+  // 音频输入电平
+  this.audioInputLevel = 0;
+  // 音频接收电平
+this.audioReceivedLevel = [];
+this.currentLevel = [0, 1, 2, 3, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9];
 }
 /**
 * parse statsReport
 *
 */
-RongRTCConnectionStatsReport.prototype.parseStatsReport = function (report) {
-  var packetsSent = this.statsReportSend.packetsSent;
-  packetsSent = (packetsSent == null || packetsSent == "") ? 0 : packetsSent;
-  var packetsLost = this.statsReportSend.packetsLost;
-  packetsLost = (packetsLost == null || packetsLost == "") ? 0 : packetsLost;
-  var packetSendLossRate = 0;
+BlinkConnectionStatsReport.prototype.parseStatsReport = function (report) {
+var statsReportSend = {};
+  var recvVideoMap = new BlinkMap();
+  var recvAudioMap = new BlinkMap();
+  var statsReportRecv = {};
 
-  var statsReportSend = {};
-  var statsReportRecvs = new Array();
   for (var i in report) {
-    var now = report[i];
-    if (now.type == 'ssrc' && now.mediaType == 'video') {
-      if (now.id.indexOf("recv") != -1) {
-        var statsReportRecv = {};
-        statsReportRecv.googTrackId = now.googTrackId;
-        statsReportRecv.googCodecName = now.googCodecName
-        statsReportRecv.googCurrentDelayMs = now.googCurrentDelayMs;
-        statsReportRecv.googDecodeMs = now.googDecodeMs;
-        statsReportRecv.googFrameHeightReceived = now.googFrameHeightReceived;
-        statsReportRecv.googFrameRateDecoded = now.googFrameRateDecoded;
-        statsReportRecv.googFrameRateOutput = now.googFrameRateOutput;
-        statsReportRecv.googFrameRateReceived = now.googFrameRateReceived;
-        statsReportRecv.googFrameWidthReceived = now.googFrameWidthReceived;
-        statsReportRecv.packetsLost = now.packetsLost;
-        statsReportRecv.packetsReceived = now.packetsReceived;
-
-        statsReportRecvs.push(statsReportRecv);
-      } else if (now.id.indexOf("send") != -1) {
-        statsReportSend.googCodecName = now.googCodecName;
-        statsReportSend.googAvgEncodeMs = now.googAvgEncodeMs;
-        statsReportSend.googFrameHeightInput = now.googFrameHeightInput;
-        statsReportSend.googFrameHeightSent = now.googFrameHeightSent;
-        statsReportSend.googFrameRateSent = now.googFrameRateSent;
-        statsReportSend.googFrameWidthInput = now.googFrameWidthInput;
-        statsReportSend.googFrameWidthSent = now.googFrameWidthSent;
-        statsReportSend.googFrameRateInput = now.googFrameRateInput;
-        statsReportSend.packetsLost = now.packetsLost;
-        statsReportSend.packetsSent = now.packetsSent;
-
-        if (statsReportSend.packetsLost != null
-          && statsReportSend.packetsLost != ""
-          && statsReportSend.packetsSent != null
-          && statsReportSend.packetsSent != ""
-          && (statsReportSend.packetsSent - packetsSent != 0)) {
-          packetSendLossRate = (statsReportSend.packetsLost - packetsLost)
-            * 100 / (statsReportSend.packetsSent - packetsSent);
-        }
-      }
+      var now = report[i];
+      if (now.type == 'ssrc') {
+          if (now.id.indexOf("recv") != -1) {
+            if (now.mediaType == 'video') {
+              var recvVideo = {};
+              recvVideo.googTrackId = now.googTrackId;
+              recvVideo.googCodecName = now.googCodecName
+              recvVideo.googCurrentDelayMs = now.googCurrentDelayMs;
+              recvVideo.googDecodeMs = now.googDecodeMs;
+              recvVideo.googFrameHeightReceived = now.googFrameHeightReceived;
+              recvVideo.googFrameRateDecoded = now.googFrameRateDecoded;
+              recvVideo.googFrameRateOutput = now.googFrameRateOutput;
+              recvVideo.googFrameRateReceived = now.googFrameRateReceived;
+              recvVideo.googFrameWidthReceived = now.googFrameWidthReceived;
+              recvVideo.packetsLost = now.packetsLost;
+              recvVideo.packetsReceived = now.packetsReceived;
+              recvVideoMap.put(recvVideo.googTrackId, recvVideo);
+            } else if (now.mediaType == 'audio') {
+              var recvAudio = {};
+              recvAudio.googTrackId = now.googTrackId;
+              recvAudio.audioOutputLevel = now.audioOutputLevel;
+              recvAudioMap.put(recvAudio.googTrackId, recvAudio);
+            }
+          } else if (now.id.indexOf("send") != -1) {
+            if (now.mediaType == 'video') {
+              var sendVideo = {};
+              sendVideo.googCodecName = now.googCodecName;
+              sendVideo.googAvgEncodeMs = now.googAvgEncodeMs;
+              sendVideo.googFrameHeightInput = now.googFrameHeightInput;
+              sendVideo.googFrameHeightSent = now.googFrameHeightSent;
+              sendVideo.googFrameRateSent = now.googFrameRateSent;
+              sendVideo.googFrameWidthInput = now.googFrameWidthInput;
+              sendVideo.googFrameWidthSent = now.googFrameWidthSent;
+              sendVideo.googFrameRateInput = now.googFrameRateInput;
+              sendVideo.packetsLost = now.packetsLost;
+              sendVideo.packetsSent = now.packetsSent;
+              statsReportSend.video = sendVideo;
+            } else if (now.mediaType == 'audio') {
+              var sendAudio = {};
+              sendAudio.audioInputLevel = now.audioInputLevel;
+              statsReportSend.audio = sendAudio;
+            }
     }
   }
-  // 重置
-  this.statsReportSend = null;
-  this.statsReportRecvs = null;
-  this.packetSendLossRate = 0;
-  this.statsReportSend = statsReportSend;
-  this.statsReportRecvs = statsReportRecvs;
-  RongRTCLogger.debug("packetSendLossRate=" + packetSendLossRate);
-  this.packetSendLossRate = parseInt(packetSendLossRate);
-  RongRTCLogger.debug("this.packetSendLossRate=" + this.packetSendLossRate);
 }
-/** ----- RongRTCConnectionStatsReport ----- */
+  statsReportRecv.video = recvVideoMap;
+  statsReportRecv.audio = recvAudioMap;
+  
+  var preStatsReportSend = this.statsReportSend;
+this.statsReportSend = statsReportSend;
+this.statsReportRecv = statsReportRecv;
+// 本地丢包率
+var packetSendLossRate = 0;
+packetSendLossRate = this.calculateLossRate(statsReportSend.video, preStatsReportSend.video);
+this.packetSendLossRate = packetSendLossRate;
+// 输入音平
+var audioInputLevel = 0;
+audioInputLevel = statsReportSend.audio == null ? 0 : statsReportSend.audio.audioInputLevel;
+audioInputLevel = this.calculateAudioLevel(audioInputLevel);
+this.audioInputLevel = audioInputLevel;
+// 接收音平
+var audioReceivedLevel = [];
+var blinkConnectionStatsReport = this;
+recvAudioMap.getEntrys().forEach(function(recvAudioEntry) {
+  var trackId = recvAudioEntry.key;
+  var userId = blinkConnectionStatsReport.blinkEngine.remoteTrackIdMap.get(trackId);
+  if (userId != null) { // userId已退出
+    var audioOutputLevel = recvAudioEntry.value.audioOutputLevel;
+      audioOutputLevel = blinkConnectionStatsReport.calculateAudioLevel(audioOutputLevel);
+      audioReceivedLevel.push({
+        'userId': userId,
+        'trackId': trackId,
+        'audioOutputLevel': audioOutputLevel
+      });
+  }
+  });
+  this.audioReceivedLevel = audioReceivedLevel;
+}
+/**
+* 计算丢包率
+* 
+*/
+BlinkConnectionStatsReport.prototype.calculateLossRate = function (nowStats, preStats) {
+var prePacketsSent = (preStats == null || preStats.packetsSent == null || preStats.packetsSent == "") ? 0 : preStats.packetsSent;
+  var prePacketsLost = (preStats == null || preStats.packetsLost == null || preStats.packetsLost == "") ? 0 : preStats.packetsLost;
+  
+  var nowPacketsSent = (nowStats == null || nowStats.packetsSent == null || nowStats.packetsSent == "") ? 0 : nowStats.packetsSent;
+  var nowPacketsLost = (nowStats == null || nowStats.packetsLost == null || nowStats.packetsLost == "") ? 0 : nowStats.packetsLost;
+  
+if (nowPacketsSent == 0) { // 还未发数据
+  return 0;
+}
+if ((nowPacketsSent - prePacketsSent) == 0) { // 发出的包数量为0，则表示全部丢失，丢包率为100%
+  return 100;
+}
+var packetSendLossRate = (nowPacketsLost - prePacketsLost) * 100 / ((nowPacketsSent - prePacketsSent) + (nowPacketsLost - prePacketsLost)); 
+return parseInt(packetSendLossRate);
+}
+/**
+* 计算音平
+* 
+*/
+BlinkConnectionStatsReport.prototype.calculateAudioLevel = function (audioLevel) {
+var pos = (audioLevel == null || audioLevel == "") ? 0 : parseInt(audioLevel / 1000);
+return this.currentLevel[pos];
+}
+/** ----- BlinkConnectionStatsReport ----- */
 
-/** ----- RongRTCVideoView ----- */
-var RongRTCVideoView = function () {
+/** ----- BlinkVideoView ----- */
+var BlinkVideoView = function () {
 
 }
 
-/** ----- RongRTCUtil ---- */
-var RongRTCUtil = {
+/** ----- BlinkUtil ----- */
+var BlinkUtil = {
   /**
    * 获取websocket地址列表
    *
    */
   getWsUrlList: function (wsNavUrl, callback) {
-    var wsUrlList;
-    RongRTCAjax({
-      type: "GET",
-      url: wsNavUrl,
-      async: true,
-      data: {
-        rand: Math.random()
-      },
-      dataType: "JSON",
-      success: function (data) {
-        callback(data);
-      },
-      error: function (error) {
-        RongRTCLogger.error("request nav error: ", error);
-        throw error;
-      }
-    });
+      var wsUrlList;
+      BlinkAjax({
+          type: "GET",
+          url: wsNavUrl,
+          async: true,
+          data: {
+              rand: Math.random()
+          },
+          dataType: "JSON",
+          success: function (data) {
+              callback(data);
+          },
+          error: function (error) {
+              console.error(new Date(), "request nav error: ", error);
+              throw error;
+          }
+      });
+  },
+  /**
+ * 获取媒体信息
+ * 
+ */
+  getMedia: function (mediaConfig) {
+      return new Promise(function (resolve, reject) {
+          navigator.getUserMedia(mediaConfig, resolve, reject);
+      })
   },
   /**
    * SDP设置带宽
@@ -2679,50 +4532,50 @@ var RongRTCUtil = {
   setBandWidth: function (sdp, bandWidthParam) {
     var currentBandWidth = JSON.parse(JSON.stringify(bandWidthParam));
     var startBandWidth;
-    if (RongRTCGlobal.bandWidthCount == 0) {
+    if (BlinkGlobal.bandWidthCount == 0) {
       startBandWidth = (currentBandWidth.min + currentBandWidth.max) / 2;
     }
-    // 给带宽设置增加计数器，使每次设置的最小码率不同，防止码率一样WebRTC将码率重置成默认最小值
-    RongRTCGlobal.bandWidthCount++;
-    if (RongRTCGlobal.bandWidthCount % 2 == 0) {
-      currentBandWidth.min = currentBandWidth.min + 1;
-    }
+      // 给带宽设置增加计数器，使每次设置的最小码率不同，防止码率一样WebRTC将码率重置成默认最小值
+      BlinkGlobal.bandWidthCount++;
+      if (BlinkGlobal.bandWidthCount % 2 == 0) {
+          currentBandWidth.min = currentBandWidth.min + 1;
+      }
 
-    // set BAS
-    sdp = sdp.replace(/a=mid:video\n/g, 'a=mid:video\nb=AS:'
-      + currentBandWidth.max + '\n');
+      // set BAS
+      sdp = sdp.replace(/a=mid:video\n/g, 'a=mid:video\nb=AS:'
+          + currentBandWidth.max + '\n');
 
-    // 查找最优先用的视频代码
-    var sep1 = "\n";
-    var findStr1 = "m=video";
+      // 查找最优先用的视频代码
+      var sep1 = "\n";
+      var findStr1 = "m=video";
 
-    var sdpArr = sdp.split(sep1);
-    // 查找findStr1
-    var findIndex1 = RongRTCUtil.findLine(sdpArr, findStr1);
-    if (findIndex1 == null) {
-      return sdp;
-    }
+      var sdpArr = sdp.split(sep1);
+      // 查找findStr1
+      var findIndex1 = BlinkUtil.findLine(sdpArr, findStr1);
+      if (findIndex1 == null) {
+          return sdp;
+      }
 
-    var sep2 = " ";
+      var sep2 = " ";
 
-    var videoDescArr1 = sdpArr[findIndex1].split(sep2);
-    // m=video 9 UDP/TLS/RTP/SAVPF
-    var firstVideoCode = videoDescArr1[3];
-    var findStr2 = "a=rtpmap:" + firstVideoCode;
-    // 查找findStr2
-    var findIndex2 = RongRTCUtil.findLine(sdpArr, findStr2);
-    if (findIndex2 == null) {
-      return sdp;
-    }
+      var videoDescArr1 = sdpArr[findIndex1].split(sep2);
+      // m=video 9 UDP/TLS/RTP/SAVPF
+      var firstVideoCode = videoDescArr1[3];
+      var findStr2 = "a=rtpmap:" + firstVideoCode;
+      // 查找findStr2
+      var findIndex2 = BlinkUtil.findLine(sdpArr, findStr2);
+      if (findIndex2 == null) {
+          return sdp;
+      }
 
-    var appendStr = 'a=fmtp:' + firstVideoCode + ' x-google-min-bitrate=' + currentBandWidth.min
-      + '; x-google-max-bitrate=' + currentBandWidth.max;
-    if (startBandWidth != null) {
-      appendStr += '; x-google-start-bitrate=' + startBandWidth;
-    }
-    sdpArr[findIndex2] = sdpArr[findIndex2].concat(sep1 + appendStr);
+      var appendStr = 'a=fmtp:' + firstVideoCode + ' x-google-min-bitrate=' + currentBandWidth.min
+        + '; x-google-max-bitrate=' + currentBandWidth.max;
+      if (startBandWidth != null) {
+        appendStr += '; x-google-start-bitrate=' + startBandWidth;
+      }
+      sdpArr[findIndex2] = sdpArr[findIndex2].concat(sep1 + appendStr);
 
-    return sdpArr.join(sep1);
+      return sdpArr.join(sep1);
   },
   /**
    * SDP修改stream id
@@ -2733,8 +4586,20 @@ var RongRTCUtil = {
    * @returns
    */
   changeStreamId: function (sdp, oldId, newId) {
-    sdp = sdp.replace(new RegExp(oldId, 'g'), newId);
-    return sdp;
+      sdp = sdp.replace(new RegExp(oldId, 'g'), newId);
+      return sdp;
+  },
+  /**
+   * SDP修改track id
+   *
+   * @param sdp
+   * @param oldId
+   * @param newId
+   * @returns
+   */
+  changeTrackId: function (sdp, oldId, newId) {
+      sdp = sdp.replace(new RegExp(oldId, 'g'), newId);
+      return sdp;
   },
   /**
    * SDP修改video兼容参数
@@ -2743,123 +4608,123 @@ var RongRTCUtil = {
    * @returns
    */
   changeVideoDesc: function (sdp) {
-    //		var videoDesc1 = "m=video 9 RTP/AVPF 98 96 100 127 125 97 99 101";
-    //		var videoDesc2 = "a=rtpmap:96 VP8/90000\r\na=rtcp-fb:96 ccm fir\r\na=rtcp-fb:96 nack\r\na=rtcp-fb:96 nack pli\r\na=rtcp-fb:96 goog-remb\r\na=rtcp-fb:96 transport-cc\r\na=rtpmap:98 H264/90000\r\na=rtcp-fb:98 ccm fir\r\na=rtcp-fb:98 nack\r\na=rtcp-fb:98 nack pli\r\na=rtcp-fb:98 goog-remb\r\na=rtcp-fb:98 transport-cc\r\na=fmtp:98 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f\r\na=rtpmap:100 red/90000\r\na=rtpmap:127 ulpfec/90000\r\na=rtpmap:125 flexfec-03/90000\r\na=rtcp-fb:125 transport-cc\r\na=rtcp-fb:125 goog-remb\r\na=fmtp:125 repair-window=10000000\r\na=rtpmap:97 rtx/90000\r\na=fmtp:97 apt=96\r\na=rtpmap:99 rtx/90000\r\na=fmtp:99 apt=98\r\na=rtpmap:101 rtx/90000\r\na=fmtp:101 apt=100";
-    //
-    //		var findStr1 = "m=video";
-    //		var findStr2 = "a=rtcp-rsize";
-    //		var findStr3 = "a=ssrc-group";
-    //
-    //		var sdpArr = sdp.split('\r\n');
-    //		// 查找videoDesc1
-    //		var findIndex1 = RongRTCUtil.findLine(sdpArr, findStr1);
-    //		// 替换videoDesc1
-    //		sdpArr[findIndex1] = videoDesc1;
-    //		// 查找videoDesc2
-    //		var findIndex2 = RongRTCUtil.findLine(sdpArr, findStr2);
-    //		var findIndex3 = RongRTCUtil.findLine(sdpArr, findStr3);
-    //		// 删除中间的元素
-    //		sdpArr.splice(findIndex2 + 1, findIndex3 - findIndex2 - 1);
-    //		// 替换videoDesc2
-    //		sdpArr[findIndex2] = sdpArr[findIndex2].concat('\r\n' + videoDesc2);
-    //		return sdpArr.join('\r\n');
+//		var videoDesc1 = "m=video 9 RTP/AVPF 98 96 100 127 125 97 99 101";
+//		var videoDesc2 = "a=rtpmap:96 VP8/90000\r\na=rtcp-fb:96 ccm fir\r\na=rtcp-fb:96 nack\r\na=rtcp-fb:96 nack pli\r\na=rtcp-fb:96 goog-remb\r\na=rtcp-fb:96 transport-cc\r\na=rtpmap:98 H264/90000\r\na=rtcp-fb:98 ccm fir\r\na=rtcp-fb:98 nack\r\na=rtcp-fb:98 nack pli\r\na=rtcp-fb:98 goog-remb\r\na=rtcp-fb:98 transport-cc\r\na=fmtp:98 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f\r\na=rtpmap:100 red/90000\r\na=rtpmap:127 ulpfec/90000\r\na=rtpmap:125 flexfec-03/90000\r\na=rtcp-fb:125 transport-cc\r\na=rtcp-fb:125 goog-remb\r\na=fmtp:125 repair-window=10000000\r\na=rtpmap:97 rtx/90000\r\na=fmtp:97 apt=96\r\na=rtpmap:99 rtx/90000\r\na=fmtp:99 apt=98\r\na=rtpmap:101 rtx/90000\r\na=fmtp:101 apt=100";
+//
+//		var findStr1 = "m=video";
+//		var findStr2 = "a=rtcp-rsize";
+//		var findStr3 = "a=ssrc-group";
+//
+//		var sdpArr = sdp.split('\r\n');
+//		// 查找videoDesc1
+//		var findIndex1 = BlinkUtil.findLine(sdpArr, findStr1);
+//		// 替换videoDesc1
+//		sdpArr[findIndex1] = videoDesc1;
+//		// 查找videoDesc2
+//		var findIndex2 = BlinkUtil.findLine(sdpArr, findStr2);
+//		var findIndex3 = BlinkUtil.findLine(sdpArr, findStr3);
+//		// 删除中间的元素
+//		sdpArr.splice(findIndex2 + 1, findIndex3 - findIndex2 - 1);
+//		// 替换videoDesc2
+//		sdpArr[findIndex2] = sdpArr[findIndex2].concat('\r\n' + videoDesc2);
+//		return sdpArr.join('\r\n');
 
-    var sep1 = "\r\n";
-    var findStr1 = "m=video";
+      var sep1 = "\r\n";
+      var findStr1 = "m=video";
 
-    var sdpArr = sdp.split(sep1);
-    // 查找videoDesc1
-    var findIndex1 = RongRTCUtil.findLine(sdpArr, findStr1);
-    if (findIndex1 == null) {
-      return sdp;
-    }
+      var sdpArr = sdp.split(sep1);
+      // 查找videoDesc1
+      var findIndex1 = BlinkUtil.findLine(sdpArr, findStr1);
+      if (findIndex1 == null) {
+          return sdp;
+      }
 
-    var h264_code = "98";
-    var vp8_code = "96";
-    var red_code = "100"
-    var ulpfec_code = "127";
-    var flexfec_code = "125";
-    var h264_rtx_code = "99";
-    var vp8_rtx_code = "97";
-    var red_rtx_code = "101"
+      var h264_code = "98";
+      var vp8_code = "96";
+      var red_code = "100"
+      var ulpfec_code = "127";
+      var flexfec_code = "125";
+      var h264_rtx_code = "99";
+      var vp8_rtx_code = "97";
+      var red_rtx_code = "101"
 
-    var h264_search = "H264/90000";
-    var vp8_search = "VP8/90000";
-    var red_search = "red/90000";
-    var ulpfec_search = "ulpfec/90000";
-    var flexfec_search = "flexfec-03/90000";
+      var h264_search = "H264/90000";
+      var vp8_search = "VP8/90000";
+      var red_search = "red/90000";
+      var ulpfec_search = "ulpfec/90000";
+      var flexfec_search = "flexfec-03/90000";
 
-    var h264_replace = "a=rtpmap:98 H264/90000\r\na=rtcp-fb:98 ccm fir\r\na=rtcp-fb:98 nack\r\na=rtcp-fb:98 nack pli\r\na=rtcp-fb:98 goog-remb\r\na=rtcp-fb:98 transport-cc\r\na=fmtp:98 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f\r\na=rtpmap:99 rtx/90000\r\na=fmtp:99 apt=98";
-    var vp8_replace = "a=rtpmap:96 VP8/90000\r\na=rtcp-fb:96 ccm fir\r\na=rtcp-fb:96 nack\r\na=rtcp-fb:96 nack pli\r\na=rtcp-fb:96 goog-remb\r\na=rtcp-fb:96 transport-cc\r\na=rtpmap:97 rtx/90000\r\na=fmtp:97 apt=96";
-    var red_replace = "a=rtpmap:100 red/90000\r\na=rtpmap:101 rtx/90000\r\na=fmtp:101 apt=100";
-    var ulpfec_replace = "a=rtpmap:127 ulpfec/90000";
-    var flexfec_replace = "a=rtpmap:125 flexfec-03/90000\r\na=rtcp-fb:125 transport-cc\r\na=rtcp-fb:125 goog-remb\r\na=fmtp:125 repair-window=10000000";
+      var h264_replace = "a=rtpmap:98 H264/90000\r\na=rtcp-fb:98 ccm fir\r\na=rtcp-fb:98 nack\r\na=rtcp-fb:98 nack pli\r\na=rtcp-fb:98 goog-remb\r\na=rtcp-fb:98 transport-cc\r\na=fmtp:98 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f\r\na=rtpmap:99 rtx/90000\r\na=fmtp:99 apt=98";
+      var vp8_replace = "a=rtpmap:96 VP8/90000\r\na=rtcp-fb:96 ccm fir\r\na=rtcp-fb:96 nack\r\na=rtcp-fb:96 nack pli\r\na=rtcp-fb:96 goog-remb\r\na=rtcp-fb:96 transport-cc\r\na=rtpmap:97 rtx/90000\r\na=fmtp:97 apt=96";
+      var red_replace = "a=rtpmap:100 red/90000\r\na=rtpmap:101 rtx/90000\r\na=fmtp:101 apt=100";
+      var ulpfec_replace = "a=rtpmap:127 ulpfec/90000";
+      var flexfec_replace = "a=rtpmap:125 flexfec-03/90000\r\na=rtcp-fb:125 transport-cc\r\na=rtcp-fb:125 goog-remb\r\na=fmtp:125 repair-window=10000000";
 
-    var sep2 = " ";
-    var findStr2 = "a=rtpmap";
-    var findStr3 = "a=ssrc-group";
+      var sep2 = " ";
+      var findStr2 = "a=rtpmap";
+      var findStr3 = "a=ssrc-group";
 
-    var videoDescArr1 = sdpArr[findIndex1].split(sep2);
-    // m=video 9 UDP/TLS/RTP/SAVPF
-    var videoReplace1 = videoDescArr1[0] + sep2 + videoDescArr1[1] + sep2
-      + videoDescArr1[2];
-    // 查找videoDesc2
-    var findIndex2 = RongRTCUtil.findLineInRange(sdpArr, findStr2, findIndex1 + 1, sdpArr.length - 1);
-    var findIndex3 = RongRTCUtil.findLineInRange(sdpArr, findStr3, findIndex2 + 1, sdpArr.length - 1);
-    if (findIndex3 == null) { // 观察者模式没有findStr3相关信息
-      findIndex3 = sdpArr.length - 1;
-    }
-    // 删除中间的元素
-    var removeArr = sdpArr.splice(findIndex2, findIndex3 - findIndex2);
+      var videoDescArr1 = sdpArr[findIndex1].split(sep2);
+      // m=video 9 UDP/TLS/RTP/SAVPF
+      var videoReplace1 = videoDescArr1[0] + sep2 + videoDescArr1[1] + sep2
+          + videoDescArr1[2];
+      // 查找videoDesc2
+      var findIndex2 = BlinkUtil.findLineInRange(sdpArr, findStr2, findIndex1 + 1, sdpArr.length - 1);
+      var findIndex3 = BlinkUtil.findLineInRange(sdpArr, findStr3, findIndex2 + 1, sdpArr.length - 1);
+      if (findIndex3 == null) { // 观察者模式没有findStr3相关信息
+          findIndex3 = sdpArr.length - 1;
+      }
+      // 删除中间的元素
+      var removeArr = sdpArr.splice(findIndex2, findIndex3 - findIndex2);
 
-    // 查找H264
-    var h264_index = RongRTCUtil.findLine(removeArr, h264_search);
-    // 查找VP8
-    var vp8_index = RongRTCUtil.findLine(removeArr, vp8_search);
-    // 查找red
-    var red_index = RongRTCUtil.findLine(removeArr, red_search);
-    // 查找ulpfec
-    var ulpfec_index = RongRTCUtil.findLine(removeArr, ulpfec_search);
-    // 查找flexfec
-    var flexfec_index = RongRTCUtil.findLine(removeArr, flexfec_search);
+      // 查找H264
+      var h264_index = BlinkUtil.findLine(removeArr, h264_search);
+      // 查找VP8
+      var vp8_index = BlinkUtil.findLine(removeArr, vp8_search);
+      // 查找red
+      var red_index = BlinkUtil.findLine(removeArr, red_search);
+      // 查找ulpfec
+      var ulpfec_index = BlinkUtil.findLine(removeArr, ulpfec_search);
+      // 查找flexfec
+      var flexfec_index = BlinkUtil.findLine(removeArr, flexfec_search);
 
-    var videoReplace2 = "";
-    if (h264_index != null) {
-      videoReplace1 += sep2 + h264_code;
-      videoReplace2 += sep1 + h264_replace;
-    }
-    if (vp8_index != null) {
-      videoReplace1 += sep2 + vp8_code;
-      videoReplace2 += sep1 + vp8_replace;
-    }
-    if (red_index != null) {
-      videoReplace1 += sep2 + red_code;
-      videoReplace2 += sep1 + red_replace;
-    }
-    if (ulpfec_index != null) {
-      videoReplace1 += sep2 + ulpfec_code;
-      videoReplace2 += sep1 + ulpfec_replace;
-    }
-    if (flexfec_index != null) {
-      videoReplace1 += sep2 + flexfec_code;
-      videoReplace2 += sep1 + flexfec_replace;
-    }
-    if (h264_index != null) {
-      videoReplace1 += sep2 + h264_rtx_code;
-    }
-    if (vp8_index != null) {
-      videoReplace1 += sep2 + vp8_rtx_code;
-    }
-    if (red_index != null) {
-      videoReplace1 += sep2 + red_rtx_code;
-    }
+      var videoReplace2 = "";
+      if (h264_index != null) {
+          videoReplace1 += sep2 + h264_code;
+          videoReplace2 += sep1 + h264_replace;
+      }
+      if (vp8_index != null) {
+          videoReplace1 += sep2 + vp8_code;
+          videoReplace2 += sep1 + vp8_replace;
+      }
+      if (red_index != null) {
+          videoReplace1 += sep2 + red_code;
+          videoReplace2 += sep1 + red_replace;
+      }
+      if (ulpfec_index != null) {
+          videoReplace1 += sep2 + ulpfec_code;
+          videoReplace2 += sep1 + ulpfec_replace;
+      }
+      if (flexfec_index != null) {
+          videoReplace1 += sep2 + flexfec_code;
+          videoReplace2 += sep1 + flexfec_replace;
+      }
+      if (h264_index != null) {
+          videoReplace1 += sep2 + h264_rtx_code;
+      }
+      if (vp8_index != null) {
+          videoReplace1 += sep2 + vp8_rtx_code;
+      }
+      if (red_index != null) {
+          videoReplace1 += sep2 + red_rtx_code;
+      }
 
-    // 替换videoDesc1
-    sdpArr[findIndex1] = videoReplace1;
-    // 替换videoDesc2
-    sdpArr[findIndex2 - 1] = sdpArr[findIndex2 - 1].concat(videoReplace2);
+      // 替换videoDesc1
+      sdpArr[findIndex1] = videoReplace1;
+      // 替换videoDesc2
+      sdpArr[findIndex2 - 1] = sdpArr[findIndex2 - 1].concat(videoReplace2);
 
-    return sdpArr.join(sep1);
+      return sdpArr.join(sep1);
   },
   /**
    * get cname
@@ -2867,23 +4732,23 @@ var RongRTCUtil = {
    * @param userId
    */
   getCname: function (sdp, userId) {
-    var sep1 = "\n";
-    var sep2 = " ";
-    var sdpArr = sdp.split(sep1);
+      var sep1 = "\n";
+      var sep2 = " ";
+      var sdpArr = sdp.split(sep1);
 
-    // a=ssrc:702269835 msid:A9532881-B4CA-4B23-B219-9837CE93AA70 4716df1f-046f-4b96-a260-2593048d7e9e
-    var msid_search = "msid:" + userId;
-    var msid_index = RongRTCUtil.findLine(sdpArr, msid_search);
-    if (msid_index == null) {
-      return null;
-    }
-    var ssrc = sdpArr[msid_index].split(sep2)[0];
+      // a=ssrc:702269835 msid:A9532881-B4CA-4B23-B219-9837CE93AA70 4716df1f-046f-4b96-a260-2593048d7e9e
+      var msid_search = "msid:" + userId;
+      var msid_index = BlinkUtil.findLine(sdpArr, msid_search);
+      if (msid_index == null) {
+          return null;
+      }
+      var ssrc = sdpArr[msid_index].split(sep2)[0];
 
-    // a=ssrc:702269835 cname:wRow2WLrs18ZB3Dg
-    var cname_search = ssrc + " cname:";
-    var cname_index = RongRTCUtil.findLine(sdpArr, cname_search);
-    var cname = sdpArr[cname_index].split("cname:")[1];
-    return cname;
+      // a=ssrc:702269835 cname:wRow2WLrs18ZB3Dg
+      var cname_search = ssrc + " cname:";
+      var cname_index = BlinkUtil.findLine(sdpArr, cname_search);
+      var cname = sdpArr[cname_index].split("cname:")[1];
+      return cname;
   },
   /**
    * check cname
@@ -2891,36 +4756,37 @@ var RongRTCUtil = {
    * @param userId
    */
   isHasCname: function (sdp, cname) {
-    var sep1 = "\n";
-    var sdpArr = sdp.split(sep1);
+      var sep1 = "\n";
+      var sdpArr = sdp.split(sep1);
 
-    // a=ssrc:702269835 cname:wRow2WLrs18ZB3Dg
-    var cname_search = "cname:" + cname;
-    var cname_index = RongRTCUtil.findLine(sdpArr, cname_search);
-    return cname_index != null;
+      // a=ssrc:702269835 cname:wRow2WLrs18ZB3Dg
+      var cname_search = "cname:" + cname;
+      var cname_index = BlinkUtil.findLine(sdpArr, cname_search);
+      return cname_index != null;
   },
-  getSsrc: function (sdp, userId, cname) {
-    //ssrc变化则为屏幕共享
-
-    var sdpArr = sdp.split('\n');
-    var videoLine = sdpArr.map(function (line, index) {
-      if (line.indexOf('mid:video') > -1)
-        return index;
-    }).filter(function (item) {
-      return item;
-    })
-    sdpArr = sdpArr.slice(videoLine[0])
-    var ssrc = sdpArr.filter(function (line) {
-      return line.indexOf('a=ssrc:') > -1;
-    })
-    var cnameLine = ssrc.map(function (line, index) {
-      if (line.indexOf('cname:' + cname) > -1)
-        return index;
-    }).filter(function (item) {
-      return item;
-    })
-    var ts = ssrc.slice(cnameLine[0] + 1, cnameLine[0] + 2);
-    return ts[0].split(" ")[2];
+  getSsrc: function (sdp, userId, cname) { // ssrc变化则为屏幕共享
+      var sdpArr = sdp.split('\n');
+      var videoLine = sdpArr.map(function (line, index) {
+          if (line.indexOf('mid:video') > -1)
+              return index;
+      }).filter(function (item) {
+          return item;
+      })
+      sdpArr = sdpArr.slice(videoLine[0])
+      var ssrc = sdpArr.filter(function (line) {
+          return line.indexOf('a=ssrc:') > -1;
+      })
+      var cnameLine = ssrc.map(function (line, index) {
+          if (line.indexOf('cname:' + cname) > -1)
+              return index;
+      }).filter(function (item) {
+          return item;
+      })
+      var ts = ssrc.slice(cnameLine[0] + 1, cnameLine[0] + 2);
+      if (ts[0] == null) {
+        return null;
+      }
+      return ts[0].split(" ")[2];
 
   },
   /**
@@ -2931,12 +4797,12 @@ var RongRTCUtil = {
    * @returns
    */
   findLine: function (arr, substr) {
-    for (var i = 0; i < arr.length; i++) {
-      if (arr[i].indexOf(substr) != -1) {
-        return i;
+      for (var i = 0; i < arr.length; i++) {
+          if (arr[i].indexOf(substr) != -1) {
+              return i;
+          }
       }
-    }
-    return null;
+      return null;
   },
   /**
    * 数组中查找
@@ -2948,17 +4814,17 @@ var RongRTCUtil = {
    * @returns
    */
   findLineInRange: function (arr, substr, startIndex, endIndex) {
-    var start = (startIndex == null || startIndex == '' || startIndex < 0) ? 0
-      : startIndex;
-    var end = (endIndex == null || endIndex == '' || endIndex < 0 || endIndex > arr.length - 1) ? arr.length - 1
-      : endIndex;
-    start = start > end ? end : start;
-    for (var i = start; i <= end; i++) {
-      if (arr[i].indexOf(substr) != -1) {
-        return i;
+      var start = (startIndex == null || startIndex == '' || startIndex < 0) ? 0
+          : startIndex;
+      var end = (endIndex == null || endIndex == '' || endIndex < 0 || endIndex > arr.length - 1) ? arr.length - 1
+          : endIndex;
+      start = start > end ? end : start;
+      for (var i = start; i <= end; i++) {
+          if (arr[i].indexOf(substr) != -1) {
+              return i;
+          }
       }
-    }
-    return null;
+      return null;
   },
   /**
    * 随机打乱数组内排序
@@ -2967,13 +4833,13 @@ var RongRTCUtil = {
    * @returns
    */
   shuffle: function (input) {
-    for (var i = input.length - 1; i >= 0; i--) {
-      var randomIndex = Math.floor(Math.random() * (i + 1));
-      var itemAtIndex = input[randomIndex];
-      input[randomIndex] = input[i];
-      input[i] = itemAtIndex;
-    }
-    return input;
+      for (var i = input.length - 1; i >= 0; i--) {
+          var randomIndex = Math.floor(Math.random() * (i + 1));
+          var itemAtIndex = input[randomIndex];
+          input[randomIndex] = input[i];
+          input[i] = itemAtIndex;
+      }
+      return input;
   },
   /**
    * 刷新VideoView的视频流
@@ -2981,14 +4847,10 @@ var RongRTCUtil = {
    * @param userId
    */
   refreshMediaStream: function (userId) {
-    var videoView = document.getElementById(userId);
-    if (videoView != null) {
-      var stream = userId == rongRTCengine.selfUserId ? rongRTCengine.localStream : rongRTCengine.remoteStreams.filter(function (stream) {
-        return stream.id == userId;
-      })[0];
-      videoView.srcObject = stream;
-      videoView.srcObject = videoView.srcObject
-    }
+      var videoView = document.getElementById(userId);
+      if (videoView != null) {
+          videoView.srcObject = videoView.srcObject;
+      }
   },
   /**
    * 设置VideoView的视频流为指定流
@@ -2996,294 +4858,232 @@ var RongRTCUtil = {
    * @param userId
    */
   setMediaStream: function (userId, stream) {
-    var videoView = document.getElementById(userId);
-    if (videoView != null) {
-      videoView.srcObject = stream;
-    }
+      var videoView = document.getElementById(userId);
+      if (videoView != null) {
+          videoView.srcObject = stream;
+      }
   },
   /**
    * 当前浏览器
    */
   myBrowser: function () {
-    var userAgent = navigator.userAgent; // 取得浏览器的userAgent字符串
-    var isOpera = userAgent.indexOf("Opera") > -1;
-    if (isOpera) {
-      return "Opera"
-    }
-    ; // 判断是否Opera浏览器
-    if (userAgent.indexOf("Firefox") > -1) {
-      return "FF";
-    } // 判断是否Firefox浏览器
-    if (userAgent.indexOf("Chrome") > -1) {
-      return "Chrome";
-    }
-    if (userAgent.indexOf("Safari") > -1) {
-      return "Safari";
-    } // 判断是否Safari浏览器
-    if (userAgent.indexOf("compatible") > -1 && userAgent.indexOf("MSIE") > -1 && !isOpera) {
-      return "IE";
-    }
-    ; // 判断是否IE浏览器
+      var userAgent = navigator.userAgent; // 取得浏览器的userAgent字符串
+      if (userAgent.indexOf("Opera") > -1) { // 判断是否Opera浏览器
+          return "Opera"
+      }
+      if (userAgent.indexOf("Firefox") > -1) { // 判断是否Firefox浏览器
+          return "FF";
+      }
+      if (userAgent.indexOf("Chrome") > -1) { // 判断是否Chrome浏览器
+          return "Chrome";
+      }
+      if (userAgent.indexOf("Safari") > -1) { // 判断是否Safari浏览器
+          return "Safari";
+      }
+      if (userAgent.indexOf("compatible") > -1 && userAgent.indexOf("MSIE") > -1 && !isOpera) { // 判断是否IE浏览器
+          return "IE";
+      }
+      return "";
   }
 }
 
-/** ----- RongRTCAjax ----- */
-var RongRTCAjax = function (opt) {
+/** ----- BlinkAjax ----- */
+var BlinkAjax = function (opt) {
   opt.type = opt.type.toUpperCase() || 'POST';
   if (opt.type === 'POST') {
-    post(opt);
+      post(opt);
   } else {
-    get(opt);
+      get(opt);
   }
 
   // 初始化数据
   function init(opt) {
-    var optAdapter = {
-      url: '',
-      type: 'GET',
-      data: {},
-      async: true,
-      dataType: 'JSON',
-      success: function () {
-      },
-      error: function (s) {
-        // alert('status:' + s + 'error!');
+      var optAdapter = {
+          url: '',
+          type: 'GET',
+          data: {},
+          async: true,
+          dataType: 'JSON',
+          success: function () {
+          },
+          error: function (s) {
+              // alert('status:' + s + 'error!');
+          }
       }
-    }
-    opt.url = opt.url || optAdapter.url;
-    opt.type = opt.type.toUpperCase() || optAdapter.method;
-    opt.data = params(opt.data) || params(optAdapter.data);
-    opt.dataType = opt.dataType.toUpperCase() || optAdapter.dataType;
-    // opt.async = opt.async || optAdapter.async;
-    opt.success = opt.success || optAdapter.success;
-    opt.error = opt.error || optAdapter.error;
-    return opt;
+      opt.url = opt.url || optAdapter.url;
+      opt.type = opt.type.toUpperCase() || optAdapter.method;
+      opt.data = params(opt.data) || params(optAdapter.data);
+      opt.dataType = opt.dataType.toUpperCase() || optAdapter.dataType;
+      // opt.async = opt.async || optAdapter.async;
+      opt.success = opt.success || optAdapter.success;
+      opt.error = opt.error || optAdapter.error;
+      return opt;
   }
 
   // 创建XMLHttpRequest对象
   function createXHR() {
-    if (window.XMLHttpRequest) { // IE7+、Firefox、Opera、Chrome、Safari
-      return new XMLHttpRequest();
-    } else if (window.ActiveXObject) { // IE6 及以下
-      var versions = ['MSXML2.XMLHttp', 'Microsoft.XMLHTTP'];
-      for (var i = 0, len = versions.length; i < len; i++) {
-        try {
-          return new ActiveXObject(version[i]);
-          break;
-        } catch (e) {
-          // 跳过
-        }
+      if (window.XMLHttpRequest) { // IE7+、Firefox、Opera、Chrome、Safari
+          return new XMLHttpRequest();
+      } else if (window.ActiveXObject) { // IE6 及以下
+          var versions = ['MSXML2.XMLHttp', 'Microsoft.XMLHTTP'];
+          for (var i = 0, len = versions.length; i < len; i++) {
+              try {
+                  return new ActiveXObject(version[i]);
+                  break;
+              } catch (e) {
+                  // 跳过
+              }
+          }
+      } else {
+          throw new Error('浏览器不支持XHR对象！');
       }
-    } else {
-      throw new Error('浏览器不支持XHR对象！');
-    }
   }
 
   function params(data) {
-    var arr = [];
-    for (var i in data) {
-      // 特殊字符传参产生的问题可以使用encodeURIComponent()进行编码处理
-      arr.push(encodeURIComponent(i) + '=' + encodeURIComponent(data[i]));
-    }
-    return arr.join('&');
+      var arr = [];
+      for (var i in data) {
+          // 特殊字符传参产生的问题可以使用encodeURIComponent()进行编码处理
+          arr.push(encodeURIComponent(i) + '=' + encodeURIComponent(data[i]));
+      }
+      return arr.join('&');
   }
 
   function callback(opt, xhr) {
-    if (xhr.readyState == 4 && xhr.status == 200) { // 判断http的交互是否成功，200表示成功
-      var returnValue;
-      switch (opt.dataType) {
-        case "XML":
-          returnValue = xhr.responseXML;
-          break;
-        case "JSON":
-          var jsonText = xhr.responseText;
-          if (jsonText) {
-            returnValue = JSON.parse(jsonText);
+      if (xhr.readyState == 4 && xhr.status == 200) { // 判断http的交互是否成功，200表示成功
+          var returnValue;
+          switch (opt.dataType) {
+              case "XML":
+                  returnValue = xhr.responseXML;
+                  break;
+              case "JSON":
+                  var jsonText = xhr.responseText;
+                  if (jsonText) {
+                      returnValue = JSON.parse(jsonText);
+                  }
+                  break;
+              default:
+                  returnValue = xhr.responseText;
+                  break;
           }
-          break;
-        default:
-          returnValue = xhr.responseText;
-          break;
+          if (returnValue) {
+              opt.success(returnValue);
+          }
+      } else {
+          // alert('获取数据错误！错误代号：' + xhr.status + '，错误信息：' +
+          // xhr.statusText);
+          opt.error(xhr);
       }
-      if (returnValue) {
-        opt.success(returnValue);
-      }
-    } else {
-      // alert('获取数据错误！错误代号：' + xhr.status + '，错误信息：' +
-      // xhr.statusText);
-      opt.error(xhr);
-    }
 
   }
 
   // post方法
   function post(opt) {
-    var xhr = createXHR(); // 创建XHR对象
-    var opt = init(opt);
-    opt.type = 'post';
-    if (opt.async === true) { // true表示异步，false表示同步
-      // 使用异步调用的时候，需要触发readystatechange 事件
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) { // 判断对象的状态是否交互完成
+      var xhr = createXHR(); // 创建XHR对象
+      var opt = init(opt);
+      opt.type = 'post';
+      if (opt.async === true) { // true表示异步，false表示同步
+          // 使用异步调用的时候，需要触发readystatechange 事件
+          xhr.onreadystatechange = function () {
+              if (xhr.readyState == 4) { // 判断对象的状态是否交互完成
+                  callback(opt, xhr); // 回调
+              }
+          };
+      }
+      // 在使用XHR对象时，必须先调用open()方法，
+      // 它接受三个参数：请求类型(get、post)、请求的URL和表示是否异步。
+      xhr.open(opt.type, opt.url, opt.async);
+      // post方式需要自己设置http的请求头，来模仿表单提交。
+      // 放在open方法之后，send方法之前。
+      xhr.setRequestHeader('Content-Type',
+          'application/x-www-form-urlencoded;charset=utf-8');
+      xhr.send(opt.data); // post方式将数据放在send()方法里
+      if (opt.async === false) { // 同步
           callback(opt, xhr); // 回调
-        }
-      };
-    }
-    // 在使用XHR对象时，必须先调用open()方法，
-    // 它接受三个参数：请求类型(get、post)、请求的URL和表示是否异步。
-    xhr.open(opt.type, opt.url, opt.async);
-    // post方式需要自己设置http的请求头，来模仿表单提交。
-    // 放在open方法之后，send方法之前。
-    xhr.setRequestHeader('Content-Type',
-      'application/x-www-form-urlencoded;charset=utf-8');
-    xhr.send(opt.data); // post方式将数据放在send()方法里
-    if (opt.async === false) { // 同步
-      callback(opt, xhr); // 回调
-    }
+      }
   }
 
   // get方法
   function get(opt) {
-    var xhr = createXHR(); // 创建XHR对象
-    var opt = init(opt);
-    opt.type = 'get';
-    if (opt.async === true) { // true表示异步，false表示同步
-      // 使用异步调用的时候，需要触发readystatechange 事件
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) { // 判断对象的状态是否交互完成
+      var xhr = createXHR(); // 创建XHR对象
+      var opt = init(opt);
+      opt.type = 'get';
+      if (opt.async === true) { // true表示异步，false表示同步
+          // 使用异步调用的时候，需要触发readystatechange 事件
+          xhr.onreadystatechange = function () {
+              if (xhr.readyState == 4) { // 判断对象的状态是否交互完成
+                  callback(opt, xhr); // 回调
+              }
+          };
+      }
+      // 若是GET请求，则将数据加到url后面
+      opt.url += opt.url.indexOf('?') == -1 ? '?' + opt.data : '&' + opt.data;
+      // 在使用XHR对象时，必须先调用open()方法，
+      // 它接受三个参数：请求类型(get、post)、请求的URL和表示是否异步。
+      xhr.open(opt.type, opt.url, opt.async);
+      xhr.send(null); // get方式则填null
+      if (opt.async === false) { // 同步
           callback(opt, xhr); // 回调
-        }
-      };
-    }
-    // 若是GET请求，则将数据加到url后面
-    opt.url += opt.url.indexOf('?') == -1 ? '?' + opt.data : '&' + opt.data;
-    // 在使用XHR对象时，必须先调用open()方法，
-    // 它接受三个参数：请求类型(get、post)、请求的URL和表示是否异步。
-    xhr.open(opt.type, opt.url, opt.async);
-    xhr.send(null); // get方式则填null
-    if (opt.async === false) { // 同步
-      callback(opt, xhr); // 回调
-    }
+      }
   }
 }
 
-/** ----- RongRTCMap ----- */
-var RongRTCMap = function () {
+/** ----- BlinkMap ----- */
+var BlinkMap = function () {
   this._entrys = new Array();
 
   this.put = function (key, value) {
-    if (key == null || key == undefined) {
-      return;
-    }
-    var index = this._getIndex(key);
-    if (index == -1) {
-      var entry = new Object();
-      entry.key = key;
-      entry.value = value;
-      this._entrys[this._entrys.length] = entry;
-    } else {
-      this._entrys[index].value = value;
-    }
+      if (key == null || key == undefined) {
+          return;
+      }
+      var index = this._getIndex(key);
+      if (index == -1) {
+          var entry = new Object();
+          entry.key = key;
+          entry.value = value;
+          this._entrys[this._entrys.length] = entry;
+      } else {
+          this._entrys[index].value = value;
+      }
   };
   this.get = function (key) {
-    var index = this._getIndex(key);
-    return (index != -1) ? this._entrys[index].value : null;
+      var index = this._getIndex(key);
+      return (index != -1) ? this._entrys[index].value : null;
   };
   this.remove = function (key) {
-    var index = this._getIndex(key);
-    if (index != -1) {
-      this._entrys.splice(index, 1);
-    }
+      var index = this._getIndex(key);
+      if (index != -1) {
+          this._entrys.splice(index, 1);
+      }
   };
   this.clear = function () {
-    this._entrys.length = 0;
+      this._entrys.length = 0;
   };
   this.contains = function (key) {
-    var index = this._getIndex(key);
-    return (index != -1) ? true : false;
+      var index = this._getIndex(key);
+      return (index != -1) ? true : false;
   };
   this.size = function () {
-    return this._entrys.length;
+      return this._entrys.length;
   };
   this.getEntrys = function () {
-    return this._entrys;
+      return this._entrys;
   };
   this._getIndex = function (key) {
-    if (key == null || key == undefined) {
+      if (key == null || key == undefined) {
+          return -1;
+      }
+      var _length = this._entrys.length;
+      for (var i = 0; i < _length; i++) {
+          var entry = this._entrys[i];
+          if (entry == null || entry == undefined) {
+              continue;
+          }
+          if (entry.key === key) {// equal
+              return i;
+          }
+      }
       return -1;
-    }
-    var _length = this._entrys.length;
-    for (var i = 0; i < _length; i++) {
-      var entry = this._entrys[i];
-      if (entry == null || entry == undefined) {
-        continue;
-      }
-      if (entry.key === key) {// equal
-        return i;
-      }
-    }
-    return -1;
   };
 }
-
-/** ----- RongRTCException ----- */
-var RongRTCException = function (code, message) {
-  this.code = code;
-  this.message = message;
-}
-
-/** ----- RongRTCLogger ----- */
-var RongRTCLogger = {
-  /**
-   * debug
-   *
-   */
-  debug: function (message, data) {
-    console.debug(new Date() + " DEBUG " + message);
-    if (data != null && data != undefined) {
-      console.debug(data);
-    }
-  },
-  /**
-   * info
-   *
-   */
-  info: function (message, data) {
-    console.info(new Date() + " INFO " + message);
-    if (data != null && data != undefined) {
-      console.info(data);
-    }
-  },
-  /**
-   * log
-   *
-   */
-  log: function (message, data) {
-    console.log(new Date() + " LOG " + message);
-    if (data != null && data != undefined) {
-      console.log(data);
-    }
-  },
-  /**
-   * warn
-   *
-   */
-  warn: function (message, data) {
-    console.warn(new Date() + " WARN " + message);
-    if (data != null && data != undefined) {
-      console.warn(data);
-    }
-  },
-  /**
-   * error
-   *
-   */
-  error: function (message, error) {
-    console.error(new Date() + " ERROR " + message);
-    if (error != null && error != undefined) {
-      console.error(error);
-    }
-  }
-}
-export const RTC = RongRTCEngine;
-export const EventHandler = RongRTCEngineEventHandle;
+export const RTC = BlinkEngine;
+export const EventHandler = BlinkEngineEventHandle;
