@@ -5660,14 +5660,12 @@
       },
       onUserLeft: function onUserLeft(user) {
         var _user2 = user,
-            userId = _user2.userId,
-            userType = _user2.userType;
+            userId = _user2.userId;
 
         user = {
-          id: userId,
-          type: userType
+          id: userId
         };
-        eventEmitter.emit(EventName.ROOM_LEAVED, user);
+        eventEmitter.emit(EventName.ROOM_USER_LEFT, user);
       },
       onTurnTalkType: function onTurnTalkType(user) {
         var _user3 = user,
