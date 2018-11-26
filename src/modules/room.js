@@ -27,9 +27,13 @@ export default function Room(rtc) {
     return eventEmitter.on(name, event);
   };
 
+  let _off = (name) => {
+    return eventEmitter.off(name);
+  }
   return {
     join,
     leave,
-    _on
+    _on,
+    _off
   }
 }

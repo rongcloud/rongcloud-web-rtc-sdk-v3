@@ -1,12 +1,10 @@
-export default function WhiteBoard(_rtc) {
+export default function WhiteBoard(rtc) {
   return {
     create: () => {
-    },
-    remove: (whiteboard) => {
-    },
-    get: (whiteboard) => {
+      return rtc.createWhiteBoard();
     },
     getList: () => {
+      return rtc.getWhiteBoardList();
     }
   };
 }

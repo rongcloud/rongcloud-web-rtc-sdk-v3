@@ -5,6 +5,9 @@
   "main": "index.js",
   "scripts": {
     "eslint": "eslint .",
+    "eslint-fix": "eslint . --fix",
+    "hook-install": "precommit install",
+    "hook-remove": "precommit remove",
     "precommit": "npm run eslint",
     "release": "npm run release:dev && npm run release:min && npm run release:es",
     "release:dev": "rollup -c rollup.config.js --environment TARGET:dev",

@@ -20,6 +20,9 @@ let getCurrentUser = () => {
     id: option.currentUsreId
   };
 };
+let isCrruentUser = (user) => {
+  return user.id === option.currentUsreId;
+}
 let setEventHandler = () => {
   var eventFactory = {
     // user = > {id: 'userId', type: 1}
@@ -85,7 +88,7 @@ let setEventHandler = () => {
       eventEmitter.emit(EventName.WHITEBOARD_CREATED, whiteboard, error);
     },
     // 获取白板
-    onWhiteBoardQuery: (whiteboard) => {
+    onWhiteBoardQuery: (data) => {
       // TODO: isSuccess 为 false 情况处理，需要修改 rtc.js ，后续处理
       let { isSuccess, url } = data;
       let error = isSuccess ? null : Error.GET_WB_ERROR;
@@ -96,9 +99,9 @@ let setEventHandler = () => {
       };
       eventEmitter.emit(EventName.WHITEBOARD_GETLIST, whiteboard, error);
     },
-    onNetworkSentLost: (network) => {
-      // TODO: eventEmitter.emit(EventName.NETWORK, network);
-    },
+    // onNetworkSentLost: (network) => {
+    // TODO: eventEmitter.emit(EventName.NETWORK, network);
+    // },
     onStartScreenShareComplete: (data) => {
       let { isSuccess, code } = data;
       let errors = {
@@ -126,56 +129,141 @@ export default class RTCEngine {
     eventHandler = new EventHandler();
     setEventHandler();
     rtc.setRongRTCEngineEventHandle(eventHandler);
-
   }
 
   joinRoom(room) {
     return utils.deferred((resolve, reject) => {
-      console.log(room);
+      eventEmitter.once(EventName.ROOM_SELF_JOINED, (error, user) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(user);
+      });
+      let { id, user: { id: userId, token } } = room;
+      rtc.joinChannel(id, userId, token);
     });
   }
 
   leaveRoom(room) {
-    console.log(room);
+    return utils.deferred((resolve, reject) => {
+      eventEmitter.once(EventName.ROOM_SELF_LEFT, (error, user) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(user);
+      });
+      let { id } = room;
+      rtc.leaveChannel(id);
+    });
   }
 
   getStream(user) {
-    console.log(user);
+    return utils.deferred((resolve) => {
+      let method = isCrruentUser(user) ? 'getLocalStream' : 'getRemoteStream';
+      let { id } = user;
+      let stream = rtc[method](id);
+      resolve({
+        user,
+        stream
+      });
+    });
   }
 
   mute(user) {
-    console.log(user);
+    return utils.deferred((resolve) => {
+      //TODO: 成员静音需要区分 userId
+      let method = isCrruentUser(user) ? 'muteMicrophone' : 'closeRemoteAudio';
+      let isMute = true;
+      rtc[method](isMute);
+      resolve();
+    });
   }
 
   unmute(user) {
-    console.log(user);
+    return utils.deferred((resolve) => {
+      //TODO: 成员静音需要区分 userId
+      let method = isCrruentUser(user) ? 'muteMicrophone' : 'closeRemoteAudio';
+      let isMute = false;
+      rtc[method](isMute);
+      resolve();
+    });
   }
 
   disableVideo(user) {
-    console.log(user);
+    return utils.deferred((resolve) => {
+      //TODO: 禁用其他成员的视频流，订阅分发可视为修改订阅关系，不订阅指定用户的视频流
+      if (isCrruentUser(user)) {
+        var isClose = true;
+        rtc.closeLocalVideo(isClose);
+      }
+      resolve();
+    });
   }
 
   enableVideo(user) {
-    console.log(user);
+    return utils.deferred((resolve) => {
+      //TODO: 禁用其他成员的视频流，订阅分发可视为修改订阅关系，订阅指定用户的视频流
+      if (isCrruentUser(user)) {
+        var isClose = false;
+        rtc.closeLocalVideo(isClose);
+      }
+      resolve();
+    });
   }
 
   createWhiteBoard() {
-    console.log(user);
+    return utils.deferred((resolve, reject) => {
+      eventEmitter.once(EventName.WHITEBOARD_CREATED, (error, whiteboard) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(whiteboard);
+      });
+      rtc.requestWhiteBoardURL();
+    });
   }
 
   getWhiteBoardList() {
-    console.log(user);
+    return utils.deferred((resolve, reject) => {
+      eventEmitter.once(EventName.WHITEBOARD_GETLIST, (error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(result);
+      });
+      rtc.queryWhiteBoard();
+    });
   }
 
   startScreenShare() {
-
+    return utils.deferred((resolve, reject) => {
+      eventEmitter.once(EventName.SCREEN_SHARE_START, (error) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve();
+      });
+      rtc.startScreenShare();
+    });
   }
 
   stopScreenShare() {
-
+    return utils.deferred((resolve, reject) => {
+      eventEmitter.once(EventName.SCREEN_SHARE_STOP, (error) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve();
+      });
+      rtc.stopScreenShare();
+    });
   }
 
   _on(name, event) {
     eventEmitter.on(name, event);
+  }
+
+  _off(name) {
+    eventEmitter.off(name);
   }
 }

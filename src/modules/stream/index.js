@@ -4,8 +4,8 @@ import Audio from './audio';
 export default function Stream(rtc) {
   let $video = Video(rtc);
   let $audio = Audio(rtc);
-  let get = (user) => {
-    console.log(user);
+  let get = (user) => { 
+    return rtc.getStream(user);
   };
   return {
     $video,

@@ -2,3 +2,4 @@ dist/*.js
 src/3rd/*.js
 src/plugins/**/*.js
 src/providers/engine/rtc.js
+rollup.config.js

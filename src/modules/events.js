@@ -19,4 +19,4 @@ export const StreamEvents = [{
 export const NetworkEvents = [{
   name: EventName.NETWORK,
   type: 'network'
-}]
+}];
