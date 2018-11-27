@@ -42,7 +42,7 @@ let setEventHandler = () => {
     onLeaveComplete: (data) => {
       let user = getCurrentUser();
       let { isLeft } = data;
-      if(isLeft){
+      if (isLeft) {
         rtc.closeLocalStream();
       }
       let error = isLeft ? null : Error.LEAVE_ERROR;
@@ -127,6 +127,14 @@ let setEventHandler = () => {
     onStopScreenShareComplete: () => {
       let result = null;
       eventEmitter.emit(EventName.SCREEN_SHARE_STOP, result);
+    },
+    onNotifyRTCError: (result) => {
+      let { code } = result;
+      let errors = {
+        1: Error.TOKEN_USERID_MISMATCH
+      };
+      let error = errors[code] || result;
+      eventEmitter.emit(EventName.RTC_ERROR, error);
     }
   };
   utils.forEach(eventFactory, function (event, name) {
@@ -151,7 +159,7 @@ export default class RTCEngine {
         }
         resolve(user);
       });
-      let {user} = room;
+      let { user } = room;
       let { id: userId, token } = user;
       utils.extend(option, {
         currentUser: {

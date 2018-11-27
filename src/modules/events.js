@@ -17,6 +17,11 @@ export const StreamEvents = [{
 }];
 
 export const NetworkEvents = [{
-  name: EventName.NETWORK,
-  type: 'network'
+  name: EventName.RTC_SERVER,
+  type: 'server-rtc'
+}];
+
+export const ErrorEvents = [{
+  name: EventName.RTC_ERROR,
+  type: 'error'
 }];

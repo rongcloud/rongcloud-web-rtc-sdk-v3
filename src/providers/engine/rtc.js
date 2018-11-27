@@ -1,5 +1,8 @@
 /** This library require adapter.js */
 
+var BlinkRTCError = {
+  TOKEN_USERID_MISMATCH: 1
+};
 /** ----- 参数定义 ----- */
 var BlinkGlobal = {
   /** 带宽设置计数器 */
@@ -1514,6 +1517,9 @@ BlinkEngine.prototype.onMessage = function (ev) {
         return;
       case BlinkConstant.SignalType.MANAGE_ANSWER_UPDATE_SUBSCRIBE_NOTIFY:
         this.manage_answer_update_subscribe_notify(data);
+        return;
+      case BlinkConstant.SignalType.EXCHANGE_RESULT:
+        this.exchangeResult(data);
         return;
       default:
           console.debug(new Date(), data);
@@ -4057,6 +4063,18 @@ this.blinkEngineEventHandle.call("onNotifyHostControlUserDevice", {
       'isOpen': index == BlinkConstant.OperationType.OPEN ? true : false
   });
 };
+BlinkEngine.prototype.exchangeResult = function(data){
+  var parameters = data.parameters;
+  var code = parameters.statusCode;
+  var isError = (code == 'ERROR');
+  if(isError){
+    this.wsNeedConnect = false;
+    this.blinkEngineEventHandle.call('onNotifyRTCError', {
+      // 服务暂时没有状态码，自定义错误码 1 ，提示参数错误且不会重连
+      code: BlinkRTCError.TOKEN_USERID_MISMATCH
+    });
+  }
+}
 /**
 * 处理channelAnswer通知信令
 * 

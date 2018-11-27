@@ -9,7 +9,9 @@ export const EventName = {
   
   STREAM_ADDED: 'stream_added',
   
-  NETWORK: 'network',
+  RTC_SERVER: 'rtc_server',
+  RTC_ERROR: 'rtc_error',
+
   WHITEBOARD_CREATED: 'whiteboard_created',
   WHITEBOARD_GETLIST: 'whiteboard_getlist',
   SCREEN_SHARE_START: 'screen_share_start',
@@ -40,6 +42,10 @@ export const Error = {
   SCREEN_SHARE_NOT_INSTALL_ERROR: {
     code: 22002,
     msg: '屏幕共享失败, 未安装浏览器屏幕共享插件, 下载地址: http://fsprodrcx.cn.ronghub.com/zaoh1s2oIOU9siHWzaoh1sSRr-3NqK1xoM9SpazNRA/rong-rtc-plugin.zip'
+  },
+  TOKEN_USERID_MISMATCH: {
+    code: 30001,
+    msg: 'Token 与 UserId 不匹配'
   }
 };
 
