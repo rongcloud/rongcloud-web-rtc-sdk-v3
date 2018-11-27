@@ -587,6 +587,7 @@ BlinkEngine.prototype.clear = function () {
   this.exitScheduleKeepAliveTimer();
   this.disconnect(false);
   this.closePeerConnection(this.userId);
+  this.localStream = null;
 }
 /** ----- 提供能力 ----- */
 /**
