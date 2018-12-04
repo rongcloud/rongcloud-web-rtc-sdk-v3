@@ -422,7 +422,7 @@ var BlinkEngine = function (wsNavUrl) {
 */
 BlinkEngine.prototype.init = function (wsNavUrl) {
 /** logon version */
-this.logonVersion = BlinkConstant.LogonVersion.SUBSCRIBE;
+this.logonVersion = BlinkConstant.LogonVersion.INIT;
 
   /** ----- Stream信息 ----- */
   /** 本地视频流 */
