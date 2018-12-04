@@ -2,7 +2,6 @@ import Room from './modules/room';
 import Stream from './modules/stream/index';
 import WhiteBoard from './modules/whiteboard';
 import ScreenShare from './modules/screenshare';
-import Network from './modules/network';
 import Observer from './observer';
 
 import EventEmitter from './event-emitter';
@@ -13,6 +12,7 @@ import RTCEngine from './providers/engine/index';
 
 export default class RongRTC{
   constructor(option){
+    let that = this;
     let rtc = new RTCEngine(option);
     let eventEmitter = new EventEmitter();
     utils.forEach(ErrorEvents, (event) => {
@@ -29,6 +29,20 @@ export default class RongRTC{
       });
     });
 
+    let destroy = () => {
+      if(that._isDestroyed){
+        return utils.Defer.resolve();
+      }
+      utils.extend(that, {
+        _isDestroyed: true
+      });
+      utils.forEach(that, (module) => {
+        module._teardown && module._teardown();
+      });
+      rtc.destroy();
+      return utils.Defer.resolve();
+    };
+
     let _on = (name, event) => {
       return eventEmitter.on(name, (error, result) => {
         if(error){
@@ -42,13 +56,14 @@ export default class RongRTC{
       return eventEmitter.off(name);
     };
 
-    utils.extend(this, {
+    utils.extend(that, {
       Observer,
-      $room: Room(rtc),
-      $stream: Stream(rtc),
-      $whiteBoard: WhiteBoard(rtc),
-      $screenShare: ScreenShare(rtc),
-      $network: Network(rtc),
+      Room: Room(rtc),
+      Stream: Stream(rtc),
+      WhiteBoard: WhiteBoard(rtc),
+      ScreenShare: ScreenShare(rtc),
+      destroy,
+      _isDestroyed: false,
       _on,
       _off
     });

@@ -1,10 +1,10 @@
 export default function WhiteBoard(rtc) {
   return {
     create: () => {
-      return rtc.createWhiteBoard();
+      return rtc.exec('createWhiteBoard');
     },
     getList: () => {
-      return rtc.getWhiteBoardList();
+      return rtc.exec('getWhiteBoardList');
     }
   };
 }

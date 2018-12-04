@@ -19,11 +19,11 @@ export default function Room(rtc) {
   });
 
   let join = (room) => {
-    return rtc.joinRoom(room);
+    return rtc.exec('joinRoom', room);
   };
 
   let leave = (room) => {
-    return rtc.leaveRoom(room);
+    return rtc.exec('leaveRoom', room);
   };
 
   let _on = (name, event) => {
@@ -38,10 +38,15 @@ export default function Room(rtc) {
   let _off = (name) => {
     return eventEmitter.off(name);
   }
+
+  let _teardown = () => {
+    return eventEmitter.teardown();
+  };
   return {
     join,
     leave,
     _on,
-    _off
+    _off,
+    _teardown
   }
 }

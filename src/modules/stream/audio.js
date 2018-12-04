@@ -1,10 +1,10 @@
 export default function Audio(rtc){
   return {
     mute: (user) => {
-      return rtc.mute(user);
+      return rtc.exec('mute', user);
     },
     unmute: (user) => {
-      return rtc.unmute(user);
+      return rtc.exec('unmute', user);
     }
   };
 }

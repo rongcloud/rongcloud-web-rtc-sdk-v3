@@ -22,4 +22,12 @@ export default class EventEmitter{
   once(name, event){
     this.onceEvents[name] = event;
   }
+  teardown(){
+    for(let name in this.events){
+      this.off(name);
+    }
+    for(let name in this.onceEvents){
+      delete this.onceEvents[name];
+    }
+  }
 }

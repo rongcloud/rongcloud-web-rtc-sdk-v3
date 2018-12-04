@@ -1,9 +1,9 @@
 export default function ScreenShare(rtc){
   let start = () => {
-    return rtc.startScreenShare();
+    return rtc.exec('startScreenShare')
   };
   let stop = () => {
-    return rtc.stopScreenShare();
+    return rtc.exec('stopScreenShare');
   };
   return {
     start,

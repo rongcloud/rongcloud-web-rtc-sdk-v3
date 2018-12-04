@@ -141,6 +141,8 @@ let setEventHandler = () => {
     eventHandler.on(name, event);
   });
 };
+
+let isDestroyed = false;
 export default class RTCEngine {
   constructor(_option) {
     utils.extend(option, _option);
@@ -285,11 +287,24 @@ export default class RTCEngine {
     });
   }
 
+  exec(name, ...data){
+    if(isDestroyed){
+      return utils.Defer.reject(Error.RONGRTC_DESTROYED);
+    }
+    return this[name](...data);
+  }
+
   _on(name, event) {
     eventEmitter.on(name, event);
   }
 
   _off(name) {
     eventEmitter.off(name);
+  }
+
+  destroy(){
+    eventEmitter.teardown();
+    isDestroyed = true;
+    this.leaveRoom();
   }
 }

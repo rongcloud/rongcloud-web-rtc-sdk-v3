@@ -1,19 +1,19 @@
 const noop = () => {};
 const isObject = (obj) => {
   return (Object.prototype.toString.call(obj) === '[object Object]');
-}
+};
 const isArray = (arr) => {
   return (Object.prototype.toString.call(arr) === '[object Array]');
-}
+};
 const isFunction = (arr) => {
   return (Object.prototype.toString.call(arr) === '[object Function]');
-}
+};
 const stringify = (obj) => {
   return JSON.stringify(obj);
-}
+};
 const parse = (str) => {
   return JSON.parse(str);
-}
+};
 const forEach = (obj, callback) => {
   callback = callback || noop;
   var loopObj = () => {
@@ -51,17 +51,18 @@ const rename = (origin, newNames) => {
     });
   });
   return isObject ? origin[0] : origin;
-}
+};
 const extend = (destination, sources) => {
   for (let key in sources) {
     let value = sources[key];
     destination[key] = value;
   }
   return destination;
-}
+};
+const Defer = Promise;
 const deferred = (callback) => {
-  return new Promise(callback);
-}
+  return new Defer(callback);
+};
 const tplEngine = (tpl, data, regexp) => {
   if (!(isArray(data))) {
     data = [data];
@@ -77,8 +78,7 @@ const tplEngine = (tpl, data, regexp) => {
     ret.push(replaceAction(data[i]));
   }
   return ret.join('');
-}
-
+};
 export default {
   isObject,
   isArray,
@@ -88,6 +88,7 @@ export default {
   rename,
   extend,
   deferred,
+  Defer,
   forEach,
   tplEngine,
   noop

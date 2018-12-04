@@ -23,7 +23,7 @@ export default function Stream(rtc) {
   let $video = Video(rtc);
   let $audio = Audio(rtc);
   let get = (user) => { 
-    return rtc.getStream(user);
+    return rtc.exec('getStream', user);
   };
   let _on = (name, event) => {
     return eventEmitter.on(name, (error, result) => {
@@ -35,12 +35,16 @@ export default function Stream(rtc) {
   };
   let _off = (name) => {
     return eventEmitter.off(name);
-  }
+  };
+  let _teardown = () => {
+    return eventEmitter.teardown();
+  };
   return {
-    $video,
-    $audio,
+    Video: $video,
+    Audio: $audio,
     get,
     _on,
-    _off
+    _off,
+    _teardown
   };
 }
