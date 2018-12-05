@@ -83,6 +83,25 @@ const tplEngine = (tpl, data, regexp) => {
 const isContain = (str, keyword) => {
   return str.indexOf(keyword) > -1;
 };
+const Cache = (cache) => {
+  if(!isObject(cache)){
+    cache = {};
+  }
+  let set = (key, value) => {
+    cache[key] = value;
+  };
+  let get = (key) => {
+    return cache[key];
+  };
+  let remove = (key) => {
+    delete cache[key];
+  };
+  return {
+    set,
+    get,
+    remove
+  };
+};
 export default {
   isObject,
   isArray,
@@ -96,5 +115,6 @@ export default {
   forEach,
   tplEngine,
   isContain,
-  noop
+  noop,
+  Cache
 }

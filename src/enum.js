@@ -19,9 +19,13 @@ export const EventName = {
 };
 
 export const Error = {
-  RONGRTC_DESTROYED: {
+  INSTANCE_IS_DESTROYED: {
     code: 10000,
     msg: 'RongRTC 实例已销毁，请创建实例并绑定事件后再调用实例方法'
+  },
+  NOT_JOIN_ROOM: {
+    code: 10001,
+    msg: '不在房间内，请先加入房间再调用业务接口'
   },
   JOIN_ERROR: {
     code: 20000,

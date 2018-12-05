@@ -141,8 +141,15 @@ let setEventHandler = () => {
     eventHandler.on(name, event);
   });
 };
+let CacheName = {
+  IS_DESTROYED: 'isDestroyed',
+  IS_IN_ROOM: 'isInRoom'
+};
+let SessionCache = utils.Cache({
+  isDestroyed: false,
+  isInRoom: false
+});
 
-let isDestroyed = false;
 export default class RTCEngine {
   constructor(_option) {
     utils.extend(option, _option);
@@ -159,6 +166,7 @@ export default class RTCEngine {
         if (error) {
           return reject(error);
         }
+        SessionCache.set(CacheName.IS_IN_ROOM, true);
         resolve(user);
       });
       let { user } = room;
@@ -179,6 +187,7 @@ export default class RTCEngine {
         if (error) {
           return reject(error);
         }
+        SessionCache.set(CacheName.IS_IN_ROOM, false);
         resolve(user);
       });
       rtc.leaveChannel();
@@ -343,8 +352,14 @@ export default class RTCEngine {
   }
 
   exec(name, ...data) {
+    let isDestroyed = SessionCache.get(CacheName.IS_DESTROYED);
     if (isDestroyed) {
-      return utils.Defer.reject(Error.RONGRTC_DESTROYED);
+      return utils.Defer.reject(Error.INSTANCE_IS_DESTROYED);
+    }
+    let isInRoom = SessionCache.get(CacheName.IS_IN_ROOM);
+    let isJoin = name === 'joinRoom';
+    if(!isInRoom && !isJoin){
+      return utils.Defer.reject(Error.NOT_JOIN_ROOM);
     }
     return this[name](...data);
   }
@@ -359,7 +374,7 @@ export default class RTCEngine {
 
   destroy() {
     eventEmitter.teardown();
-    isDestroyed = true;
+    SessionCache.set(CacheName.IS_DESTROYED, true);
     this.leaveRoom();
   }
 }
