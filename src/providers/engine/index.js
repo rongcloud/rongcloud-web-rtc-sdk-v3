@@ -150,7 +150,7 @@ export default class RTCEngine {
     eventEmitter = new EventEmitter();
     eventHandler = new EventHandler();
     setEventHandler();
-    rtc.setBlinkEngineEventHandle(eventHandler);
+    rtc.setRongRTCEngineEventHandle(eventHandler);
   }
 
   joinRoom(room) {
@@ -287,8 +287,63 @@ export default class RTCEngine {
     });
   }
 
-  exec(name, ...data){
-    if(isDestroyed){
+  setDevice(device) {
+    let { input: { video } } = device;
+    return utils.deferred(resolve => {
+      rtc.switchVideo(video.id);
+      resolve();
+    });
+  }
+
+  checkDevice() {
+    return rtc.checkDeviceState().then(state => {
+      return utils.rename(state, {
+        audioState: 'audio',
+        videoState: 'video'
+      });
+    });
+  }
+
+  getDeviceList() {
+    return rtc.getDevicesInfos().then(devices => {
+      let audioInputs = [], videoInputs = [], audioOutputs = [];
+      let add = (inputs, device) => {
+        let {deviceId: id, label, groupId} = device;
+        inputs.push({
+          id,
+          label,
+          groupId
+        });
+      };
+      let deviceKinds = {
+        videoinput: (device) => {
+          add(videoInputs, device);
+        },
+        audioinput: (device) => {
+          add(audioInputs, device);
+        },
+        audiooutput: (device) => {
+          add(audioOutputs, device);
+        }
+      };
+      devices.forEach(device => {
+        let { kind } = device;
+        deviceKinds[kind](device);
+      });
+      return {
+        input: {
+          audio: audioInputs,
+          video: videoInputs
+        },
+        output: {
+          audio: audioOutputs
+        }
+      };
+    });
+  }
+
+  exec(name, ...data) {
+    if (isDestroyed) {
       return utils.Defer.reject(Error.RONGRTC_DESTROYED);
     }
     return this[name](...data);
@@ -302,7 +357,7 @@ export default class RTCEngine {
     eventEmitter.off(name);
   }
 
-  destroy(){
+  destroy() {
     eventEmitter.teardown();
     isDestroyed = true;
     this.leaveRoom();

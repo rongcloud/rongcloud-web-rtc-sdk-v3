@@ -2,6 +2,7 @@ import Room from './modules/room';
 import Stream from './modules/stream/index';
 import WhiteBoard from './modules/whiteboard';
 import ScreenShare from './modules/screenshare';
+import Device from './modules/device';
 import Observer from './observer';
 
 import EventEmitter from './event-emitter';
@@ -62,6 +63,7 @@ export default class RongRTC{
       Stream: Stream(rtc),
       WhiteBoard: WhiteBoard(rtc),
       ScreenShare: ScreenShare(rtc),
+      Device: Device(rtc),
       destroy,
       _isDestroyed: false,
       _on,

@@ -79,6 +79,10 @@ const tplEngine = (tpl, data, regexp) => {
   }
   return ret.join('');
 };
+// 暂时支持 String
+const isContain = (str, keyword) => {
+  return str.indexOf(keyword) > -1;
+};
 export default {
   isObject,
   isArray,
@@ -91,5 +95,6 @@ export default {
   Defer,
   forEach,
   tplEngine,
+  isContain,
   noop
 }
