@@ -24,6 +24,6 @@ module.exports = {
     "no-restricted-globals": "warn",
     "indent": ["error", 2],
     "max-nested-callbacks": ["error", { "max": 3 }],
-    "no-underscore-dangle": ["warn", { "allow": ["_on", "_off"] }]
+    "no-underscore-dangle": ["warn", { "allow": ["_on", "_off", "_teardown", "_isDestroyed"] }]
   }
 };
