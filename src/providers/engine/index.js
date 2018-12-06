@@ -5,7 +5,8 @@
 import { RTC, EventHandler } from './rtc';
 import utils from '../../utils';
 import EventEmitter from '../../event-emitter';
-import { EventName, Error } from '../../enum';
+import { EventName, ErrorType } from '../../enum';
+let { Inner: Error } = ErrorType;
 
 let option = {
   url: 'https://rtcapi.ronghub.com/nav/websocketlist',
@@ -317,7 +318,7 @@ export default class RTCEngine {
     return rtc.getDevicesInfos().then(devices => {
       let audioInputs = [], videoInputs = [], audioOutputs = [];
       let add = (inputs, device) => {
-        let {deviceId: id, label, groupId} = device;
+        let { deviceId: id, label, groupId } = device;
         inputs.push({
           id,
           label,
@@ -358,7 +359,7 @@ export default class RTCEngine {
     }
     let isInRoom = SessionCache.get(CacheName.IS_IN_ROOM);
     let isJoin = name === 'joinRoom';
-    if(!isInRoom && !isJoin){
+    if (!isInRoom && !isJoin) {
       return utils.Defer.reject(Error.NOT_JOIN_ROOM);
     }
     return this[name](...data);

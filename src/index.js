@@ -11,15 +11,15 @@ import { ErrorEvents } from './modules/events';
 import utils from './utils';
 import RTCEngine from './providers/engine/index';
 
-export default class RongRTC{
-  constructor(option){
+export default class RongRTC {
+  constructor(option) {
     let that = this;
     let rtc = new RTCEngine(option);
     let eventEmitter = new EventEmitter();
     utils.forEach(ErrorEvents, (event) => {
       let { name, type } = event;
       rtc._on(name, (error, info) => {
-        if(error){
+        if (error) {
           throw new Error(error);
         }
         let result = {
@@ -31,7 +31,7 @@ export default class RongRTC{
     });
 
     let destroy = () => {
-      if(that._isDestroyed){
+      if (that._isDestroyed) {
         return utils.Defer.resolve();
       }
       utils.extend(that, {
@@ -46,13 +46,13 @@ export default class RongRTC{
 
     let _on = (name, event) => {
       return eventEmitter.on(name, (error, result) => {
-        if(error){
+        if (error) {
           throw new Error(error);
         }
         event(result);
       });
     };
-  
+
     let _off = (name) => {
       return eventEmitter.off(name);
     };
