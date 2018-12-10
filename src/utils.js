@@ -102,6 +102,7 @@ const Cache = (cache) => {
     remove
   };
 };
+const Logger = console;
 export default {
   isObject,
   isArray,
@@ -116,5 +117,6 @@ export default {
   tplEngine,
   isContain,
   noop,
-  Cache
+  Cache,
+  Logger
 }

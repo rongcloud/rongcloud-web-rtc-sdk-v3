@@ -78,6 +78,8 @@ export const EventName = {
   ROOM_CHANGED: 'room_changed',
   STREAM_ADDED: 'stream_added',
   RTC_SERVER: 'rtc_server',
+  RTC_SERVER_READY: 'rtc_server_ready',
+  RTC_SERVER_COLSE: 'rtc_server_ready',
   RTC_ERROR: 'rtc_error',
   WHITEBOARD_CREATED: 'whiteboard_created',
   WHITEBOARD_GETLIST: 'whiteboard_getlist',
