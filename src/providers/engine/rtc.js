@@ -464,7 +464,7 @@ var RongRTCEngine = function (wsNavUrl) {
 */
 RongRTCEngine.prototype.init = function (wsNavUrl) {
 /** logon version */
-this.logonVersion = RongRTCConstant.LogonVersion.SUBSCRIBE;
+this.logonVersion = RongRTCConstant.LogonVersion.INIT;
 
   /** ----- Stream信息 ----- */
   /** 本地视频流 */
