@@ -1,12 +1,18 @@
 const noop = () => {};
 const isObject = (obj) => {
-  return (Object.prototype.toString.call(obj) === '[object Object]');
+  return Object.prototype.toString.call(obj) === '[object Object]';
 };
 const isArray = (arr) => {
-  return (Object.prototype.toString.call(arr) === '[object Array]');
+  return Object.prototype.toString.call(arr) === '[object Array]';
 };
 const isFunction = (arr) => {
-  return (Object.prototype.toString.call(arr) === '[object Function]');
+  return Object.prototype.toString.call(arr) === '[object Function]';
+};
+const isString = (str) => {
+  return Object.prototype.toString.call(str) === '[object String]';
+};
+const isBoolean = (str) => {
+  return Object.prototype.toString.call(str) === '[object Boolean]';
 };
 const stringify = (obj) => {
   return JSON.stringify(obj);
@@ -104,6 +110,8 @@ const Cache = (cache) => {
 };
 const Logger = console;
 export default {
+  isBoolean,
+  isString,
   isObject,
   isArray,
   isFunction,

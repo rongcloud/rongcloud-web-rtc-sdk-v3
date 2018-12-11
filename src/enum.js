@@ -75,7 +75,7 @@ export const EventName = {
   ROOM_SELF_LEFT: 'room_self_left',
   ROOM_USER_JOINED: 'room_user_joined',
   ROOM_USER_LEFT: 'room_user_left',
-  ROOM_CHANGED: 'room_changed',
+  ROOM_USER_RESOURCE_CHANGED: 'room_user_resource_changed',
   STREAM_ADDED: 'stream_added',
   RTC_SERVER: 'rtc_server',
   RTC_SERVER_READY: 'rtc_server_ready',
@@ -85,4 +85,11 @@ export const EventName = {
   WHITEBOARD_GETLIST: 'whiteboard_getlist',
   SCREEN_SHARE_START: 'screen_share_start',
   SCREEN_SHARE_STOP: 'screen_share_stop'
+};
+
+export const ResourceType = {
+  NONE: 0,
+  AUDIO: 1,
+  VIDEO: 2,
+  AUDIO_AND_VIDEO: 3
 };

@@ -9,7 +9,7 @@ import { EventName, ErrorType } from '../../enum';
 let { Inner: Error } = ErrorType;
 
 let option = {
-  url: 'https://rtcapi.ronghub.com/nav/websocketlist',
+  url: 'https://rtc.ronghub.com/nav/websocketlist',
   currentUser: ''
 };
 let rtc = null;
@@ -76,13 +76,15 @@ let setEventHandler = () => {
       };
       eventEmitter.emit(EventName.ROOM_USER_LEFT, user);
     },
-    onTurnTalkType: (user) => {
-      let { userId, type } = user;
+    onNotifyResourceUpdated: (user) => {
+      let { userId: id, resource: type } = user;
       user = {
-        id: userId,
-        type: type
+        id,
+        resource: {
+          type
+        }
       };
-      eventEmitter.emit(EventName.ROOM_CHANGED, user);
+      eventEmitter.emit(EventName.ROOM_USER_RESOURCE_CHANGED, user);
     },
     onConnectionStateChanged: (network) => {
       network = utils.rename(network, {

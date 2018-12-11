@@ -464,7 +464,7 @@ var RongRTCEngine = function (wsNavUrl) {
 */
 RongRTCEngine.prototype.init = function (wsNavUrl) {
 /** logon version */
-this.logonVersion = RongRTCConstant.LogonVersion.INIT;
+this.logonVersion = RongRTCConstant.LogonVersion.SUBSCRIBE;
 
   /** ----- Stream信息 ----- */
   /** 本地视频流 */
@@ -3075,7 +3075,7 @@ return newTalkType;
 *
 */
 RongRTCEngine.prototype.isSubscribeVersion = function() {
-if (this.logonVersion == RongRTCConstant.LogonVersion.SUBSCRIBE) { // 订阅分发版本
+if (this.logonVersion == RongRTCConstant.LogonVersion.INIT) { // 订阅分发版本
   return true;
 }
 return false;
@@ -3130,6 +3130,7 @@ if (user != null) {
   user.resource = resource;
   this.joinedUsers.put(userId, user);
 }
+oldResource = oldResource || resource;
 // 转换operation
 var operation = this.convertOperation(oldResource, resource);
 var deviceType = operation.deviceType;
@@ -4589,6 +4590,7 @@ var oldResource = user.resource;
 // 变更resource
 this.changeResource(userId, resource);
 // 转换operation
+oldResource = oldResource || resource;
 var operation = this.convertOperation(oldResource, resource);
 // 通知
 var deviceType = operation.deviceType;

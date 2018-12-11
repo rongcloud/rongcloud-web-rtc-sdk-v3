@@ -31,10 +31,24 @@ export default class Observer{
       module,
       config
     });
-    utils.forEach(config, (isObserver, name) => {
+    utils.forEach(config, (observer, action) => {
+      let isObserver = utils.isBoolean(observer) && observer;
       if(isObserver){
-        module._on && module._on(name, this.callback);
+        module._on && module._on(action, this.callback);
       }
+      if(utils.isObject(observer)){
+        let tpl = '{action}_{type}';
+        utils.forEach(observer, (isObserver, type) => {
+          let name = utils.tplEngine(tpl, {
+            action,
+            type
+          });
+          if(isObserver){
+            module._on && module._on(name, this.callback);
+          }
+        });
+      }
+      
     });
   }
   disconnect(){

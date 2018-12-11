@@ -5,20 +5,15 @@ export const RoomEvents = [{
   type: 'joined'
 }, {
   name: EventName.ROOM_USER_LEFT,
-  type: 'leaved'
+  type: 'left'
 }, {
-  name: EventName.ROOM_CHANGED,
-  type: 'changed'
+  name: EventName.ROOM_USER_RESOURCE_CHANGED,
+  type: 'changed_resource'
 }];
 
 export const StreamEvents = [{
   name: EventName.STREAM_ADDED,
   type: 'added'
-}];
-
-export const NetworkEvents = [{
-  name: EventName.RTC_SERVER,
-  type: 'server-rtc'
 }];
 
 export const ErrorEvents = [{
