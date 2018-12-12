@@ -25,6 +25,9 @@ export default function Stream(rtc) {
   let get = (user) => { 
     return rtc.exec('getStream', user);
   };
+  let set = (constraints) => {
+    rtc.exec('setProfiles', constraints);
+  };
   let _on = (name, event) => {
     return eventEmitter.on(name, (error, result) => {
       if(error){
@@ -43,6 +46,7 @@ export default function Stream(rtc) {
     Video: $video,
     Audio: $audio,
     get,
+    set,
     _on,
     _off,
     _teardown
