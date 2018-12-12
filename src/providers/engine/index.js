@@ -50,14 +50,17 @@ let setEventHandler = () => {
       eventEmitter.emit(EventName.ROOM_SELF_LEFT, user, error);
     },
     onAddStream: (data) => {
-      let { userId, videoType } = data;
+      let { userId, videoType: type } = data;
       let user = {
         id: userId
       };
-      let stream = rtc.getRemoteStream(userId, videoType);
+      let stream = rtc.getRemoteStream(userId, type);
       let result = {
         user,
-        stream
+        stream: {
+          type,
+          mediaStream: stream
+        }
       };
       eventEmitter.emit(EventName.STREAM_ADDED, result);
     },
@@ -78,13 +81,16 @@ let setEventHandler = () => {
     },
     onNotifyResourceUpdated: (user) => {
       let { userId: id, resource: type } = user;
-      user = {
-        id,
-        resource: {
-          type
+      user = { id };
+      let stream = rtc.getLocalStream();
+      let result = {
+        user,
+        stream: {
+          type,
+          mediaStream: stream
         }
       };
-      eventEmitter.emit(EventName.ROOM_USER_RESOURCE_CHANGED, user);
+      eventEmitter.emit(EventName.STREAM_CHANGED, result);
     },
     onConnectionStateChanged: (network) => {
       network = utils.rename(network, {
@@ -197,6 +203,9 @@ export default class RTCEngine {
     });
   }
 
+  setProfiles(constraints) {
+    rtc.setVideoParameters(constraints);
+  }
   getStream(user) {
     return utils.deferred((resolve) => {
       let method = isCrruentUser(user) ? 'getLocalStream' : 'getRemoteStream';

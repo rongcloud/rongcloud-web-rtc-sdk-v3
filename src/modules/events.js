@@ -6,17 +6,22 @@ export const RoomEvents = [{
 }, {
   name: EventName.ROOM_USER_LEFT,
   type: 'left'
-}, {
-  name: EventName.ROOM_USER_RESOURCE_CHANGED,
-  type: 'changed_resource'
 }];
 
 export const StreamEvents = [{
   name: EventName.STREAM_ADDED,
   type: 'added'
+},{
+  name: EventName.STREAM_CHANGED,
+  type: 'changed'
 }];
 
 export const ErrorEvents = [{
   name: EventName.RTC_ERROR,
   type: 'error'
+}];
+
+export const ScreenShareEvents = [{
+  name: EventName.SCREEN_SHARE_FINISHED,
+  type: 'finished'
 }];
