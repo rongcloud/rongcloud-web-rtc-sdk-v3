@@ -7,6 +7,7 @@ export default function ScreenShare(rtc) {
   utils.forEach(ScreenShareEvents, (event) => {
     let { name, type } = event;
     rtc._on(name, (error, result) => {
+      result = result || {};
       if (error) {
         throw new Error(error);
       }

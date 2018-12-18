@@ -128,6 +128,10 @@ RongRTCConstant.OfferStatus = {
   SENDING: 'SENDING',
   DONE: 'DONE'
 }
+RongRTCConstant.ScreenShareReason = {
+  API: 1,
+  BROWER: 2
+};
 /**
 * 会控操作类型
 *
@@ -1196,7 +1200,7 @@ RongRTCEngine.prototype.startScreenShare = function (stream) {
 * 关闭屏幕共享
 *
 */
-RongRTCEngine.prototype.stopScreenShare = function () {
+RongRTCEngine.prototype.stopScreenShare = function (option) {
 //	if (this.isScreenStreamSeparate) { // 屏幕共享流分离
 //		// stop后会关闭弹出的屏幕共享工具条
 //		this.localScreenStream.getVideoTracks()[0].stop();
@@ -1240,7 +1244,7 @@ if (this.isScreenStreamSeparate) { // 屏幕共享流分离
     if (this.localVideoEnable) { // 原视频是enable的
       var rongRTCEngine = this;
       var callback = function(rongRTCEngine) {
-        rongRTCEngine._stopScreenShare();
+        rongRTCEngine._stopScreenShare(option);
       }
       this.startLocalTrack(RongRTCConstant.DeviceType.Camera, callback);
       return;
@@ -1254,7 +1258,7 @@ if (this.isScreenStreamSeparate) { // 屏幕共享流分离
       // RongRTCUtil.setMediaStream(this.userId, this.localStream);
     }
 }
-this._stopScreenShare();
+this._stopScreenShare(option);
 }
 /** ----- 屏幕共享能力 ----- */
 /** ----- 会控能力 ----- */
@@ -2746,7 +2750,9 @@ var rongRTCEngine = this;
 this.localScreenVideoTrack = screenStream.getVideoTracks()[0];
 this.localScreenVideoTrack.onended = function () {
       // 关闭屏幕共享
-      rongRTCEngine.stopScreenShare();
+      rongRTCEngine.stopScreenShare({
+        reason: RongRTCConstant.ScreenShareReason.BROWER
+      });
   };
   if (this.isScreenStreamSeparate) { // 屏幕共享流分离
     this.localScreenStream = screenStream;
@@ -2802,7 +2808,8 @@ if (pcClient != null) { // 只有一人时，值为null，在订阅分发版本�
 * 关闭屏幕共享
 *
 */
-RongRTCEngine.prototype._stopScreenShare = function () {
+RongRTCEngine.prototype._stopScreenShare = function (option) {
+option = option || { reason: RongRTCConstant.ScreenShareReason.API};
 this.screenSharingStatus = false;
 if (this.isSubscribeVersion()) { // 订阅分发版本
   var resource = this.convertResource(this.resource, RongRTCConstant.DeviceType.ScreenShare, RongRTCConstant.OperationType.CLOSE);
@@ -2815,7 +2822,8 @@ if (this.isSubscribeVersion()) { // 订阅分发版本
   // this.screenSharing(RongRTCConstant.OperationType.CLOSE);
 }
 this.rongRTCEngineEventHandle.call('onStopScreenShareComplete', {
-    'isSuccess': true
+  isSuccess: true,
+  reason: option.reason
 });
 
 // offer

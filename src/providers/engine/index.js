@@ -125,9 +125,12 @@ let setEventHandler = () => {
       let result = null;
       eventEmitter.emit(EventName.SCREEN_SHARE_START, result, error);
     },
-    onStopScreenShareComplete: () => {
-      let result = null;
-      eventEmitter.emit(EventName.SCREEN_SHARE_STOP, result);
+    onStopScreenShareComplete: (result) => {
+      let { reason } = result;
+      if(reason == 2){
+        return eventEmitter.emit(EventName.SCREEN_SHARE_FINISHED);
+      }
+      eventEmitter.emit(EventName.SCREEN_SHARE_STOP);
     },
     onNotifyRTCError: (result) => {
       let { code } = result;
