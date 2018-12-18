@@ -127,7 +127,7 @@ let setEventHandler = () => {
     },
     onStopScreenShareComplete: (result) => {
       let { reason } = result;
-      if(reason == 2){
+      if(reason === 2){
         return eventEmitter.emit(EventName.SCREEN_SHARE_FINISHED);
       }
       eventEmitter.emit(EventName.SCREEN_SHARE_STOP);
