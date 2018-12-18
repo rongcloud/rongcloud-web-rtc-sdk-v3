@@ -2216,9 +2216,11 @@ RongRTCEngine.prototype.preparePeerConnection = function (userId) {
               'userId': userId,
               'videoType': videoType
           });
+          var user = rongRTCEngine.joinedUsers.get(userId);
           rongRTCEngine.rongRTCEngineEventHandle.call('onNotifyUserVideoCreated', {
-              'userId': userId,
-              'videoType': videoType
+            userId: userId,
+            videoType: videoType,
+            resource: user.resource
           });
       };
 
@@ -3075,7 +3077,7 @@ return newTalkType;
 *
 */
 RongRTCEngine.prototype.isSubscribeVersion = function() {
-if (this.logonVersion == RongRTCConstant.LogonVersion.INIT) { // 订阅分发版本
+if (this.logonVersion == RongRTCConstant.LogonVersion.SUBSCRIBE) { // 订阅分发版本
   return true;
 }
 return false;

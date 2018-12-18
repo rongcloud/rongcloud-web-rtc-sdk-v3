@@ -5,7 +5,7 @@
 import { RTC, EventHandler } from './rtc';
 import utils from '../../utils';
 import EventEmitter from '../../event-emitter';
-import { EventName, ErrorType } from '../../enum';
+import { EventName, ErrorType, StreamType } from '../../enum';
 let { Inner: Error } = ErrorType;
 
 let option = {
@@ -30,14 +30,6 @@ let setEventHandler = () => {
       let { isJoined } = data;
       let error = isJoined ? null : Error.JOIN_ERROR;
       eventEmitter.emit(EventName.ROOM_SELF_JOINED, user, error);
-
-      // 主动获取本地流，通知应用层
-      let stream = rtc.getLocalStream();
-      let result = {
-        user,
-        stream
-      };
-      eventEmitter.emit(EventName.STREAM_ADDED, result);
     },
     // user = > {id: 'userId'}
     onLeaveComplete: (data) => {
@@ -49,8 +41,8 @@ let setEventHandler = () => {
       let error = isLeft ? null : Error.LEAVE_ERROR;
       eventEmitter.emit(EventName.ROOM_SELF_LEFT, user, error);
     },
-    onAddStream: (data) => {
-      let { userId, videoType: type } = data;
+    onNotifyUserVideoCreated: (data) => {
+      let { userId, resource: type } = data;
       let user = {
         id: userId
       };
@@ -206,14 +198,18 @@ export default class RTCEngine {
   setProfiles(constraints) {
     rtc.setVideoParameters(constraints);
   }
+
   getStream(user) {
     return utils.deferred((resolve) => {
       let method = isCrruentUser(user) ? 'getLocalStream' : 'getRemoteStream';
       let { id } = user;
-      let stream = rtc[method](id);
+      let mediaStream = rtc[method](id);
       resolve({
         user,
-        stream
+        stream: {
+          type: StreamType.VIDEO,
+          mediaStream
+        }
       });
     });
   }

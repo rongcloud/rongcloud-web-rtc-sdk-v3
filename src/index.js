@@ -7,7 +7,7 @@ import Observer from './observer';
 
 import EventEmitter from './event-emitter';
 import { ErrorEvents } from './modules/events';
-import { ResourceType } from './enum';
+import { StreamType } from './enum';
 
 import utils from './utils';
 import RTCEngine from './providers/engine/index';
@@ -74,5 +74,5 @@ export default class RongRTC {
 }
 
 utils.extend(RongRTC, {
-  ResourceType
+  StreamType
 });
