@@ -206,7 +206,9 @@ export default class RTCEngine {
     return utils.deferred((resolve) => {
       let method = isCrruentUser(user) ? 'getLocalStream' : 'getRemoteStream';
       let { id } = user;
-      let mediaStream = rtc[method](id);
+      // 临时做法，不应该关心 type ，应该在 Stream 中返回
+      let type = StreamType.AUDIO_AND_VIDEO;
+      let mediaStream = rtc[method](type, id);
       resolve({
         user,
         stream: {
@@ -368,8 +370,9 @@ export default class RTCEngine {
       return utils.Defer.reject(Error.INSTANCE_IS_DESTROYED);
     }
     let isInRoom = SessionCache.get(CacheName.IS_IN_ROOM);
-    let isJoin = name === 'joinRoom';
-    if (!isInRoom && !isJoin) {
+    let whitelist = ['joinRoom', 'setProfiles'];
+    let isInWhitelist = whitelist.indexOf(name) > -1;
+    if (!isInRoom && !isInWhitelist) {
       return utils.Defer.reject(Error.NOT_JOIN_ROOM);
     }
     return this[name](...data);
