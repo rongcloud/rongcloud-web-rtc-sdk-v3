@@ -7,6 +7,7 @@
 export const DownEventFlag = ['Push', 'Ack', 'Pong'];
 
 export const SignalEvent = {
+  /** start 信令服务器交互信令 */
   Connect: 'connect',
   ConnectAck: 'connect_result',
 
@@ -23,8 +24,8 @@ export const SignalEvent = {
   Exchange: 'exchange',
   ExchangeAck: 'exchange_result',
 
-  QueryWhiteBoard: 'ewb_query',
-  QueryWhiteBoardAck: 'ewb_query_result',
+  GetWhiteBoardList: 'ewb_query',
+  GetWhiteBoardListAck: 'ewb_query_result',
 
   // 删除白板
   CreateWhiteBoard: 'ewb_create_multi',
@@ -58,5 +59,44 @@ export const SignalEvent = {
 
   // 修改当前用户订阅关系
   UpdateSubscribe: 'update_subscribe',
-  UpdateSubscribeAck: 'update_subscribe_result'
+  UpdateSubscribeAck: 'update_subscribe_result',
+
+  /** end 信令服务器交互信令 */
+
+  /** start 本地信令 */
+
+  SetProfile: 'set_profile',
+  SetProfileAck: 'set_profile_result',
+
+  GetStream: 'get_stream',
+  GetStreamAck: 'get_stream_result',
+
+  Mute: 'mute',
+  MuteAck: 'mute_result',
+
+  UnMute: 'unmute',
+  UnMuteAck: 'unmute_result',
+
+  DisableVideo: 'disable_video',
+  DisableVideoAck: 'disbale_video_result',
+
+  EnableVideo: 'enable_video',
+  EnableVideoAck: 'enable_video_result',
+
+  StartScreenShare: 'start_screen_share',
+  StartScreenShareAck: 'start_screen_share_result',
+
+  StopScreenShare: 'stop_screen_share',
+  StopScreenShareAck: 'stop_screen_share_result',
+
+  SetDevice: 'set_device',
+  SetDeviceAck: 'set_device_result',
+
+  CheckDevice: 'set_device',
+  CheckDeviceAck: 'set_device_result',
+
+  GetDeviceList: 'get_device_list',
+  GetDeviceListAck: 'get_device_list_result'
+
+  /** end 本地信令 */
 };

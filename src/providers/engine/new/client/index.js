@@ -9,57 +9,60 @@ export default class Client extends EventEmitter {
     super();
     let context = this;
     let socket;
-    
-    let DwonEvents = {
-      // 成员加入
-      joined: (data) => {
+
+    let downEventHandler = (data) => {
+      let { signal } = data;
+      switch (signal) {
+      case SignalEvent.PushJoin:
         context.emit(SignalEvent.PushJoin, data);
-      },
-      // 成员离开
-      left: (data) => {
+        break;
+      case SignalEvent.PushLeave:
         context.emit(SignalEvent.PushLeave, data);
-      },
-      offerRequest: (data) => {
+        break;
+      case SignalEvent.PushOfferRequest:
         context.emit(SignalEvent.PushOfferRequest, data);
-      },
-      update_resource_notify: (data) => {
+        break;
+      case SignalEvent.PushResource:
         context.emit(SignalEvent.PushResource, data);
-      },
-      update_subscribe_notify: (data) => {
+        break;
+      case SignalEvent.PushSubscribe:
         context.emit(SignalEvent.PushSubscribe, data);
-      },
-      // 当前用加入成功
-      logonAndJoin_result: (data) => {
+        break;
+      case SignalEvent.ConnectAck:
         context.emit(SignalEvent.ConnectAck, data);
-      },
-      channelPing_result: (data) => {
+        break;
+      case SignalEvent.Pong:
         context.emit(SignalEvent.Pong, data);
-      },
-      // 当前用户离开成功
-      leave_result: (data) => {
+        break;
+      case SignalEvent.LeaveAck:
         context.emit(SignalEvent.LeaveAck, data);
-      },
-      exchange_result: (data) => {
+        break;
+      case SignalEvent.ExchangeAck:
         context.emit(SignalEvent.ExchangeAck, data);
-      },
-      ewb_query_result: (data) => {
+        break;
+      case SignalEvent.QueryWhiteBoardAck:
         context.emit(SignalEvent.QueryWhiteBoardAck, data);
-      },
-      ewb_create_multi_result: (data) => {
+        break;
+      case SignalEvent.CreateWhiteBoardAck:
         context.emit(SignalEvent.CreateWhiteBoardAck, data);
-      },
-      delete_result: (data) => {
+        break;
+      case SignalEvent.DeleteWhiteBoardAck:
         context.emit(SignalEvent.DeleteWhiteBoardAck, data);
-      },
-      update_resource_result: (data) => {
+        break;
+      case SignalEvent.UpdateResourceAck:
         context.emit(SignalEvent.UpdateResourceAck, data);
-      },
-      update_subscribe_result: (data) => {
+        break;
+      case SignalEvent.UpdateSubscribeAck:
         context.emit(SignalEvent.UpdateSubscribeAck, data);
+        break;
+      default:
+        utils.Logger.warn('为解析信令', data);
       }
     };
+
     let UpEvents = {
       connect: () => {
+        context.emit(SignalEvent.Connect);
         let url = option.url;
         socket = new Socket(url);
       },
@@ -104,17 +107,15 @@ export default class Client extends EventEmitter {
       }
     });
     let events = {
-      onclose: function (event) {
-        context.emit(EventName.RTC_SERVER_COLSE, event.data);
+      onclose: function () {
       },
       onerror: function (event) {
-        context.emit(EventName.RTC_ERROR, event.data);
+        let data = null;
+        context.emit(EventName.ConnectAck, data, event.data);
       },
       onmessage: function (event) {
         let data = JSON.parse(event.data);
-        let { signal: name } = data;
-        event = DwonEvents[name] || Logger.warn;
-        event(data);
+        downEventHandler(data);
       },
       onopen: function (event) {
         context.emit(SignalEvent.ConnectAck, event.data);
