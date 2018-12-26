@@ -1,14 +1,26 @@
 // 分发事件
 import EventEmitter from '../../../../event-emitter';
-import utils, { Logger } from '../../../../utils';
+import utils from '../../../../utils';
 import Socket from './socket';
 import { SignalEvent, DownEventFlag } from '../events';
 import { EventName } from '../../../../enum';
+import RongPeerConnection from './peerconnection';
 export default class Client extends EventEmitter {
   constructor(option) {
     super();
     let context = this;
     let socket;
+
+    let sendCommand = (type, headers, data) => {
+      if(!utils.isArray(data)){
+        data = [data];
+      }
+      socket.send({
+        signal: type,
+        parameters: headers,
+        bodys: data
+      });
+    };
 
     let downEventHandler = (data) => {
       let { signal } = data;
@@ -20,7 +32,11 @@ export default class Client extends EventEmitter {
         context.emit(SignalEvent.PushLeave, data);
         break;
       case SignalEvent.PushOfferRequest:
-        context.emit(SignalEvent.PushOfferRequest, data);
+        RongPeerConnection.createAnswer().then(offer => {
+          sendCommand(SignalEvent.Exchange, {
+            type: '',
+          }, offer);
+        });
         break;
       case SignalEvent.PushResource:
         context.emit(SignalEvent.PushResource, data);
@@ -59,53 +75,6 @@ export default class Client extends EventEmitter {
         utils.Logger.warn('为解析信令', data);
       }
     };
-
-    let UpEvents = {
-      connect: () => {
-        context.emit(SignalEvent.Connect);
-        let url = option.url;
-        socket = new Socket(url);
-      },
-      logonAndJoin: (data) => {
-        socket.send(data);
-      },
-      channelPing: (data) => {
-        socket.send(data);
-      },
-      leave: (data) => {
-        socket.send(data);
-      },
-      exchange: (data) => {
-        socket.send(data);
-      },
-      ewb_query: (data) => {
-        socket.send(data);
-      },
-      ewb_create_multi: (data) => {
-        socket.send(data);
-      },
-      ewb_delete: (data) => {
-        socket.send(data);
-      },
-      flowSubscribe: (data) => {
-        socket.send(data);
-      },
-      update_resource: (data) => {
-        socket.send(data);
-      },
-      update_subscribe: (data) => {
-        socket.send(data);
-      }
-    };
-    utils.forEach(SignalEvent, name => {
-      let isUpEvent = !utils.isContain(name, DownEventFlag);
-      if (isUpEvent) {
-        context.on(name, data => {
-          let event = UpEvents[name] || Logger.warn
-          event(data);
-        });
-      }
-    });
     let events = {
       onclose: function () {
       },
@@ -121,8 +90,41 @@ export default class Client extends EventEmitter {
         context.emit(SignalEvent.ConnectAck, event.data);
       }
     };
-    utils.forEach(events, (event, name) => {
-      socket[name] = event;
+    let upEventHandler = (name, data) => {
+      switch(name){
+      case SignalEvent.Connect:
+        {
+          let { url } = option;
+          socket = new Socket(url);
+          utils.forEach(events, (event, name) => {
+            socket[name] = event;
+          });
+        }
+        break;
+      case SignalEvent.Join:
+      case SignalEvent.Ping:
+      case SignalEvent.Leave:
+      case SignalEvent.Exchange:
+      case SignalEvent.GetWhiteBoardList:
+      case SignalEvent.CreateWhiteBoard:
+      case SignalEvent.DeleteWhiteBoard:
+      case SignalEvent.FlowStreamSize:
+      case SignalEvent.UpdateResource:
+      case SignalEvent.UpdateSubscribe:
+        sendCommand(data);
+        break;
+      // TODO: 本地事件待处理
+      default:
+        utils.Logger.warn('The signal is not support: ', name);
+      }
+    };
+    utils.forEach(SignalEvent, name => {
+      let isUpEvent = !utils.isContain(name, DownEventFlag);
+      if (isUpEvent) {
+        context.on(name, data => {
+          upEventHandler(name, data);
+        });
+      }
     });
   }
 }

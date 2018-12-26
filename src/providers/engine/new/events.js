@@ -100,3 +100,9 @@ export const SignalEvent = {
 
   /** end 本地信令 */
 };
+
+export const PeerConnectionEvent = {
+  ADDED: 'add',
+  REMOVED: 'remove',
+  ICE_STATE_CHANGE: 'iceconnectionstatechange'
+};
