@@ -2,6 +2,27 @@
 import initAdapter from './adapter';
 initAdapter();
 
+
+function Cache(){
+  var $cache = {};
+  var set = function(key, value){
+    $cache[key] = value;
+  };
+  var remove = function(key){
+    delete $cache[key];
+  };
+  var get = function(key){
+    return $cache[key];
+  };
+  return {
+    set: set,
+    remove: remove,
+    get: get
+  };
+}
+
+var RemoteStreamCache = Cache();
+
 /** ----- 参数定义 ----- */
 var RongRTCGlobal = {
   /** 带宽设置计数器 */
@@ -977,6 +998,10 @@ if (videoType == RongRTCConstant.VideoType.SCREEN) { // 屏幕共享流
   return this.remoteScreenStreams.get(userId);
 }
 return this.remoteStreams.get(userId);
+};
+RongRTCEngine.prototype.getNewRemoteStream = function(userId, type){
+  var uId = userId + '_' + type;
+  return RemoteStreamCache.get(uId);
 };
 /**
 * 创建本地视频视图
@@ -2178,83 +2203,76 @@ RongRTCEngine.prototype.preparePeerConnection = function (userId) {
       var pc = new RTCPeerConnection();
       pc.onaddstream = function (evt) {
           console.debug(new Date(), "onaddstream", evt);
+          var stream = evt.stream;
+          var streamId = stream.id;
+          
+          // var userId = streamId;
+          // var videoType = RongRTCConstant.VideoType.NORMAL;
+          // if (streamId.lastIndexOf(RongRTCConstant.StreamSuffix.SCREEN) != -1) { // 屏幕共享流
+          //   userId = streamId.substring(0, streamId.lastIndexOf(RongRTCConstant.StreamSuffix.SCREEN));
+          //   videoType = RongRTCConstant.VideoType.SCREEN;
+          //   rongRTCEngine.remoteScreenStreams.put(userId, evt.stream);
+          // } else {
+          //   rongRTCEngine.remoteStreams.put(userId, evt.stream);
+          //   var user = rongRTCEngine.joinedUsers.get(userId);
+          //   var isNoVideo = false;
+          //   if (rongRTCEngine.isSubscribeVersion()) { // 订阅分发版本
+          //     var resource = user.resource;
+          //     if (resource == RongRTCConstant.ResourceType.None
+          //         || resource == RongRTCConstant.ResourceType.AudioOnly) { // 无视频
+          //       isNoVideo = true;
+          //     }
+          //   } else {
+          //     var talkType = user.talkType;
+          //     if (talkType == RongRTCConstant.TalkType.OnlyAudio
+          //         || talkType == RongRTCConstant.TalkType.None) { // 无视频
+          //       isNoVideo = true;
+          //     }
+          //   }
+          //   if (isNoVideo) { // 无视频
+          //     evt.stream.getVideoTracks().forEach(function (track) {
+          //       track.enabled = false;
+          //     });
+          //   }
+          // }
 
-          var streamId = evt.stream.id;
-          var userId = streamId;
-          var videoType = RongRTCConstant.VideoType.NORMAL;
-          if (streamId.lastIndexOf(RongRTCConstant.StreamSuffix.SCREEN) != -1) { // 屏幕共享流
-            userId = streamId.substring(0, streamId.lastIndexOf(RongRTCConstant.StreamSuffix.SCREEN));
-            videoType = RongRTCConstant.VideoType.SCREEN;
-            rongRTCEngine.remoteScreenStreams.put(userId, evt.stream);
-          } else {
-            rongRTCEngine.remoteStreams.put(userId, evt.stream);
-            var user = rongRTCEngine.joinedUsers.get(userId);
-            var isNoVideo = false;
-            if (rongRTCEngine.isSubscribeVersion()) { // 订阅分发版本
-              var resource = user.resource;
-              if (resource == RongRTCConstant.ResourceType.None
-                  || resource == RongRTCConstant.ResourceType.AudioOnly) { // 无视频
-                isNoVideo = true;
-              }
-            } else {
-              var talkType = user.talkType;
-              if (talkType == RongRTCConstant.TalkType.OnlyAudio
-                  || talkType == RongRTCConstant.TalkType.None) { // 无视频
-                isNoVideo = true;
-              }
-            }
-            if (isNoVideo) { // 无视频
-              evt.stream.getVideoTracks().forEach(function (track) {
-                track.enabled = false;
-              });
-            }
-          }
 
+          var params = streamId.split('_');
+          var userId = params[0];
+          // 没有类型，暂定为音视频
+          var resource = params[1] || 3;
+          var key = userId + '_' + resource;
           // 增加trackId和userId的对应关系
-          evt.stream.getTracks().forEach(function (track) {
-              rongRTCEngine.remoteTrackIdMap.put(track.id, evt.stream.id);
-          })
-
-          // @Deprecated
-          rongRTCEngine.rongRTCEngineEventHandle.call('onAddStream', {
-              'userId': userId,
-              'videoType': videoType
+          stream.getTracks().forEach(function (track) {
+              rongRTCEngine.remoteTrackIdMap.put(track.id, key);
           });
-          var user = rongRTCEngine.joinedUsers.get(userId);
+          RemoteStreamCache.set(key, stream);
           rongRTCEngine.rongRTCEngineEventHandle.call('onNotifyUserVideoCreated', {
             userId: userId,
-            videoType: videoType,
-            resource: user.resource
+            resource: resource
           });
       };
 
       pc.onremovestream = function (evt) {
           console.debug(new Date(), "onremovestream", evt);
-
           var streamId = evt.stream.id;
-          var userId = streamId;
-          var videoType = RongRTCConstant.VideoType.NORMAL;
-          if (streamId.lastIndexOf(RongRTCConstant.StreamSuffix.SCREEN) != -1) { // 屏幕共享流
-            userId = streamId.substring(0, streamId.lastIndexOf(RongRTCConstant.StreamSuffix.SCREEN));
-            videoType = RongRTCConstant.VideoType.SCREEN;
-            rongRTCEngine.remoteScreenStreams.remove(userId);
-          } else {
-            rongRTCEngine.remoteStreams.remove(userId);
+          var params = streamId.split('_');
+          var userId = params[0];
+          // 没有类型，暂定为音视频
+          var type = params[1] || 3;
+          var key = userId + '_' + type;
+          if(params.length == 2){
+            RemoteStreamCache.remove(params.join('_'));
           }
-
+          
           // 移除trackId和userId的对应关系
           evt.stream.getTracks().forEach(function (track) {
-              rongRTCEngine.remoteTrackIdMap.remove(track.id);
+              rongRTCEngine.remoteTrackIdMap.remove(key);
           })
 
-          // @Deprecated
-          rongRTCEngine.rongRTCEngineEventHandle.call('onRemoveStream', {
-              'userId': userId,
-              'videoType': videoType
-          });
           rongRTCEngine.rongRTCEngineEventHandle.call('OnNotifyUserVideoDestroyed', {
-              'userId': userId,
-              'videoType': videoType
+            userId: userId,
+            type: type
           });
       };
 
@@ -2341,6 +2359,70 @@ RongRTCEngine.prototype.closePeerConnection = function (userId) {
   // peerConnection关闭，停止getStatsReport
   this.exitScheduleGetStatsReport();
 }
+
+var getPeerConnection = function(context){
+  var peerConnections = context.peerConnections[context.userId] || {};
+  var peerConnection = peerConnections['pc'];
+  return peerConnection;
+};
+var StreamError = {
+  NOT_EXIST: 40001
+};
+var StreamCache = Cache();
+var getSteamId = function(user){
+  var stream = user.stream;
+  return user.id + '_' + stream.type;
+};
+RongRTCEngine.prototype.addStream = function(user, callback){
+  var context = this;
+  var peerConnection = getPeerConnection(context);
+  if(peerConnection){
+    var stream = user.stream;
+    var mediaStream = stream.mediaStream;
+    var streamId = getSteamId(user);
+    peerConnection.addStream(mediaStream);
+    context.createOffer(peerConnection, context.userId, false, false, {
+      type: stream.type,
+      mediaStream: mediaStream
+    });
+    StreamCache.set(streamId, user);
+  }
+  var error = null;
+  callback(error, user);
+};
+RongRTCEngine.prototype.removeStream = function(user, callback){
+  var context = this, error = null;
+  var streamId = getSteamId(user);
+  user = StreamCache.get(streamId);
+  if(user){
+    var stream = user.stream;
+    var mediaStream = stream.mediaStream;
+    var peerConnection = getPeerConnection(context);
+    if(peerConnection){
+      peerConnection.removeStream(mediaStream);
+      context.createOffer(peerConnection, context.userId, false);
+      StreamCache.remove(streamId);
+    }
+    callback(error, user);
+    return;
+  }
+  error = {
+    error: StreamError.NOT_EXIST,
+    user: user
+  };
+  callback(error);
+};
+RongRTCEngine.prototype.resizeStream = function(user){
+  var context = this;
+  var stream = user.stream;
+  var bodys = [{
+    uid: user.id,
+    flowType: stream.size
+  }];
+  context.sendMsg(RongRTCConstant.SignalTyp.FLOWSUBSCRIBE, bodys, {
+    key: context.channelId
+  });
+};
 /**
 * handle offer
 *
@@ -2438,7 +2520,7 @@ RongRTCEngine.prototype.handleCandidate = function (data) {
 * create offer
 *
 */
-RongRTCEngine.prototype.createOffer = function (pc, userId, isIceRestart, subscribeInfo) {
+RongRTCEngine.prototype.createOffer = function (pc, userId, isIceRestart, subscribeInfo, stream) {
   if (this.offerStatus == RongRTCConstant.OfferStatus.SENDING) { // 已经创建过Offer，本次不创建
       console.warn(new Date(), "createOffer offerStatus sending");
       return;
@@ -2448,7 +2530,7 @@ RongRTCEngine.prototype.createOffer = function (pc, userId, isIceRestart, subscr
   pc.createOffer(function (desc) {
       console.info(new Date(), "createOffer success");
       // 变更SDP信息
-      desc.sdp = rongRTCEngine.changeSdp(desc.sdp);
+      desc.sdp = rongRTCEngine.changeSdp(desc.sdp, stream);
       pc.setLocalDescription(desc, function () {
           console.info(new Date(), "createOffer setLocalDescription success");
           rongRTCEngine.offerStatus = RongRTCConstant.OfferStatus.SENDING;
@@ -2489,7 +2571,12 @@ RongRTCEngine.prototype.createOffer = function (pc, userId, isIceRestart, subscr
 * 变更SDP信息
 *
 */
-RongRTCEngine.prototype.changeSdp = function (sdp) {
+RongRTCEngine.prototype.changeSdp = function (sdp, stream) {
+  if(stream){
+    sdp = RongRTCUtil.changeStreamId(sdp, stream.mediaStream.id, this.userId + '_' +stream.type);
+    sdp = RongRTCUtil.changeVideoDesc(sdp);
+    return sdp;
+  }
 if (this.localStream) { // 本地视频流
   // change streamId use userId
     sdp = RongRTCUtil.changeStreamId(sdp, this.localStream.id, this.userId);

@@ -25,6 +25,15 @@ export default function Stream(rtc) {
   let get = (user) => { 
     return rtc.exec('getStream', user);
   };
+  let add = (user) => {
+    return rtc.exec('addStream', user);
+  };
+  let remove = (user) => {
+    return rtc.exec('removeStream', user);
+  };
+  let resize = (user) => {
+    return rtc.exec('resizeStream', user);
+  };
   let _on = (name, event) => {
     return eventEmitter.on(name, (error, result) => {
       if(error){
@@ -43,6 +52,9 @@ export default function Stream(rtc) {
     Video: $video,
     Audio: $audio,
     get,
+    add,
+    remove,
+    resize,
     _on,
     _off,
     _teardown

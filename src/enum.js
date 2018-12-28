@@ -76,6 +76,7 @@ export const EventName = {
   ROOM_USER_JOINED: 'room_user_joined',
   ROOM_USER_LEFT: 'room_user_left',
   STREAM_ADDED: 'stream_added',
+  STREAM_REMOVED: 'stream_removed',
   STREAM_CHANGED: 'stream_changed',
   RTC_SERVER: 'rtc_server',
   RTC_SERVER_READY: 'rtc_server_ready',
@@ -94,4 +95,9 @@ export const StreamType = {
   VIDEO: 2,
   AUDIO_AND_VIDEO: 3,
   SCREEN_SHARE: 4
+};
+
+export const StreamSize = {
+  MAX: 1,
+  MIN: 2
 };

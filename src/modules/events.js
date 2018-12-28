@@ -12,6 +12,9 @@ export const StreamEvents = [{
   name: EventName.STREAM_ADDED,
   type: 'added'
 },{
+  name: EventName.STREAM_REMOVED,
+  type: 'removed'
+},{
   name: EventName.STREAM_CHANGED,
   type: 'changed'
 }];

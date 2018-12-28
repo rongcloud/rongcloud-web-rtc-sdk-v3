@@ -3180,10 +3180,10 @@ function Adapter(){var define,module,exports;return (function(){function r(e,n,t
             var alreadyExists = pc.getSenders().find(function(s) {
               return s.track === track;
             });
-            if (alreadyExists) {
-              throw new DOMException('Track already exists.',
-                  'InvalidAccessError');
-            }
+            // if (alreadyExists) {
+            //   throw new DOMException('Track already exists.',
+            //       'InvalidAccessError');
+            // }
           });
           var existingSenders = pc.getSenders();
           origAddStream.apply(this, arguments);

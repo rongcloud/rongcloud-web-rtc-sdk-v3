@@ -46,7 +46,7 @@ let setEventHandler = () => {
       let user = {
         id: userId
       };
-      let stream = rtc.getRemoteStream(userId, type);
+      let stream = rtc.getNewRemoteStream(userId, type);
       let result = {
         user,
         stream: {
@@ -55,6 +55,19 @@ let setEventHandler = () => {
         }
       };
       eventEmitter.emit(EventName.STREAM_ADDED, result);
+    },
+    OnNotifyUserVideoDestroyed: (data) => {
+      let {userId, type} = data;
+      let user = {
+        id: userId
+      };
+      let result = {
+        user,
+        stream: {
+          type
+        }
+      };
+      eventEmitter.emit(EventName.STREAM_REMOVED, result);
     },
     onUserJoined: (user) => {
       let { userId, userType } = user;
@@ -127,7 +140,7 @@ let setEventHandler = () => {
     },
     onStopScreenShareComplete: (result) => {
       let { reason } = result;
-      if(reason === 2){
+      if (reason === 2) {
         return eventEmitter.emit(EventName.SCREEN_SHARE_FINISHED);
       }
       eventEmitter.emit(EventName.SCREEN_SHARE_STOP);
@@ -203,7 +216,7 @@ export default class RTCEngine {
   }
 
   getStream(user) {
-    return utils.deferred((resolve) => {
+    return utils.deferred(resolve => {
       let method = isCrruentUser(user) ? 'getLocalStream' : 'getRemoteStream';
       let { id } = user;
       // 临时做法，不应该关心 type ，应该在 Stream 中返回
@@ -217,6 +230,32 @@ export default class RTCEngine {
         }
       });
     });
+  }
+
+  addStream(user) {
+    return utils.deferred((resolve, reject) => {
+      rtc.addStream(user, (error, user) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(user);
+      });
+    });
+  }
+
+  removeStream(user) {
+    return utils.deferred((resolve, reject) => {
+      rtc.removeStream(user, (error, user) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(user);
+      });
+    });
+  }
+
+  resizeStream(user) {
+    return utils.Defer.resolve(rtc.resizeStream(user));
   }
 
   mute(user) {
