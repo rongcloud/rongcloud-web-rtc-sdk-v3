@@ -2419,7 +2419,7 @@ RongRTCEngine.prototype.resizeStream = function(user){
     uid: user.id,
     flowType: stream.size
   }];
-  context.sendMsg(RongRTCConstant.SignalTyp.FLOWSUBSCRIBE, bodys, {
+  context.sendMsg(RongRTCConstant.SignalType.FLOWSUBSCRIBE, bodys, {
     key: context.channelId
   });
 };
