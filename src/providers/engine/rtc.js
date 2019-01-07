@@ -588,7 +588,7 @@ this.logonVersion = RongRTCConstant.LogonVersion.SUBSCRIBE;
   /** 订阅分发 */
   this.care = RongRTCConstant.CareType.All;
   this.resource = RongRTCConstant.ResourceType.AudioAndVideo;
-  this.defaultSub = RongRTCConstant.SubscribeType.AudioAndVideo;
+  this.defaultSub = RongRTCConstant.SubscribeType.AudioAndVideoAndScreenSharing;
   this.specialSubs = [];
   /** ----- 用户信息 ----- */
 
