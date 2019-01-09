@@ -1,13 +1,8 @@
-export default function Video(rtc) {
+export default function Video() {
   return {
-    disable: (user) => {
-      return rtc.exec('disableVideo', user);
+    disable: () => {
     },
-    enable: (user) => {
-      return rtc.exec('enableVideo', user);
-    },
-    set: (constraints) => {
-      rtc.exec('setProfiles', constraints);
+    enable: () => {
     }
   };
 }

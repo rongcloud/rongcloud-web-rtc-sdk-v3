@@ -1,10 +1,8 @@
-export default function Audio(rtc){
+export default function Audio(){
   return {
-    mute: (user) => {
-      return rtc.exec('mute', user);
+    mute: () => {
     },
-    unmute: (user) => {
-      return rtc.exec('unmute', user);
+    unmute: () => {
     }
   };
 }

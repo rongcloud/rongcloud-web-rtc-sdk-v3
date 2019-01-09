@@ -1,62 +1,63 @@
-import EventEmitter from '../../event-emitter';
 import utils from '../../utils';
 import { StreamEvents } from '../events';
-
 import Video from './video';
 import Audio from './audio';
+import { client } from '../../providers/engine/client';
+import { UpEvent } from '../../event-name';
 
-export default function Stream(rtc) {
-  let eventEmitter = new EventEmitter();
-  utils.forEach(StreamEvents, (event) => {
-    let { name, type } = event;
-    rtc._on(name, (error, result) => {
-      if(error){
-        throw new Error(error);
-      }
-      utils.extend(result, {
-        type
+export default class Stream {
+  constructor(option) {
+    var context = this;
+    utils.forEach(StreamEvents, (event) => {
+      let { name, type } = event;
+      client.on(name, (error, result) => {
+        utils.extend(result, {
+          type
+        });
+        event = option[type] || utils.noop;
+        event(result, error);
       });
-      eventEmitter.emit(type, result);
     });
-  });
-
-  let $video = Video(rtc);
-  let $audio = Audio(rtc);
-  let get = (user) => { 
-    return rtc.exec('getStream', user);
-  };
-  let add = (user) => {
-    return rtc.exec('addStream', user);
-  };
-  let remove = (user) => {
-    return rtc.exec('removeStream', user);
-  };
-  let resize = (user) => {
-    return rtc.exec('resizeStream', user);
-  };
-  let _on = (name, event) => {
-    return eventEmitter.on(name, (error, result) => {
-      if(error){
-        throw new Error(error);
-      }
-      event(result)
+    utils.extend(context, {
+      option,
+      video: new Video(),
+      audio: new Audio()
     });
-  };
-  let _off = (name) => {
-    return eventEmitter.off(name);
-  };
-  let _teardown = () => {
-    return eventEmitter.teardown();
-  };
-  return {
-    Video: $video,
-    Audio: $audio,
-    get,
-    add,
-    remove,
-    resize,
-    _on,
-    _off,
-    _teardown
-  };
+  }
+  publish(user) {
+    return client.exec({
+      event: UpEvent.STREAM_PUBLISH,
+      args: [user]
+    });
+  }
+  unpublish(user) {
+    return client.exec({
+      event: UpEvent.STREAM_UNPUBLISH,
+      args: [user]
+    });
+  }
+  open(user) {
+    return client.exec({
+      event: UpEvent.STREAM_OPEN,
+      args: [user]
+    });
+  }
+  close(user) {
+    return client.exec({
+      event: UpEvent.STREAM_CLOSE,
+      args: [user]
+    });
+  }
+  resize(user) {
+    return client.exec({
+      event: UpEvent.STREAM_RESIZE,
+      args: [user]
+    });
+  }
+  get(user) {
+    return client.exec({
+      event: UpEvent.STREAM_GET,
+      args: [user]
+    });
+  }
 }

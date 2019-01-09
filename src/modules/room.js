@@ -1,52 +1,52 @@
-import EventEmitter from '../event-emitter';
 import utils from '../utils';
 import { RoomEvents } from './events';
+import { client } from '../providers/engine/client';
+import { UpEvent } from '../event-name';
 
-export default function Room(rtc) {
-  let eventEmitter = new EventEmitter();
-  utils.forEach(RoomEvents, (event) => {
-    let { name, type } = event;
-    rtc._on(name, (error, user) => {
-      if(error){
-        throw new Error(error);
-      }
-      let result = {
-        type,
-        user
-      };
-      eventEmitter.emit(type, result);
+export default class Room {
+  constructor(option) {
+    var context = this;
+    utils.forEach(RoomEvents, function (event) {
+      let { name, type } = event;
+      client.on(name, (error, user) => {
+        let result = {
+          type,
+          user
+        };
+        event = option[type] || utils.noop;
+        event(result, error);
+      });
     });
-  });
-
-  let join = (room) => {
-    return rtc.exec('joinRoom', room);
-  };
-
-  let leave = (room) => {
-    return rtc.exec('leaveRoom', room);
-  };
-
-  let _on = (name, event) => {
-    return eventEmitter.on(name, (error, result) => {
-      if(error){
-        throw new Error(error);
+    let { id } = option;
+    utils.extend(context, {
+      option: option,
+      room: {
+        id: id
       }
-      event(result)
     });
-  };
-
-  let _off = (name) => {
-    return eventEmitter.off(name);
   }
-
-  let _teardown = () => {
-    return eventEmitter.teardown();
-  };
-  return {
-    join,
-    leave,
-    _on,
-    _off,
-    _teardown
+  join(user) {
+    let { room } = this;
+    utils.extend(room, {
+      user
+    });
+    return client.exec({
+      event: UpEvent.ROOM_JOIN,
+      args: [room]
+    });
+  }
+  leave() {
+    let { room } = this;
+    return client.exec({
+      event: UpEvent.ROOM_LEAVE,
+      args: [room]
+    });
+  }
+  get() {
+    let { room } = this;
+    return client.exec({
+      event: UpEvent.ROOM_GET,
+      args: [room]
+    });
   }
 }

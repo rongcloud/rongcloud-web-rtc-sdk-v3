@@ -1,30 +1,25 @@
-import { EventName } from '../enum';
+import { DownEvent } from '../event-name';
 
 export const RoomEvents = [{
-  name: EventName.ROOM_USER_JOINED,
+  name: DownEvent.ROOM_USER_JOINED,
   type: 'joined'
 }, {
-  name: EventName.ROOM_USER_LEFT,
+  name: DownEvent.ROOM_USER_LEFT,
   type: 'left'
 }];
 
 export const StreamEvents = [{
-  name: EventName.STREAM_ADDED,
+  name: DownEvent.STREAM_ADDED,
   type: 'added'
 },{
-  name: EventName.STREAM_REMOVED,
+  name: DownEvent.STREAM_REMOVED,
   type: 'removed'
 },{
-  name: EventName.STREAM_CHANGED,
+  name: DownEvent.STREAM_CHANGED,
   type: 'changed'
 }];
 
 export const ErrorEvents = [{
-  name: EventName.RTC_ERROR,
+  name: DownEvent.RTC_ERROR,
   type: 'error'
-}];
-
-export const ScreenShareEvents = [{
-  name: EventName.SCREEN_SHARE_FINISHED,
-  type: 'finished'
 }];
