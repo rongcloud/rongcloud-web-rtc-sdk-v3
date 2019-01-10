@@ -1,13 +1,24 @@
 import { UpEvent } from '../../event-name';
 import utils from '../../utils';
 import { im } from './im';
+import Message from './im';
 
 function RoomHandler() {
   let join = (room) => {
-    return im.joinRoom(room);
+    return im.joinRoom(room).then(() => {
+      return im.sendMessage({
+        type: Message.JOIN,
+        content: {}
+      });
+    });
   };
   let leave = (room) => {
-    return im.leaveRoom(room);
+    return im.leaveRoom(room).then(() => {
+      return im.sendMessage({
+        type: Message.LEAVE,
+        content: {}
+      });
+    });
   };
   let get = (room) => {
     return im.getRoom(room);
