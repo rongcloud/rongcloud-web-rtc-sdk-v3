@@ -5446,7 +5446,10 @@ function Adapter(){var define,module,exports;return (function(){function r(e,n,t
     },{}]},{},[3])(3)
 }
 
-let initAdapter = function(){
+let init = function(){
   window.adapter = Adapter();
 };
-export default initAdapter;
+
+export default {
+  init
+};
