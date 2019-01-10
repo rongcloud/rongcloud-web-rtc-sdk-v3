@@ -8,21 +8,20 @@ const Message = {
 };
 class IM {
   setOption(option) {
-    let { RongIMLib: { RongIMClient } } = option;
-    let im = RongIMClient.getInstance();
+    let { RongIMLib: { RongIMClient: im }, RongIMLib } = option;
     utils.extend(this, {
-      RongIMClient,
-      im
+      im,
+      RongIMLib
     });
   }
   registerMessage() {
-    let { RongIMLib: { RongIMClient }, RongIMLib } = this;
+    let { im, RongIMLib } = this;
     let register = (message) => {
       let { type, name, props } = message;
       let isCounted = false;
       let isPersited = false;
       let tag = new RongIMLib.MessageTag(isCounted, isPersited);
-      RongIMClient.registerMessageType(type, name, tag, props);
+      im.registerMessageType(type, name, tag, props);
     };
     let messages = [{
       type: Message.JOIN,
