@@ -1,9 +1,9 @@
-import {UpEvent} from '../../event-name';
+import { UpEvent } from '../../event-name';
 import utils from '../../utils';
 function StreamHandler() {
   let publish = () => {
     return utils.deferred(() => {
-
+      
     });
   };
   let unpublish = () => {
@@ -32,21 +32,21 @@ function StreamHandler() {
     });
   };
   let dispatch = (event, args) => {
-    switch(event){
-    case UpEvent.STREAM_PUBLISH:
-      return publish(...args);
-    case UpEvent.STREAM_UNPUBLISH:
-      return unpublish(...args);
-    case UpEvent.STREAM_OPEN:
-      return open(...args);
-    case UpEvent.STREAM_CLOSE:
-      return close(...args);
-    case UpEvent.STREAM_RESIZE:
-      return resize(...args);
-    case UpEvent.STREAM_GET:
-      return get(...args);
-    default: 
-      utils.Logger.log(`StreamHandler: unkown upevent ${event}`);
+    switch (event) {
+      case UpEvent.STREAM_PUBLISH:
+        return publish(...args);
+      case UpEvent.STREAM_UNPUBLISH:
+        return unpublish(...args);
+      case UpEvent.STREAM_OPEN:
+        return open(...args);
+      case UpEvent.STREAM_CLOSE:
+        return close(...args);
+      case UpEvent.STREAM_RESIZE:
+        return resize(...args);
+      case UpEvent.STREAM_GET:
+        return get(...args);
+      default:
+        utils.Logger.log(`StreamHandler: unkown upevent ${event}`);
     }
   };
   return {

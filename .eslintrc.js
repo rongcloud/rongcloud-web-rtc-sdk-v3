@@ -22,8 +22,9 @@ module.exports = {
     "no-control-regex": "warn",
     "no-use-before-define": "error",
     "no-restricted-globals": "warn",
-    "indent": ["error", 2],
+    "indent": [2, 2, {"SwitchCase": 1}],
     "max-nested-callbacks": ["error", { "max": 3 }],
+    "switch-colon-spacing": ["error", {"after": true, "before": false}],
     "no-underscore-dangle": ["warn", { "allow": ["_on", "_off", "_teardown", "_isDestroyed"] }]
   }
 };

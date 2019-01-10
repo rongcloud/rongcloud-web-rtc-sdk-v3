@@ -19,14 +19,14 @@ function RoomHandler() {
   };
   let dispatch = (event, args) => {
     switch (event) {
-    case UpEvent.ROOM_JOIN:
-      return join(...args);
-    case UpEvent.ROOM_LEAVE:
-      return leave(...args);
-    case UpEvent.ROOM_GET:
-      return get(...args);
-    default:
-      utils.Logger.log(`RoomHandler: unkown upevent ${event}`);
+      case UpEvent.ROOM_JOIN:
+        return join(...args);
+      case UpEvent.ROOM_LEAVE:
+        return leave(...args);
+      case UpEvent.ROOM_GET:
+        return get(...args);
+      default:
+        utils.Logger.log(`RoomHandler: unkown upevent ${event}`);
     }
   };
   return {
