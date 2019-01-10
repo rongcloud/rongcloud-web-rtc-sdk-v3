@@ -1,21 +1,16 @@
 import { UpEvent } from '../../event-name';
 import utils from '../../utils';
+import { im } from './im';
 
 function RoomHandler() {
-  let join = () => {
-    return utils.deferred(() => {
-
-    });
+  let join = (room) => {
+    return im.joinRoom(room);
   };
-  let leave = () => {
-    return utils.deferred(() => {
-
-    });
+  let leave = (room) => {
+    return im.leaveRoom(room);
   };
-  let get = () => {
-    return utils.deferred(() => {
-
-    });
+  let get = (room) => {
+    return im.getRoom(room);
   };
   let dispatch = (event, args) => {
     switch (event) {

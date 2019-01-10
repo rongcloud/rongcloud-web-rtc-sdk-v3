@@ -109,7 +109,9 @@ const Cache = (cache) => {
   };
 };
 const Logger = console;
-const request = () => { };
+const request = (option) => {
+  return fetch(option);
+};
 export default {
   isBoolean,
   isString,

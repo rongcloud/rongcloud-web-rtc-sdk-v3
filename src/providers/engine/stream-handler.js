@@ -3,7 +3,8 @@ import utils from '../../utils';
 function StreamHandler() {
   let publish = () => {
     return utils.deferred(() => {
-      
+      // resolve, reject
+      // let { id, stream: { mediaStrea, type } } = user;
     });
   };
   let unpublish = () => {
