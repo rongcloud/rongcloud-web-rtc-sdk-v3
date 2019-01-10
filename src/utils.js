@@ -109,6 +109,7 @@ const Cache = (cache) => {
   };
 };
 const Logger = console;
+const request = () => { };
 export default {
   isBoolean,
   isString,
@@ -126,5 +127,6 @@ export default {
   isContain,
   noop,
   Cache,
-  Logger
+  Logger,
+  request
 }

@@ -21,7 +21,7 @@ export const UpEvent = {
   STREAM_OPEN: 'stream_open',
   STREAM_CLOSE: 'stream_close',
   STREAM_RESIZE: 'stream_resize',
-  STREAM_GEt: 'stream_get',
+  STREAM_GET: 'stream_get',
 
   DEVICE_CHECK: 'device_check',
   DEVICE_GET_LIST: 'device_get_list'
