@@ -1,35 +1,96 @@
 import { UpEvent } from '../../event-name';
 import utils from '../../utils';
+import { request } from './request';
+import PeerConnection from './peerconnection';
+import { Path } from './path';
+import { im } from './im';
+import Message from './im';
+
+let StreamCache = utils.Cache();
+let pc = new PeerConnection();
 function StreamHandler() {
-  let publish = () => {
-    return utils.deferred(() => {
-      // resolve, reject
-      // let { id, stream: { mediaStrea, type } } = user;
+  let publish = (user) => {
+    let { stream: { type, mediaStream, tag } } = user;
+    let desc = pc.addStream(user);
+    pc.setOffer(desc);
+    return request.post({
+      path: Path.PUBLISH,
+      body: {
+        desc
+      }
+    }).then(result => {
+      let { url } = result;
+      tag = tag || '';
+      let { id: streamId } = mediaStream;
+      return im.sendMessage({
+        type: Message.PUBLISH,
+        content: {
+          url,
+          type,
+          tag,
+          streamId
+        }
+      });
     });
   };
-  let unpublish = () => {
-    return utils.deferred(() => {
-
+  let unpublish = (user) => {
+    let { stream: { type, mediaStream, tag } } = user;
+    let desc = pc.removeStream(user);
+    pc.setOffer(desc);
+    return request.post({
+      path: Path.UNPUBLISH,
+      body: {
+        desc
+      }
+    }).then(() => {
+      tag = tag || '';
+      let { id: streamId } = mediaStream;
+      return im.sendMessage({
+        type: Message.UNPUBLISH,
+        content: {
+          type,
+          tag,
+          streamId
+        }
+      });
     });
   };
-  let open = () => {
-    return utils.deferred(() => {
-
+  let open = (user) => {
+    let streamId = pc.getStreamId(user);
+    return request.post({
+      path: Path.OPEN,
+      body: {
+        streamId
+      }
+    }).then(stream => {
+      StreamCache.set(streamId, stream);
+      return stream;
     });
   };
-  let close = () => {
-    return utils.deferred(() => {
-
+  let close = (user) => {
+    let streamId = pc.getStreamId(user);
+    return request.post({
+      path: Path.OPEN,
+      body: {
+        streamId
+      }
     });
   };
-  let resize = () => {
-    return utils.deferred(() => {
-
+  let resize = (user) => {
+    let { stream: { size } } = user;
+    let streamId = pc.getStreamId(user);
+    return request.post({
+      path: Path.RESIZE,
+      body: {
+        streamId,
+        size
+      }
     });
   };
-  let get = () => {
-    return utils.deferred(() => {
-
+  let get = (user) => {
+    return utils.deferred((resolve) => {
+      let streamId = pc.getStreamId(user);
+      resolve(StreamCache.get(streamId));
     });
   };
   let dispatch = (event, args) => {

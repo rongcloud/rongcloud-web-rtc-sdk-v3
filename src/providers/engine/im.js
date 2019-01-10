@@ -2,6 +2,8 @@ import utils from '../../utils';
 const Message = {
   JOIN: 'RTCJoinRoomMessage',
   LEAVE: 'RTCLeftRoomMessage',
+  PUBLISH: 'RTCPublishResourceMessage',
+  UNPUBLISH: 'RTCUnpublishResourceMessage',
   MODIFY: 'RTCModifyResourceMessage'
 };
 class IM {
@@ -9,6 +11,7 @@ class IM {
     let { RongIMLib: { RongIMClient } } = option;
     let im = RongIMClient.getInstance();
     utils.extend(this, {
+      RongIMClient,
       im
     });
   }
@@ -24,11 +27,19 @@ class IM {
     let messages = [{
       type: Message.JOIN,
       name: 'RCRTC:Join',
-      props: ['url', 'type', 'tag', 'streamId']
+      props: []
     }, {
       type: Message.LEAVE,
       name: 'RCRTC:Left',
       props: []
+    }, {
+      type: Message.PUBLISH,
+      name: 'RCRTC:PublishResource',
+      props: ['url', 'type', 'tag', 'streamId']
+    }, {
+      type: Message.UNPUBLISH,
+      name: 'RCRTC:UnpublishResource',
+      props: ['url', 'type', 'tag', 'streamId']
     }, {
       type: Message.MODIFY,
       name: 'RCRTC:ModifyResource',
@@ -39,10 +50,16 @@ class IM {
     });
   }
   joinRoom(room) {
-    let { im } = this;
+    let context = this;
+    let { im } = context;
     return utils.deferred((resolve, reject) => {
       im.joinRTCRoom(room, {
-        onSuccess: resolve,
+        onSuccess: () => {
+          utils.extend(context, {
+            room
+          });
+          resolve();
+        },
         onErrror: reject
       });
     });
@@ -56,12 +73,28 @@ class IM {
       });
     });
   }
-  getRoom(room){
+  getRoom(room) {
     let { im } = this;
     return utils.deferred((resolve, reject) => {
       im.getRTCRoomData(room, {
         onSuccess: resolve,
         reject: reject
+      });
+    });
+  }
+  sendMessage(message) {
+    let { im, room, RongIMClient } = this;
+    return utils.deferred((resolve, reject) => {
+      let conversationType = 12,
+        targetId = room.id;
+      let create = () => {
+        let { type, content } = message;
+        return new RongIMClient.RegisterMessage[type](content);
+      };
+      let msg = create();
+      im.sendMessage(conversationType, targetId, msg, {
+        onSuccess: resolve,
+        onErrror: reject
       });
     });
   }
