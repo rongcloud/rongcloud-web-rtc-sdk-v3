@@ -1,6 +1,5 @@
 dist/*.js
-src/3rd/*.js
 src/plugins/**/*.js
-src/providers/engine/rtc.js
-src/providers/engine/adapter.js
+src/providers/engine/3rd/*.js
 rollup.config.js
+src/3rd/*.js
