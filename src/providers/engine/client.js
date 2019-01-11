@@ -5,6 +5,7 @@ import RoomHandler from './room-handler';
 import { im } from './im';
 import { request } from './request';
 import RTCAdapter from './3rd/adapter';
+import { ErrorType } from '../../error';
 
 let RequestHandler = {
   room: RoomHandler,
@@ -32,6 +33,9 @@ class Client extends EventEmitter {
     request.setOption(option);
   }
   exec(params) {
+    if(!im.isReady()){
+      return utils.Defer.reject(ErrorType.Inner.IM_NOT_CONNECTED);
+    }
     let { type, args, event } = params;
     return RequestHandler[type].dispatch(event, args);
   }

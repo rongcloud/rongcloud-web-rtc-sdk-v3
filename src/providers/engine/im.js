@@ -1,6 +1,7 @@
 import utils from '../../utils';
 import EventEmitter from '../../event-emitter';
 import { DownEvent } from '../../event-name';
+import { ErrorType } from '../../error';
 const Message = {
   JOIN: 'RTCJoinRoomMessage',
   LEAVE: 'RTCLeftRoomMessage',
@@ -8,14 +9,22 @@ const Message = {
   UNPUBLISH: 'RTCUnpublishResourceMessage',
   MODIFY: 'RTCModifyResourceMessage'
 };
-class IM extends EventEmitter{
-  constructor(){
+const errorHandler = (code, reject) => {
+  let error = ErrorType[code] || {
+    code
+  };
+  reject(error);
+};
+class IM extends EventEmitter {
+  constructor() {
     super();
   }
   setOption(option) {
     let context = this;
     let { RongIMLib: { RongIMClient: im }, RongIMLib } = option;
+    let connectState = -1;
     utils.extend(context, {
+      connectState,
       im,
       RongIMLib
     });
@@ -24,6 +33,9 @@ class IM extends EventEmitter{
       let isConnected = state === CONNECTED;
       if (isConnected) {
         context.registerMessage();
+        utils.extend(context, {
+          connectState: state
+        });
       }
     });
     im.messageWatch((message) => {
@@ -44,7 +56,7 @@ class IM extends EventEmitter{
         case Message.MODIFY:
           context.emit(DownEvent.STREAM_CHANGED, message);
           break;
-        default: 
+        default:
           utils.Logger.log(`MessageWatch: unkown message type ${type}`);
       }
     });
@@ -94,7 +106,9 @@ class IM extends EventEmitter{
           });
           resolve();
         },
-        onErrror: reject
+        onError: (code) => {
+          return errorHandler(code, reject);
+        }
       });
     });
   }
@@ -103,7 +117,9 @@ class IM extends EventEmitter{
     return utils.deferred((resolve, reject) => {
       im.getInstance().quitRTCRoom(room, {
         onSuccess: resolve,
-        onErrror: reject
+        onError: (code) => {
+          return errorHandler(code, reject);
+        }
       });
     });
   }
@@ -112,7 +128,9 @@ class IM extends EventEmitter{
     return utils.deferred((resolve, reject) => {
       im.getInstance().getRTCRoomInfo(room, {
         onSuccess: resolve,
-        reject: reject
+        reject: (code) => {
+          return errorHandler(code, reject);
+        }
       });
     });
   }
@@ -128,9 +146,16 @@ class IM extends EventEmitter{
       let msg = create();
       im.getInstance().sendMessage(conversationType, targetId, msg, {
         onSuccess: resolve,
-        onErrror: reject
+        onError: (code) => {
+          return errorHandler(code, reject);
+        }
       });
     });
+  }
+  isReady() {
+    let context = this;
+    let { RongIMLib: { ConnectionStatus: { CONNECTED } } } = context;
+    return context.connectState === CONNECTED;
   }
 }
 
