@@ -1,4 +1,6 @@
 import utils from '../../utils';
+import EventEmitter from '../../event-emitter';
+import { DownEvent } from '../../event-name';
 const Message = {
   JOIN: 'RTCJoinRoomMessage',
   LEAVE: 'RTCLeftRoomMessage',
@@ -6,12 +8,45 @@ const Message = {
   UNPUBLISH: 'RTCUnpublishResourceMessage',
   MODIFY: 'RTCModifyResourceMessage'
 };
-class IM {
+class IM extends EventEmitter{
+  constructor(){
+    super();
+  }
   setOption(option) {
+    let context = this;
     let { RongIMLib: { RongIMClient: im }, RongIMLib } = option;
-    utils.extend(this, {
+    utils.extend(context, {
       im,
       RongIMLib
+    });
+    let { ConnectionStatus: { CONNECTED } } = RongIMLib;
+    im.statusWatch((state) => {
+      let isConnected = state === CONNECTED;
+      if (isConnected) {
+        context.registerMessage();
+      }
+    });
+    im.messageWatch((message) => {
+      let { messageType: type } = message;
+      switch (type) {
+        case Message.JOIN:
+          context.emit(DownEvent.ROOM_USER_JOINED, message);
+          break;
+        case Message.LEAVE:
+          context.emit(DownEvent.ROOM_USER_LEFT, message);
+          break;
+        case Message.PUBLISH:
+          context.emit(DownEvent.STREAM_READIY, message);
+          break;
+        case Message.UNPUBLISH:
+          context.emit(DownEvent.STREAM_UNPUBLISH, message);
+          break;
+        case Message.MODIFY:
+          context.emit(DownEvent.STREAM_CHANGED, message);
+          break;
+        default: 
+          utils.Logger.log(`MessageWatch: unkown message type ${type}`);
+      }
     });
   }
   registerMessage() {
@@ -52,7 +87,7 @@ class IM {
     let context = this;
     let { im } = context;
     return utils.deferred((resolve, reject) => {
-      im.joinRTCRoom(room, {
+      im.getInstance().joinRTCRoom(room, {
         onSuccess: () => {
           utils.extend(context, {
             room
@@ -66,7 +101,7 @@ class IM {
   leaveRoom(room) {
     let { im } = this;
     return utils.deferred((resolve, reject) => {
-      im.quitRTCRoom(room, {
+      im.getInstance().quitRTCRoom(room, {
         onSuccess: resolve,
         onErrror: reject
       });
@@ -75,7 +110,7 @@ class IM {
   getRoom(room) {
     let { im } = this;
     return utils.deferred((resolve, reject) => {
-      im.getRTCRoomData(room, {
+      im.getInstance().getRTCRoomInfo(room, {
         onSuccess: resolve,
         reject: reject
       });
@@ -91,7 +126,7 @@ class IM {
         return new RongIMClient.RegisterMessage[type](content);
       };
       let msg = create();
-      im.sendMessage(conversationType, targetId, msg, {
+      im.getInstance().sendMessage(conversationType, targetId, msg, {
         onSuccess: resolve,
         onErrror: reject
       });

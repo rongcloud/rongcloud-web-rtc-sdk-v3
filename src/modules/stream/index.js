@@ -27,36 +27,42 @@ export default class Stream {
   publish(user) {
     return client.exec({
       event: UpEvent.STREAM_PUBLISH,
+      type: 'stream',
       args: [user]
     });
   }
   unpublish(user) {
     return client.exec({
       event: UpEvent.STREAM_UNPUBLISH,
+      type: 'stream',
       args: [user]
     });
   }
   open(user) {
     return client.exec({
       event: UpEvent.STREAM_OPEN,
+      type: 'stream',
       args: [user]
     });
   }
   close(user) {
     return client.exec({
       event: UpEvent.STREAM_CLOSE,
+      type: 'stream',
       args: [user]
     });
   }
   resize(user) {
     return client.exec({
       event: UpEvent.STREAM_RESIZE,
+      type: 'stream',
       args: [user]
     });
   }
   get(user) {
     return client.exec({
       event: UpEvent.STREAM_GET,
+      type: 'stream',
       args: [user]
     });
   }

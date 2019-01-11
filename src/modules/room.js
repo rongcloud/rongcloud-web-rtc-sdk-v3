@@ -32,6 +32,7 @@ export default class Room {
     });
     return client.exec({
       event: UpEvent.ROOM_JOIN,
+      type: 'room',
       args: [room]
     });
   }
@@ -39,6 +40,7 @@ export default class Room {
     let { room } = this;
     return client.exec({
       event: UpEvent.ROOM_LEAVE,
+      type: 'room',
       args: [room]
     });
   }
@@ -46,6 +48,7 @@ export default class Room {
     let { room } = this;
     return client.exec({
       event: UpEvent.ROOM_GET,
+      type: 'room',
       args: [room]
     });
   }

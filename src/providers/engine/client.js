@@ -29,8 +29,6 @@ class Client extends EventEmitter {
       option
     });
     im.setOption(option);
-    //  TODO: 必须等连接成功后调用，需要和 IMLib 同步连接状态
-    // im.registerMessage();
     request.setOption(option);
   }
   exec(params) {

@@ -1,6 +1,6 @@
 export const Path = {
-  PUBLISH: '',
-  UNPUBLISH: '',
+  PUBLISH: 'exchange#{roomId}',
+  UNPUBLISH: 'exchange#{roomId}',
   OPEN: '',
   CLOSE: '',
   RESIZE: ''

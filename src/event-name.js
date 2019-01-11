@@ -1,11 +1,10 @@
 export const DownEvent = {
-  ROOM_SELF_JOINED: 'room_self_joined',
-  ROOM_SELF_LEFT: 'room_self_left',
   ROOM_USER_JOINED: 'room_user_joined',
   ROOM_USER_LEFT: 'room_user_left',
 
-  STREAM_ADDED: 'stream_added',
-  STREAM_REMOVED: 'stream_removed',
+  STREAM_READIY: 'stream_ready',
+  STREAM_PUBLISH: 'stream_publish',
+  STREAM_UNPUBLISH: 'stream_unpublish',
   STREAM_CHANGED: 'stream_changed',
   
   RTC_ERROR: 'rtc_error'
