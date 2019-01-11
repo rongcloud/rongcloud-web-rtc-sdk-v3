@@ -6,6 +6,7 @@ import { im } from './im';
 import { request } from './request';
 import RTCAdapter from './3rd/adapter';
 import { ErrorType } from '../../error';
+import { RoomEvents, StreamEvents } from '../../modules/events';
 
 let RequestHandler = {
   room: RoomHandler,
@@ -30,10 +31,18 @@ class Client extends EventEmitter {
       option
     });
     im.setOption(option);
+    let bindEvent = (event) => {
+      let { name } = event;
+      im.on(name, (error, user) => {
+        context.emit(name, user, error);
+      });
+    };
+    utils.forEach(RoomEvents, bindEvent);
+    utils.forEach(StreamEvents, bindEvent);
     request.setOption(option);
   }
   exec(params) {
-    if(!im.isReady()){
+    if (!im.isReady()) {
       return utils.Defer.reject(ErrorType.Inner.IM_NOT_CONNECTED);
     }
     let { type, args, event } = params;

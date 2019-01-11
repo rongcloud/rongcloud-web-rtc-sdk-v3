@@ -134,6 +134,17 @@ class IM extends EventEmitter {
       });
     });
   }
+  getUsers(room) {
+    let { im } = this;
+    return utils.deferred((resolve, reject) => {
+      im.getInstance().getRTCUserInfoList(room, {
+        onSuccess: resolve,
+        reject: (code) => {
+          return errorHandler(code, reject);
+        }
+      });
+    });
+  }
   sendMessage(message) {
     let { im, room, RongIMClient } = this;
     return utils.deferred((resolve, reject) => {

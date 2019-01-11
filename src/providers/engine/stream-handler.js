@@ -1,4 +1,4 @@
-import { UpEvent } from '../../event-name';
+import { UpEvent, DownEvent } from '../../event-name';
 import utils from '../../utils';
 import { request } from './request';
 import PeerConnection from './peerconnection';
@@ -9,6 +9,14 @@ import Message from './im';
 let StreamCache = utils.Cache();
 let pc = new PeerConnection();
 function StreamHandler() {
+  im.on(DownEvent.STREAM_READIY, () => {
+  });
+  im.on(DownEvent.STREAM_UNPUBLISH, () => {
+    // TODO: 清理本地缓存
+  });
+  im.on(DownEvent.STREAM_CHANGED, () => {
+    // TODO: 清理本地缓存
+  });
   let publish = (user) => {
     let { stream: { type, mediaStream, tag } } = user;
     let desc = pc.addStream(user);

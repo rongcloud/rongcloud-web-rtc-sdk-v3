@@ -2,10 +2,19 @@ import { UpEvent } from '../../event-name';
 import utils from '../../utils';
 import { im } from './im';
 import Message from './im';
+import { RoomEvents } from '../../modules/events';
 
 function RoomHandler() {
+  utils.forEach(RoomEvents, (event) => {
+    im.on(event.name, () => {
+    });
+  });
+
   let join = (room) => {
     return im.joinRoom(room).then(() => {
+      im.getUsers(room).then((users) => {
+        utils.Logger.warn(users)
+      });
       return im.sendMessage({
         type: Message.JOIN,
         content: {}

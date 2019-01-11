@@ -9,11 +9,14 @@ export const RoomEvents = [{
 }];
 
 export const StreamEvents = [{
-  name: DownEvent.STREAM_ADDED,
-  type: 'added'
+  name: DownEvent.STREAM_READIY,
+  type: 'readied'
 },{
-  name: DownEvent.STREAM_REMOVED,
-  type: 'removed'
+  name: DownEvent.STREAM_PUBLISH,
+  type: 'opened'
+},{
+  name: DownEvent.STREAM_UNPUBLISH,
+  type: 'closed'
 },{
   name: DownEvent.STREAM_CHANGED,
   type: 'changed'
