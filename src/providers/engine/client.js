@@ -9,14 +9,17 @@ import { ErrorType } from '../../error';
 import { RoomEvents } from '../../modules/events';
 import { DownEvent } from '../../event-name';
 
-let RequestHandler = {
-  room: RoomHandler,
-  stream: StreamHandler
-};
-class Client extends EventEmitter {
+export default class Client extends EventEmitter {
   constructor() {
     super();
     RTCAdapter.init();
+    let RequestHandler = {
+      room: RoomHandler(),
+      stream: StreamHandler()
+    };
+    utils.extend(this, {
+      RequestHandler
+    });
   }
   /* 
     let option = {
@@ -42,7 +45,7 @@ class Client extends EventEmitter {
     let dispatchStreamEvent = (user, callback) => {
       let { id, uris } = user;
       let streams = [user];
-      if(uris){
+      if (uris) {
         streams = utils.uniq(uris, (target) => {
           let { streamId, tag, type } = target;
           return {
@@ -83,7 +86,7 @@ class Client extends EventEmitter {
       return utils.Defer.reject(ErrorType.Inner.IM_NOT_CONNECTED);
     }
     let { type, args, event } = params;
+    let { RequestHandler } = this;
     return RequestHandler[type].dispatch(event, args);
   }
 }
-export const client = new Client();

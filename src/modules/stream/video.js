@@ -1,6 +1,5 @@
-import { client } from '../../providers/engine/client';
 import { UpEvent } from '../../event-name';
-export default function Video() {
+export default function Video(client) {
   return {
     disable: (user) => {
       return client.exec({

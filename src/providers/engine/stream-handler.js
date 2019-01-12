@@ -7,26 +7,26 @@ import Message, { im } from './im';
 import { CommonEvent, CommandEvent } from './events';
 import EventEmitter from '../../event-emitter';
 
-let DataCache = utils.Cache();
-let DataCacheName = {
-  USERS: 'room_users',
-  // 全部通知后一次性交换 SDP
-  IS_NOTIFY_READY: 'is_notify_ready',
-  // 已发布资源列表
-  PUBLISH_MAP: 'publish_map',
-};
-/* 
-  缓存已订阅 MediaStream
-  userId_type: mediaStream
-*/
-let StreamCache = utils.Cache();
-/* 
-  缓存订阅关系，每次修改需同步全量数据
-  userId: [{ streamId: '', uri: '', type: 1}]
-*/
-let SubscribeCache = utils.Cache();
-let pc = new PeerConnection();
 function StreamHandler() {
+  let DataCache = utils.Cache();
+  let DataCacheName = {
+    USERS: 'room_users',
+    // 全部通知后一次性交换 SDP
+    IS_NOTIFY_READY: 'is_notify_ready',
+    // 已发布资源列表
+    PUBLISH_MAP: 'publish_map',
+  };
+  /* 
+    缓存已订阅 MediaStream
+    userId_type: mediaStream
+  */
+  let StreamCache = utils.Cache();
+  /* 
+    缓存订阅关系，每次修改需同步全量数据
+    userId: [{ streamId: '', uri: '', type: 1}]
+  */
+  let SubscribeCache = utils.Cache();
+  let pc = new PeerConnection();
   let eventEmitter = new EventEmitter();
   let isPublished = () => {
     let publishList = DataCache.get(DataCacheName.PUBLISH_MAP) || {};
@@ -94,17 +94,26 @@ function StreamHandler() {
     });
   };
   /* 已在房间，再有新人发布资源触发此事件 */
-  im.on(DownEvent.STREAM_READIY, (user) => {
+  im.on(DownEvent.STREAM_READIY, (error, user) => {
+    if (error) {
+      throw error;
+    }
     dispatchStreamEvent(user, (key, uri) => {
       DataCache.set(key, uri);
     });
   });
-  im.on(DownEvent.STREAM_UNPUBLISH, (user) => {
+  im.on(DownEvent.STREAM_UNPUBLISH, (error, user) => {
+    if (error) {
+      throw error;
+    }
     dispatchStreamEvent(user, (key) => {
       DataCache.remove(key);
     });
   });
-  im.on(DownEvent.STREAM_CHANGED, (user) => {
+  im.on(DownEvent.STREAM_CHANGED, (error, user) => {
+    if (error) {
+      throw error;
+    }
     dispatchStreamEvent(user, (key, uri) => {
       DataCache.set(key, uri);
     });
@@ -294,4 +303,4 @@ function StreamHandler() {
     dispatch
   };
 }
-export default StreamHandler();  
+export default StreamHandler;  

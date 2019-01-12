@@ -2,12 +2,12 @@ import utils from '../../utils';
 import { StreamEvents } from '../events';
 import Video from './video';
 import Audio from './audio';
-import { client } from '../../providers/engine/client';
 import { UpEvent } from '../../event-name';
 
 export default class Stream {
   constructor(option) {
     var context = this;
+    let client = context.getClient();
     utils.forEach(StreamEvents, (event) => {
       let { name, type } = event;
       client.on(name, (error, user) => {
@@ -17,11 +17,13 @@ export default class Stream {
     });
     utils.extend(context, {
       option,
-      video: new Video(),
-      audio: new Audio()
+      client,
+      video: new Video(client),
+      audio: new Audio(client)
     });
   }
   publish(user) {
+    let { client } = this;
     return client.exec({
       event: UpEvent.STREAM_PUBLISH,
       type: 'stream',
@@ -29,6 +31,7 @@ export default class Stream {
     });
   }
   unpublish(user) {
+    let { client } = this;
     return client.exec({
       event: UpEvent.STREAM_UNPUBLISH,
       type: 'stream',
@@ -36,6 +39,7 @@ export default class Stream {
     });
   }
   open(user) {
+    let { client } = this;
     return client.exec({
       event: UpEvent.STREAM_OPEN,
       type: 'stream',
@@ -43,6 +47,7 @@ export default class Stream {
     });
   }
   close(user) {
+    let { client } = this;
     return client.exec({
       event: UpEvent.STREAM_CLOSE,
       type: 'stream',
@@ -50,6 +55,7 @@ export default class Stream {
     });
   }
   resize(user) {
+    let { client } = this;
     return client.exec({
       event: UpEvent.STREAM_RESIZE,
       type: 'stream',
@@ -57,6 +63,7 @@ export default class Stream {
     });
   }
   get(user) {
+    let { client } = this;
     return client.exec({
       event: UpEvent.STREAM_GET,
       type: 'stream',

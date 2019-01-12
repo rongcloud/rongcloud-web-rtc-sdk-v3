@@ -1,11 +1,11 @@
 import utils from '../utils';
 import { RoomEvents } from './events';
-import { client } from '../providers/engine/client';
 import { UpEvent } from '../event-name';
 
 export default class Room {
   constructor(option) {
     var context = this;
+    let client = context.getClient();
     utils.forEach(RoomEvents, function (event) {
       let { name, type } = event;
       client.on(name, (error, user) => {
@@ -15,14 +15,15 @@ export default class Room {
     });
     let { id } = option;
     utils.extend(context, {
-      option: option,
+      option,
+      client,
       room: {
-        id: id
+        id
       }
     });
   }
   join(user) {
-    let { room } = this;
+    let { room, client } = this;
     utils.extend(room, {
       user
     });
@@ -33,7 +34,7 @@ export default class Room {
     });
   }
   leave() {
-    let { room } = this;
+    let { room, client } = this;
     return client.exec({
       event: UpEvent.ROOM_LEAVE,
       type: 'room',
@@ -41,7 +42,7 @@ export default class Room {
     });
   }
   get() {
-    let { room } = this;
+    let { room, client } = this;
     return client.exec({
       event: UpEvent.ROOM_GET,
       type: 'room',

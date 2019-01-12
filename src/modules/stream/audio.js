@@ -1,6 +1,5 @@
-import { client } from '../../providers/engine/client';
 import { UpEvent } from '../../event-name';
-export default function Audio(){
+export default function Audio(client){
   return {
     mute: (user) => {
       return client.exec({

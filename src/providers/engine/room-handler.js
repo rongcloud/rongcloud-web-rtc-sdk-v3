@@ -51,4 +51,4 @@ function RoomHandler() {
   };
 }
 
-export default RoomHandler();
+export default RoomHandler;
