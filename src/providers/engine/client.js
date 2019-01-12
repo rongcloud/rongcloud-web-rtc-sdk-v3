@@ -41,16 +41,20 @@ class Client extends EventEmitter {
     utils.forEach(RoomEvents, bindEvent);
     let dispatchStreamEvent = (user, callback) => {
       let { id, uris } = user;
-      let streams = utils.uniq(uris, (target) => {
-        let { streamId, tag, type } = target;
-        return {
-          key: [streamId, tag].join('_'),
-          value: {
-            tag,
-            type
+      let streams = [user];
+      if(uris){
+        streams = utils.uniq(uris, (target) => {
+          let { streamId, tag, type } = target;
+          return {
+            key: [streamId, tag].join('_'),
+            value: {
+              tag,
+              type
+            }
           }
-        }
-      });
+        });
+      }
+     
       utils.forEach(streams, (stream) => {
         callback({
           id,
@@ -58,19 +62,19 @@ class Client extends EventEmitter {
         });
       });
     };
-    im.on(DownEvent.STREAM_READIY, (user) => {
+    im.on(DownEvent.STREAM_READIY, (error, user) => {
       dispatchStreamEvent(user, (user) => {
-        context.emit(DownEvent.STREAM_READIY, user);
+        context.emit(DownEvent.STREAM_READIY, user, error);
       });
     });
-    im.on(DownEvent.STREAM_UNPUBLISH, (user) => {
+    im.on(DownEvent.STREAM_UNPUBLISH, (error, user) => {
       dispatchStreamEvent(user, (user) => {
-        context.emit(DownEvent.STREAM_UNPUBLISH, user);
+        context.emit(DownEvent.STREAM_UNPUBLISH, user, error);
       });
     });
-    im.on(DownEvent.STREAM_CHANGED, (user) => {
+    im.on(DownEvent.STREAM_CHANGED, (error, user) => {
       dispatchStreamEvent(user, (user) => {
-        context.emit(DownEvent.STREAM_CHANGED, user);
+        context.emit(DownEvent.STREAM_CHANGED, user, error);
       });
     });
     request.setOption(option);
