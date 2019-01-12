@@ -4,11 +4,16 @@ import { request } from './request';
 import PeerConnection from './peerconnection';
 import { Path } from './path';
 import Message, { im } from './im';
-import { CommonEvent } from './events';
+import { CommonEvent, CommandEvent } from './events';
+import EventEmitter from '../../event-emitter';
 
 let DataCache = utils.Cache();
 let DataCacheName = {
-  USERS: 'room_users'
+  USERS: 'room_users',
+  // 全部通知后一次性交换 SDP
+  IS_NOTIFY_READY: 'is_notify_ready',
+  // 已发布资源列表
+  PUBLISH_MAP: 'publish_map',
 };
 /* 
   缓存已订阅 MediaStream
@@ -22,14 +27,63 @@ let StreamCache = utils.Cache();
 let SubscribeCache = utils.Cache();
 let pc = new PeerConnection();
 function StreamHandler() {
-  let getUId = (user) => {
-    let tpl = '{userId}_{tag}_{type}';
+  let eventEmitter = new EventEmitter();
+  let isPublished = () => {
+    let publishList = DataCache.get(DataCacheName.PUBLISH_MAP) || {};
+    return !utils.isEmpty(publishList);
+  };
+  let getSubs = () => {
+    let subs = [];
+    let userIds = SubscribeCache.getKeys();
+    utils.forEach(userIds, (userId) => {
+      let streams = SubscribeCache.get(userId);
+      utils.forEach(streams, (stream) => {
+        subs.push(stream);
+      });
+    });
+    return subs;
+  };
+  eventEmitter.on(CommandEvent.EXCHANGE, () => {
+    let isNotifyReady = DataCache.get(DataCacheName.IS_NOTIFY_READY);
+    if (isPublished() && isNotifyReady) {
+      let subs = getSubs();
+      let offer = pc.getOffer();
+      request.post({
+        path: Path.SUBSCRIBE,
+        body: {
+          sdp: offer,
+          subcribeList: subs
+        }
+      });
+    }
+  });
+  let getUId = (user, tpl) => {
+    tpl = tpl || '{userId}_{tag}_{type}';
     let { id: userId, stream: { tag, type } } = user
     return utils.tplEngine(tpl, {
       userId,
       tag,
       type
     });
+  };
+  let setPublish = (user) => {
+    /* 
+      publishMap = {
+        userId_tag: {
+          type,
+          mediaStream
+        }
+      }
+    */
+    let publishMap = DataCache.get(DataCacheName.PUBLISH_MAP) || {};
+    let { stream: { type, mediaStream } } = user;
+    let key = getUId(user, '{userId}_{tag}');
+    publishMap[key] = {
+      type,
+      mediaStream
+    };
+    DataCache.set(DataCacheName.PUBLISH_MAP, publishMap);
+    eventEmitter.emit(CommandEvent.EXCHANGE, user);
   };
   let dispatchStreamEvent = (user, callback) => {
     let { id, uris } = user;
@@ -91,6 +145,9 @@ function StreamHandler() {
             tag
           });
         });
+        DataCache.set(DataCacheName.IS_NOTIFY_READY, true);
+        // Stream Ready 派发完毕后，检查是否可进行 SDP 交换
+        eventEmitter.emit(CommandEvent.EXCHANGE);
       });
     });
   });
@@ -104,6 +161,7 @@ function StreamHandler() {
         desc
       }
     }).then(result => {
+      setPublish(user);
       let { url } = result;
       tag = tag || '';
       let { id: streamId } = mediaStream;
@@ -141,24 +199,27 @@ function StreamHandler() {
     });
   };
   let open = (user) => {
+    let { id: userId, stream: { tag, type } } = user;
+    let subs = SubscribeCache.get(userId) || [];
+    let key = getUId(user);
+    let uri = DataCache.get(key);
+    subs.push({
+      uri,
+      type,
+      tag
+    });
+    SubscribeCache.set(key, subs);
+    let isNotifyReady = DataCache.get(DataCacheName.IS_NOTIFY_READY);
+    // 没有发布资源或者已存在成员未分发完毕，只添加缓存，最后一次性处理
+    if (!isPublished() || !isNotifyReady) {
+      return utils.Defer.resolve();
+    }
     let streamId = pc.getStreamId(user);
     return request.post({
       path: Path.OPEN,
       body: {
         streamId
       }
-    }).then(() => {
-      let { id: userId, stream: { tag, type } } = user;
-      let subs = SubscribeCache.get(userId) || [];
-      let key = getUId(user);
-      let uri = DataCache.get(key);
-      subs.push({
-        streamId,
-        uri,
-        type,
-        tag
-      });
-      SubscribeCache.set(key, subs);
     });
   };
   let close = (user) => {

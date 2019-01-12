@@ -75,8 +75,16 @@ export default class PeerConnection extends EventEmitter {
       utils.extend(desc, {
         sdp
       });
+      utils.extend(context, {
+        desc
+      });
       return desc;
     });
+  }
+
+  getOffer(){
+    let { desc } = this;
+    return desc;
   }
 
   renameStream(sdp, data) {

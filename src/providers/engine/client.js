@@ -54,7 +54,6 @@ class Client extends EventEmitter {
           }
         });
       }
-     
       utils.forEach(streams, (stream) => {
         callback({
           id,

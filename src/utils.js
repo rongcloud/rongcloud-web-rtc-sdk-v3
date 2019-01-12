@@ -102,10 +102,18 @@ const Cache = (cache) => {
   let remove = (key) => {
     delete cache[key];
   };
+  let getKeys = () => {
+    let keys = [];
+    for(let key in cache){
+      keys.push(key);
+    }
+    return keys;
+  };
   return {
     set,
     get,
-    remove
+    remove,
+    getKeys
   };
 };
 const Logger = console;
@@ -132,6 +140,21 @@ const uniq = (arrs, callback) => {
 const some = (arrs, callback) => {
   return arrs.some(callback);
 };
+const isEqual = (source, target) => {
+  return source === target;
+};
+const isEmpty = (obj) => {
+  let result = true;
+  if(isObject(obj)){
+    forEach(obj, () => {
+      result = false;
+    });
+  }
+  if(isString(obj) || isArray(obj)){
+    result = obj.length === 0;
+  }
+  return result;
+};
 export default {
   isBoolean,
   isString,
@@ -154,5 +177,7 @@ export default {
   map,
   filter,
   uniq,
-  some
+  some,
+  isEqual,
+  isEmpty
 }

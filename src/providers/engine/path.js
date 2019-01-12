@@ -3,5 +3,7 @@ export const Path = {
   UNPUBLISH: 'exchange#{roomId}',
   OPEN: '',
   CLOSE: '',
-  RESIZE: ''
+  RESIZE: '',
+  SUBSCRIBE: '',
+  UNSUBSCRIBE: ''
 };
