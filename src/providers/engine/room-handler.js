@@ -1,32 +1,34 @@
-import { UpEvent } from '../../event-name';
+import { UpEvent, DownEvent } from '../../event-name';
 import utils from '../../utils';
-import { im } from './im';
-import Message from './im';
-import { RoomEvents } from '../../modules/events';
+import Message, { im } from './im';
 
 function RoomHandler() {
-  utils.forEach(RoomEvents, (event) => {
-    im.on(event.name, () => {
-    });
-  });
-
   let join = (room) => {
     return im.joinRoom(room).then(() => {
-      im.getUsers(room).then((users) => {
-        utils.Logger.warn(users)
-      });
-      return im.sendMessage({
+      im.sendMessage(room, {
         type: Message.JOIN,
         content: {}
       });
+      return im.getExistUsers(room).then(({ users }) => {
+        utils.forEach(users, (user) => {
+          let { userId: id } = user;
+          im.emit(DownEvent.ROOM_USER_JOINED, {
+            id
+          });
+        });
+      });
+    }).then(() => {
+      return room;
     });
   };
   let leave = (room) => {
     return im.leaveRoom(room).then(() => {
-      return im.sendMessage({
+      return im.sendMessage(room, {
         type: Message.LEAVE,
         content: {}
       });
+    }).then(() => {
+      return room;
     });
   };
   let get = (room) => {

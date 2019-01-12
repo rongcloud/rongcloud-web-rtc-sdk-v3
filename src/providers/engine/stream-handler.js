@@ -3,19 +3,82 @@ import utils from '../../utils';
 import { request } from './request';
 import PeerConnection from './peerconnection';
 import { Path } from './path';
-import { im } from './im';
-import Message from './im';
+import Message, { im } from './im';
+import { CommonEvent } from './events';
 
+let DataCache = utils.Cache();
+let DataCacheName = {
+  USERS: 'room_users'
+};
+/* 
+  缓存已订阅 MediaStream
+  userId_type: mediaStream
+*/
 let StreamCache = utils.Cache();
+/* 
+  缓存订阅关系，每次修改需同步全量数据
+  userId: [{ streamId: '', uri: '', type: 1}]
+*/
+let SubscribeCache = utils.Cache();
 let pc = new PeerConnection();
 function StreamHandler() {
+  let getUId = (user) => {
+    let tpl = '{userId}_{tag}_{type}';
+    let { id: userId, stream: { tag, type } } = user
+    return utils.tplEngine(tpl, {
+      userId,
+      tag,
+      type
+    });
+  };
+  /* 已在房间，再有新人发布资源触发此事件 */
   im.on(DownEvent.STREAM_READIY, () => {
+    // let {id, uris} = user;
   });
   im.on(DownEvent.STREAM_UNPUBLISH, () => {
     // TODO: 清理本地缓存
   });
   im.on(DownEvent.STREAM_CHANGED, () => {
     // TODO: 清理本地缓存
+  });
+  im.on(CommonEvent.JOINED, (error, room) => {
+    if (error) {
+      throw error;
+    }
+    im.getUsers(room).then((users) => {
+      DataCache.set(DataCacheName.USERS, users);
+      utils.forEach(users, (data, id) => {
+        let { uris } = data;
+        uris = JSON.parse(uris);
+        utils.forEach(uris, (item) => {
+          let { type, tag, uri } = item;
+          let key = getUId({
+            id,
+            stream: {
+              type,
+              tag
+            }
+          });
+          DataCache.set(key, uri);
+        });
+        let streams = utils.uniq(uris, (target) => {
+          let { streamId, tag } = target;
+          return {
+            key: [streamId, tag].join('_'),
+            value: {
+              tag
+            }
+          }
+        });
+        utils.forEach(streams, (stream) => {
+          let { tag } = stream;
+          im.emit(DownEvent.STREAM_READIY, {
+            id,
+            tag
+          });
+        });
+      });
+    });
   });
   let publish = (user) => {
     let { stream: { type, mediaStream, tag } } = user;
@@ -70,9 +133,18 @@ function StreamHandler() {
       body: {
         streamId
       }
-    }).then(stream => {
-      StreamCache.set(streamId, stream);
-      return stream;
+    }).then(() => {
+      let { id: userId, stream: { tag, type } } = user;
+      let subs = SubscribeCache.get(userId) || [];
+      let key = getUId(user);
+      let uri = DataCache.get(key);
+      subs.push({
+        streamId,
+        uri,
+        type,
+        tag
+      });
+      SubscribeCache.set(key, subs);
     });
   };
   let close = (user) => {
@@ -82,6 +154,9 @@ function StreamHandler() {
       body: {
         streamId
       }
+    }).then(() => {
+      let key = getUId(user);
+      SubscribeCache.remove(key);
     });
   };
   let resize = (user) => {
@@ -101,6 +176,19 @@ function StreamHandler() {
       resolve(StreamCache.get(streamId));
     });
   };
+
+  let mute = () => {
+
+  }
+  let unmute = () => {
+
+  };
+  let disable = () => {
+
+  };
+  let enable = () => {
+
+  };
   let dispatch = (event, args) => {
     switch (event) {
       case UpEvent.STREAM_PUBLISH:
@@ -115,6 +203,14 @@ function StreamHandler() {
         return resize(...args);
       case UpEvent.STREAM_GET:
         return get(...args);
+      case UpEvent.AUDIO_MUTE:
+        return mute(...args);
+      case UpEvent.AUDIO_UNMUTE:
+        return unmute(...args);
+      case UpEvent.VIDEO_DISABLE:
+        return disable(...args);
+      case UpEvent.VIDEO_ENABLE:
+        return enable(...args);
       default:
         utils.Logger.log(`StreamHandler: unkown upevent ${event}`);
     }

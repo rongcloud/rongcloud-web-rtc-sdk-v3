@@ -3,3 +3,7 @@ export const PeerConnectionEvent = {
   REMOVED: 'p_stream_removed',
   RECEIVED: 'p_stream_received'
 };
+
+export const CommonEvent = {
+  JOINED: 'common_joined',
+};

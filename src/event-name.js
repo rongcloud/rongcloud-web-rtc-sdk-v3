@@ -22,6 +22,12 @@ export const UpEvent = {
   STREAM_RESIZE: 'stream_resize',
   STREAM_GET: 'stream_get',
 
+  AUDIO_MUTE: 'audio_mute',
+  AUDIO_UNMUTE: 'audio_unmute',
+
+  VIDEO_DISABLE: 'video_disable',
+  VIDEO_ENABLE: 'video_enable',
+
   DEVICE_CHECK: 'device_check',
   DEVICE_GET_LIST: 'device_get_list'
 };

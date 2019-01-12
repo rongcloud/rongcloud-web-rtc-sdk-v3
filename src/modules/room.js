@@ -9,12 +9,8 @@ export default class Room {
     utils.forEach(RoomEvents, function (event) {
       let { name, type } = event;
       client.on(name, (error, user) => {
-        let result = {
-          type,
-          user
-        };
         event = option[type] || utils.noop;
-        event(result, error);
+        event(user, error);
       });
     });
     let { id } = option;

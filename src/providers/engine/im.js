@@ -2,6 +2,7 @@ import utils from '../../utils';
 import EventEmitter from '../../event-emitter';
 import { DownEvent } from '../../event-name';
 import { ErrorType } from '../../error';
+import { CommonEvent } from './events';
 const Message = {
   JOIN: 'RTCJoinRoomMessage',
   LEAVE: 'RTCLeftRoomMessage',
@@ -39,22 +40,26 @@ class IM extends EventEmitter {
       }
     });
     im.messageWatch((message) => {
-      let { messageType: type } = message;
+      let { messageType: type, senderUserId: id, content: { uris } } = message;
+      let user = { id };
       switch (type) {
         case Message.JOIN:
-          context.emit(DownEvent.ROOM_USER_JOINED, message);
+          context.emit(DownEvent.ROOM_USER_JOINED, user);
           break;
         case Message.LEAVE:
-          context.emit(DownEvent.ROOM_USER_LEFT, message);
+          context.emit(DownEvent.ROOM_USER_LEFT, user);
           break;
         case Message.PUBLISH:
-          context.emit(DownEvent.STREAM_READIY, message);
+          user = { id, uris };
+          context.emit(DownEvent.STREAM_READIY, user);
           break;
         case Message.UNPUBLISH:
-          context.emit(DownEvent.STREAM_UNPUBLISH, message);
+          user = { id, uris };
+          context.emit(DownEvent.STREAM_UNPUBLISH, user);
           break;
         case Message.MODIFY:
-          context.emit(DownEvent.STREAM_CHANGED, message);
+          user = { id, uris };
+          context.emit(DownEvent.STREAM_CHANGED, user);
           break;
         default:
           utils.Logger.log(`MessageWatch: unkown message type ${type}`);
@@ -81,15 +86,15 @@ class IM extends EventEmitter {
     }, {
       type: Message.PUBLISH,
       name: 'RCRTC:PublishResource',
-      props: ['url', 'type', 'tag', 'streamId']
+      props: ['uris']
     }, {
       type: Message.UNPUBLISH,
       name: 'RCRTC:UnpublishResource',
-      props: ['url', 'type', 'tag', 'streamId']
+      props: ['uris']
     }, {
       type: Message.MODIFY,
       name: 'RCRTC:ModifyResource',
-      props: ['url', 'type', 'tag', 'streamId']
+      props: ['uris']
     }];
     utils.forEach(messages, (message) => {
       register(message);
@@ -101,6 +106,7 @@ class IM extends EventEmitter {
     return utils.deferred((resolve, reject) => {
       im.getInstance().joinRTCRoom(room, {
         onSuccess: () => {
+          context.emit(CommonEvent.JOINED, room);
           utils.extend(context, {
             room
           });
@@ -145,20 +151,31 @@ class IM extends EventEmitter {
       });
     });
   }
-  sendMessage(message) {
-    let { im, room, RongIMClient } = this;
+  getExistUsers(room) {
+    let { im } = this;
     return utils.deferred((resolve, reject) => {
+      im.getInstance().getRTCUserList(room, {
+        onSuccess: resolve,
+        reject: (code) => {
+          return errorHandler(code, reject);
+        }
+      });
+    });
+  }
+  sendMessage(room, message) {
+    let { im } = this;
+    return utils.deferred((resolve) => {
       let conversationType = 12,
         targetId = room.id;
       let create = () => {
         let { type, content } = message;
-        return new RongIMClient.RegisterMessage[type](content);
+        return new im.RegisterMessage[type](content);
       };
       let msg = create();
       im.getInstance().sendMessage(conversationType, targetId, msg, {
         onSuccess: resolve,
         onError: (code) => {
-          return errorHandler(code, reject);
+          utils.Logger.warn('SendMessage Error:', code);
         }
       });
     });

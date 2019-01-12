@@ -112,6 +112,26 @@ const Logger = console;
 const request = (option) => {
   return fetch(option);
 };
+const map = (arrs, callback) => {
+  return arrs.map(callback);
+};
+const filter = (arrs, callback) => {
+  return arrs.filter(callback);
+};
+const uniq = (arrs, callback) => {
+  let newData = [], tempData = {};
+  arrs.forEach(target => {
+    let temp = callback(target);
+    tempData[temp.key] = temp.value;
+  });
+  forEach(tempData, (val) => {
+    newData.push(val);
+  })
+  return newData;
+};
+const some = (arrs, callback) => {
+  return arrs.some(callback);
+};
 export default {
   isBoolean,
   isString,
@@ -130,5 +150,9 @@ export default {
   noop,
   Cache,
   Logger,
-  request
+  request,
+  map,
+  filter,
+  uniq,
+  some
 }

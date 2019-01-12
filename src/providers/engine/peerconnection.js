@@ -85,11 +85,11 @@ export default class PeerConnection extends EventEmitter {
   }
 
   getStreamId(user) {
-    let tpl = '{userId}_{type}';
-    let { id: userId, stream: { type } } = user;
+    let tpl = '{userId}_{tag}';
+    let { id: userId, stream: { tag } } = user;
     return utils.tplEngine(tpl, {
       userId,
-      type
+      tag
     });
   }
 }

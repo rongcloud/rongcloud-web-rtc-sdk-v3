@@ -10,12 +10,9 @@ export default class Stream {
     var context = this;
     utils.forEach(StreamEvents, (event) => {
       let { name, type } = event;
-      client.on(name, (error, result) => {
-        utils.extend(result, {
-          type
-        });
+      client.on(name, (error, user) => {
         event = option[type] || utils.noop;
-        event(result, error);
+        event(user, error);
       });
     });
     utils.extend(context, {
