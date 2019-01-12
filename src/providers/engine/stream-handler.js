@@ -31,15 +31,29 @@ function StreamHandler() {
       type
     });
   };
+  let dispatchStreamEvent = (user, callback) => {
+    let { id, uris } = user;
+    utils.forEach(uris, (item) => {
+      let { tag, type, uri } = item;
+      let key = getUId({ id, stream: { tag, type } });
+      callback(key, uri);
+    });
+  };
   /* 已在房间，再有新人发布资源触发此事件 */
-  im.on(DownEvent.STREAM_READIY, () => {
-    // let {id, uris} = user;
+  im.on(DownEvent.STREAM_READIY, (user) => {
+    dispatchStreamEvent(user, (key, uri) => {
+      DataCache.set(key, uri);
+    });
   });
-  im.on(DownEvent.STREAM_UNPUBLISH, () => {
-    // TODO: 清理本地缓存
+  im.on(DownEvent.STREAM_UNPUBLISH, (user) => {
+    dispatchStreamEvent(user, (key) => {
+      DataCache.remove(key);
+    });
   });
-  im.on(DownEvent.STREAM_CHANGED, () => {
-    // TODO: 清理本地缓存
+  im.on(DownEvent.STREAM_CHANGED, (user) => {
+    dispatchStreamEvent(user, (key, uri) => {
+      DataCache.set(key, uri);
+    });
   });
   im.on(CommonEvent.JOINED, (error, room) => {
     if (error) {

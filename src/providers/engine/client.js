@@ -6,7 +6,8 @@ import { im } from './im';
 import { request } from './request';
 import RTCAdapter from './3rd/adapter';
 import { ErrorType } from '../../error';
-import { RoomEvents, StreamEvents } from '../../modules/events';
+import { RoomEvents } from '../../modules/events';
+import { DownEvent } from '../../event-name';
 
 let RequestHandler = {
   room: RoomHandler,
@@ -38,7 +39,40 @@ class Client extends EventEmitter {
       });
     };
     utils.forEach(RoomEvents, bindEvent);
-    utils.forEach(StreamEvents, bindEvent);
+    let dispatchStreamEvent = (user, callback) => {
+      let { id, uris } = user;
+      let streams = utils.uniq(uris, (target) => {
+        let { streamId, tag, type } = target;
+        return {
+          key: [streamId, tag].join('_'),
+          value: {
+            tag,
+            type
+          }
+        }
+      });
+      utils.forEach(streams, (stream) => {
+        callback({
+          id,
+          stream
+        });
+      });
+    };
+    im.on(DownEvent.STREAM_READIY, (user) => {
+      dispatchStreamEvent(user, (user) => {
+        context.emit(DownEvent.STREAM_READIY, user);
+      });
+    });
+    im.on(DownEvent.STREAM_UNPUBLISH, (user) => {
+      dispatchStreamEvent(user, (user) => {
+        context.emit(DownEvent.STREAM_UNPUBLISH, user);
+      });
+    });
+    im.on(DownEvent.STREAM_CHANGED, (user) => {
+      dispatchStreamEvent(user, (user) => {
+        context.emit(DownEvent.STREAM_CHANGED, user);
+      });
+    });
     request.setOption(option);
   }
   exec(params) {
