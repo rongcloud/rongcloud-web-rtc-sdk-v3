@@ -106,10 +106,10 @@ export class IM extends EventEmitter {
     return utils.deferred((resolve, reject) => {
       im.getInstance().joinRTCRoom(room, {
         onSuccess: () => {
-          context.emit(CommonEvent.JOINED, room);
           utils.extend(context, {
             room
           });
+          context.emit(CommonEvent.JOINED, room);
           resolve();
         },
         onError: (code) => {
@@ -145,7 +145,7 @@ export class IM extends EventEmitter {
     return utils.deferred((resolve, reject) => {
       im.getInstance().getRTCUserInfoList(room, {
         onSuccess: resolve,
-        reject: (code) => {
+        onError: (code) => {
           return errorHandler(code, reject);
         }
       });
@@ -160,7 +160,7 @@ export class IM extends EventEmitter {
     return utils.deferred((resolve, reject) => {
       im.getInstance().getRTCUserList(room, {
         onSuccess: resolve,
-        reject: (code) => {
+        onError: (code) => {
           return errorHandler(code, reject);
         }
       });
