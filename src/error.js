@@ -14,6 +14,11 @@ let getErrors = () => {
     code: 20001,
     name: 'STREAM_NOT_EXIST',
     msg: 'stream 不存在，请检查传入参数, id、stream.type、stream.tag 是否正确'
+  },
+  {
+    code: 30001,
+    name: 'PARAMTER_ILLEGAL',
+    msg: '请检查参数，{name} 参数为必传入项'
   }];
 
   let errorMap = {
