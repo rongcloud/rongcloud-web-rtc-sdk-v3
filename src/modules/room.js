@@ -1,6 +1,7 @@
 import utils from '../utils';
 import { RoomEvents } from './events';
 import { UpEvent } from '../event-name';
+import { check, getError } from './common';
 
 export default class Room {
   constructor(option) {
@@ -23,6 +24,11 @@ export default class Room {
     });
   }
   join(user) {
+    let {isIllegal, name} = check(user, ['id', 'token']);
+    if (isIllegal) {
+      let error = getError(name);
+      return utils.Defer.reject(error);
+    }
     let { room, client } = this;
     utils.extend(room, {
       user

@@ -1,7 +1,15 @@
 import { UpEvent } from '../../event-name';
-export default function Audio(client){
+import utils from '../../utils';
+import { check, getError } from '../common';
+
+export default function Audio(client) {
   return {
     mute: (user) => {
+      let { isIllegal, name } = check(user, ['id', 'stream.tag']);
+      if (isIllegal) {
+        let error = getError(name);
+        return utils.Defer.reject(error);
+      }
       return client.exec({
         event: UpEvent.AUDIO_MUTE,
         type: 'stream',
@@ -9,6 +17,11 @@ export default function Audio(client){
       });
     },
     unmute: (user) => {
+      let { isIllegal, name } = check(user, ['id', 'stream.tag']);
+      if (isIllegal) {
+        let error = getError(name);
+        return utils.Defer.reject(error);
+      }
       return client.exec({
         event: UpEvent.AUDIO_UNMUTE,
         type: 'stream',

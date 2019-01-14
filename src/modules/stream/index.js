@@ -3,6 +3,7 @@ import { StreamEvents } from '../events';
 import Video from './video';
 import Audio from './audio';
 import { UpEvent } from '../../event-name';
+import { check, getError } from '../common';
 
 export default class Stream {
   constructor(option) {
@@ -23,6 +24,11 @@ export default class Stream {
     });
   }
   publish(user) {
+    let { isIllegal, name } = check(user, ['id', 'stream.tag', 'stream.mediaStream', 'stream.type']);
+    if (isIllegal) {
+      let error = getError(name);
+      return utils.Defer.reject(error);
+    }
     let { client } = this;
     return client.exec({
       event: UpEvent.STREAM_PUBLISH,
@@ -31,6 +37,11 @@ export default class Stream {
     });
   }
   unpublish(user) {
+    let { isIllegal, name } = check(user, ['id', 'stream.tag', 'stream.type']);
+    if (isIllegal) {
+      let error = getError(name);
+      return utils.Defer.reject(error);
+    }
     let { client } = this;
     return client.exec({
       event: UpEvent.STREAM_UNPUBLISH,
@@ -39,6 +50,11 @@ export default class Stream {
     });
   }
   open(user) {
+    let { isIllegal, name } = check(user, ['id', 'stream.tag', 'stream.type']);
+    if (isIllegal) {
+      let error = getError(name);
+      return utils.Defer.reject(error);
+    }
     let { client } = this;
     return client.exec({
       event: UpEvent.STREAM_OPEN,
@@ -47,6 +63,11 @@ export default class Stream {
     });
   }
   close(user) {
+    let { isIllegal, name } = check(user, ['id', 'stream.tag']);
+    if (isIllegal) {
+      let error = getError(name);
+      return utils.Defer.reject(error);
+    }
     let { client } = this;
     return client.exec({
       event: UpEvent.STREAM_CLOSE,
@@ -55,6 +76,11 @@ export default class Stream {
     });
   }
   resize(user) {
+    let { isIllegal, name } = check(user, ['id', 'stream.tag']);
+    if (isIllegal) {
+      let error = getError(name);
+      return utils.Defer.reject(error);
+    }
     let { client } = this;
     return client.exec({
       event: UpEvent.STREAM_RESIZE,
@@ -64,6 +90,11 @@ export default class Stream {
   }
   get(user) {
     let { client } = this;
+    let { isIllegal, name } = check(user, ['id', 'stream.tag']);
+    if (isIllegal) {
+      let error = getError(name);
+      return utils.Defer.reject(error);
+    }
     return client.exec({
       event: UpEvent.STREAM_GET,
       type: 'stream',
