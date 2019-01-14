@@ -6,6 +6,8 @@ import { Path } from './path';
 import Message from './im';
 import { CommonEvent, CommandEvent } from './events';
 import EventEmitter from '../../event-emitter';
+import { StreamType } from '../../enum';
+import { ErrorType } from '../../error';
 function StreamHandler(im) {
   let DataCache = utils.Cache();
   let DataCacheName = {
@@ -22,7 +24,7 @@ function StreamHandler(im) {
   let StreamCache = utils.Cache();
   /* 
     缓存订阅关系，每次修改需同步全量数据
-    userId: [{ streamId: '', uri: '', type: 1}]
+    userId: [{ streamId: '', uri: '', type: 1, tag: ''}]
   */
   let SubscribeCache = utils.Cache();
   let pc = new PeerConnection();
@@ -47,9 +49,11 @@ function StreamHandler(im) {
     if (isPublished() && isNotifyReady) {
       let subs = getSubs();
       let offer = pc.getOffer();
+      let token = im.getToken();
       request.post({
         path: Path.SUBSCRIBE,
         body: {
+          token,
           sdp: offer,
           subcribeList: subs
         }
@@ -160,19 +164,27 @@ function StreamHandler(im) {
       });
     });
   });
+  let getBody = () => {
+    let token = im.getToken();
+    let offer = pc.getOffer();
+    let subs = getSubs();
+    return {
+      token,
+      sdp: offer,
+      subscribeList: subs
+    };
+  };
   let publish = (user) => {
     let { stream: { type, mediaStream, tag } } = user;
-    let token = im.getToken();
     let desc = pc.addStream(user);
     pc.setOffer(desc);
-    let subcribeList = [];
+    let body = getBody();
+    utils.extend(body, {
+      subscribeList: []
+    });
     return request.post({
       path: Path.PUBLISH,
-      body: {
-        token,
-        desc,
-        subcribeList
-      }
+      body
     }).then(result => {
       setPublish(user);
       let { url } = result;
@@ -193,11 +205,10 @@ function StreamHandler(im) {
     let { stream: { type, mediaStream, tag } } = user;
     let desc = pc.removeStream(user);
     pc.setOffer(desc);
+    let body = getBody();
     return request.post({
       path: Path.UNPUBLISH,
-      body: {
-        desc
-      }
+      body
     }).then(() => {
       tag = tag || '';
       let { id: streamId } = mediaStream;
@@ -227,35 +238,44 @@ function StreamHandler(im) {
     if (!isPublished() || !isNotifyReady) {
       return utils.Defer.resolve();
     }
-    let streamId = pc.getStreamId(user);
+    let body = getBody();
     return request.post({
       path: Path.OPEN,
-      body: {
-        streamId
-      }
+      body
     });
   };
   let close = (user) => {
-    let streamId = pc.getStreamId(user);
+    let key = getUId(user);
+    SubscribeCache.remove(key);
+    let body = getBody();
     return request.post({
       path: Path.OPEN,
-      body: {
-        streamId
-      }
-    }).then(() => {
-      let key = getUId(user);
-      SubscribeCache.remove(key);
+      body
     });
   };
   let resize = (user) => {
-    let { stream: { size } } = user;
+    let { stream: { size }, id } = user;
+    let body = getBody();
+    let streams = SubscribeCache.get(id);
     let streamId = pc.getStreamId(user);
+    let stream = utils.filter(streams, (stream) => {
+      let isVideo = stream.type === StreamType.VIDEO;
+      return streamId === stream.streamId && isVideo;
+    })[0];
+    if (!stream) {
+      return utils.Defer.reject(ErrorType.Inner.STREAM_NOT_EXIST);
+    }
+    let { uri } = stream;
+    utils.forEach(body.subscribeList, (stream) => {
+      if (stream.uri === uri) {
+        utils.extend(stream, {
+          simulcast: size
+        })
+      }
+    });
     return request.post({
       path: Path.RESIZE,
-      body: {
-        streamId,
-        size
-      }
+      body
     });
   };
   let get = (user) => {

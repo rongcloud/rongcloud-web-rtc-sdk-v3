@@ -9,6 +9,11 @@ let getErrors = () => {
     code: 10001,
     name: 'IM_NOT_CONNECTED',
     msg: '请在 IM 连接成功后开始音频业务'
+  },
+  {
+    code: 20001,
+    name: 'STREAM_NOT_EXIST',
+    msg: 'stream 不存在，请检查传入参数, id、stream.type、stream.tag 是否正确'
   }];
 
   let errorMap = {
