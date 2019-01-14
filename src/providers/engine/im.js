@@ -16,7 +16,7 @@ const errorHandler = (code, reject) => {
   };
   reject(error);
 };
-class IM extends EventEmitter {
+export class IM extends EventEmitter {
   constructor() {
     super();
   }
@@ -118,8 +118,8 @@ class IM extends EventEmitter {
       });
     });
   }
-  leaveRoom(room) {
-    let { im } = this;
+  leaveRoom() {
+    let { im, room } = this;
     return utils.deferred((resolve, reject) => {
       im.getInstance().quitRTCRoom(room, {
         onSuccess: resolve,
@@ -129,8 +129,8 @@ class IM extends EventEmitter {
       });
     });
   }
-  getRoom(room) {
-    let { im } = this;
+  getRoom() {
+    let { im, room } = this;
     return utils.deferred((resolve, reject) => {
       im.getInstance().getRTCRoomInfo(room, {
         onSuccess: resolve,
@@ -140,8 +140,8 @@ class IM extends EventEmitter {
       });
     });
   }
-  getUsers(room) {
-    let { im } = this;
+  getUsers() {
+    let { im, room } = this;
     return utils.deferred((resolve, reject) => {
       im.getInstance().getRTCUserInfoList(room, {
         onSuccess: resolve,
@@ -151,8 +151,12 @@ class IM extends EventEmitter {
       });
     });
   }
-  getExistUsers(room) {
-    let { im } = this;
+  getToken() {
+    let { room: { user: { token } } } = this;
+    return token;
+  }
+  getExistUsers() {
+    let { im, room } = this;
     return utils.deferred((resolve, reject) => {
       im.getInstance().getRTCUserList(room, {
         onSuccess: resolve,
@@ -162,8 +166,8 @@ class IM extends EventEmitter {
       });
     });
   }
-  sendMessage(room, message) {
-    let { im } = this;
+  sendMessage(message) {
+    let { im, room } = this;
     return utils.deferred((resolve) => {
       let conversationType = 12,
         targetId = room.id;
@@ -173,7 +177,9 @@ class IM extends EventEmitter {
       };
       let msg = create();
       im.getInstance().sendMessage(conversationType, targetId, msg, {
-        onSuccess: resolve,
+        onSuccess: () => {
+          resolve(room);
+        },
         onError: (code) => {
           utils.Logger.warn('SendMessage Error:', code);
         }
@@ -188,4 +194,3 @@ class IM extends EventEmitter {
 }
 
 export default Message;
-export const im = new IM();

@@ -1,15 +1,14 @@
 import { UpEvent, DownEvent } from '../../event-name';
 import utils from '../../utils';
-import Message, { im } from './im';
-
-function RoomHandler() {
+import Message from './im';
+function RoomHandler(im) {
   let join = (room) => {
     return im.joinRoom(room).then(() => {
-      im.sendMessage(room, {
+      im.sendMessage({
         type: Message.JOIN,
         content: {}
       });
-      return im.getExistUsers(room).then(({ users }) => {
+      return im.getExistUsers().then(({ users }) => {
         utils.forEach(users, (user) => {
           let { userId: id } = user;
           im.emit(DownEvent.ROOM_USER_JOINED, {
@@ -21,18 +20,16 @@ function RoomHandler() {
       return room;
     });
   };
-  let leave = (room) => {
-    return im.leaveRoom(room).then(() => {
-      return im.sendMessage(room, {
+  let leave = () => {
+    return im.leaveRoom().then(() => {
+      return im.sendMessage({
         type: Message.LEAVE,
         content: {}
       });
-    }).then(() => {
-      return room;
-    });
+    })
   };
-  let get = (room) => {
-    return im.getRoom(room);
+  let get = () => {
+    return im.getRoom();
   };
   let dispatch = (event, args) => {
     switch (event) {

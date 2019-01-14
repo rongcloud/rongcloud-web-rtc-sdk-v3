@@ -2,7 +2,7 @@ import EventEmitter from '../../event-emitter';
 import utils from '../../utils';
 import StreamHandler from './stream-handler';
 import RoomHandler from './room-handler';
-import { im } from './im';
+import { IM } from './im';
 import { request } from './request';
 import RTCAdapter from './3rd/adapter';
 import { ErrorType } from '../../error';
@@ -13,11 +13,13 @@ export default class Client extends EventEmitter {
   constructor() {
     super();
     RTCAdapter.init();
+    let im = new IM();
     let RequestHandler = {
-      room: RoomHandler(),
-      stream: StreamHandler()
+      room: RoomHandler(im),
+      stream: StreamHandler(im)
     };
     utils.extend(this, {
+      im,
       RequestHandler
     });
   }
@@ -29,6 +31,7 @@ export default class Client extends EventEmitter {
   */
   setOption(option) {
     let context = this;
+    let { im } = context;
     let { RongIMLib } = option;
     utils.extend(context, {
       RongIMLib,
@@ -82,6 +85,7 @@ export default class Client extends EventEmitter {
     request.setOption(option);
   }
   exec(params) {
+    let { im } = this;
     if (!im.isReady()) {
       return utils.Defer.reject(ErrorType.Inner.IM_NOT_CONNECTED);
     }

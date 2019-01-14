@@ -3,11 +3,10 @@ import utils from '../../utils';
 import { request } from './request';
 import PeerConnection from './peerconnection';
 import { Path } from './path';
-import Message, { im } from './im';
+import Message from './im';
 import { CommonEvent, CommandEvent } from './events';
 import EventEmitter from '../../event-emitter';
-
-function StreamHandler() {
+function StreamHandler(im) {
   let DataCache = utils.Cache();
   let DataCacheName = {
     USERS: 'room_users',
@@ -118,6 +117,7 @@ function StreamHandler() {
       DataCache.set(key, uri);
     });
   });
+  /* 加入房间成功后，主动获取已发布资源的人员列表，通知应用层 */
   im.on(CommonEvent.JOINED, (error, room) => {
     if (error) {
       throw error;
@@ -162,12 +162,16 @@ function StreamHandler() {
   });
   let publish = (user) => {
     let { stream: { type, mediaStream, tag } } = user;
+    let token = im.getToken();
     let desc = pc.addStream(user);
     pc.setOffer(desc);
+    let subcribeList = [];
     return request.post({
       path: Path.PUBLISH,
       body: {
-        desc
+        token,
+        desc,
+        subcribeList
       }
     }).then(result => {
       setPublish(user);
