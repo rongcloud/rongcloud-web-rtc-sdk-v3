@@ -174,6 +174,10 @@ function StreamHandler(im) {
       subscribeList: subs
     };
   };
+  let isCurrentUser = (user) => {
+    let { id } = im.getUser();
+    return utils.isEqual(user.id, id);
+  };
   let publish = (user) => {
     let { stream: { type, mediaStream, tag } } = user;
     let desc = pc.addStream(user);
@@ -279,23 +283,86 @@ function StreamHandler(im) {
     });
   };
   let get = (user) => {
-    return utils.deferred((resolve) => {
+    return utils.deferred(resolve => {
       let streamId = pc.getStreamId(user);
       resolve(StreamCache.get(streamId));
     });
   };
-
-  let mute = () => {
-
+  let mute = (user) => {
+    let handler = {
+      current: () => {
+        utils.deferred(() => {
+          /* 
+            1、移除 AudioTrack
+            2、获取本地 SDP、设置本地 SDP
+            3、交换 SDP
+            4、发送 Modify:Resource 通知消息
+          */
+        });
+      },
+      other: () => {
+        utils.deferred(() => {
+          /* 
+            1、修改订阅关系
+          */
+        });
+      }
+    };
+    let type = isCurrentUser(user) ? 'current' : 'other';
+    return handler[type]();
   }
-  let unmute = () => {
+  let unmute = (user) => {
+    let handler = {
+      current: () => {
+        utils.deferred(() => {
+        /*
+          1、移除 AudioTrack
+          2、获取本地 SDP、设置本地 SDP
+          3、交换 SDP
+          4、发送 Modify:Resource 通知消息
+        */
+        });
+      },
+      other: () => {
+        utils.deferred(() => {
 
+        });
+      }
+    };
+    let type = isCurrentUser(user) ? 'current' : 'other';
+    return handler[type]();
   };
-  let disable = () => {
+  let disable = (user) => {
+    let handler = {
+      current: () => {
+        utils.deferred(() => {
 
+        });
+      },
+      other: () => {
+        utils.deferred(() => {
+
+        });
+      }
+    };
+    let type = isCurrentUser(user) ? 'current' : 'other';
+    return handler[type]();
   };
-  let enable = () => {
+  let enable = (user) => {
+    let handler = {
+      current: () => {
+        utils.deferred(() => {
 
+        });
+      },
+      other: () => {
+        utils.deferred(() => {
+
+        });
+      }
+    };
+    let type = isCurrentUser(user) ? 'current' : 'other';
+    return handler[type]();
   };
   let dispatch = (event, args) => {
     switch (event) {

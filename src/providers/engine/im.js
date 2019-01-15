@@ -155,6 +155,10 @@ export class IM extends EventEmitter {
     let { room: { user: { token } } } = this;
     return token;
   }
+  getUser() {
+    let { room: { user } } = this;
+    return user;
+  }
   getExistUsers() {
     let { im, room } = this;
     return utils.deferred((resolve, reject) => {
