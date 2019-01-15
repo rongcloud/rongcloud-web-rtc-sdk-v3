@@ -29,10 +29,6 @@ function StreamHandler(im) {
   let SubscribeCache = utils.Cache();
   let pc = new PeerConnection();
   let eventEmitter = new EventEmitter();
-  let isPublished = () => {
-    let publishList = DataCache.get(DataCacheName.PUBLISH_MAP) || {};
-    return !utils.isEmpty(publishList);
-  };
   let getSubs = () => {
     let subs = [];
     let userIds = SubscribeCache.getKeys();
@@ -46,7 +42,7 @@ function StreamHandler(im) {
   };
   eventEmitter.on(CommandEvent.EXCHANGE, () => {
     let isNotifyReady = DataCache.get(DataCacheName.IS_NOTIFY_READY);
-    if (isPublished() && isNotifyReady) {
+    if (isNotifyReady) {
       let subs = getSubs();
       let offer = pc.getOffer();
       let token = im.getToken();
@@ -238,8 +234,8 @@ function StreamHandler(im) {
     });
     SubscribeCache.set(key, subs);
     let isNotifyReady = DataCache.get(DataCacheName.IS_NOTIFY_READY);
-    // 没有发布资源或者已存在成员未分发完毕，只添加缓存，最后一次性处理
-    if (!isPublished() || !isNotifyReady) {
+    // 只添加缓存，最后，一次性处理
+    if (!isNotifyReady) {
       return utils.Defer.resolve();
     }
     let body = getBody();
