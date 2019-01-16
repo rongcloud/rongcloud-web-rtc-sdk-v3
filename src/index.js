@@ -5,7 +5,7 @@ import Client from './providers/engine/client';
 import utils from './utils';
 
 let option = {
-  url: 'http://127.0.0.1:8090/'
+  url: 'http://10.12.8.187:8585/'
 };
 export default class RongRTC {
   constructor(_option) {

@@ -47,15 +47,15 @@ export default class Client extends EventEmitter {
     utils.forEach(RoomEvents, bindEvent);
     let dispatchStreamEvent = (user, callback) => {
       let { id, uris } = user;
+      uris = JSON.parse(uris);
       let streams = [user];
       if (uris) {
         streams = utils.uniq(uris, (target) => {
-          let { streamId, tag, type } = target;
+          let { streamId, tag } = target;
           return {
             key: [streamId, tag].join('_'),
             value: {
-              tag,
-              type
+              tag
             }
           }
         });
@@ -81,6 +81,17 @@ export default class Client extends EventEmitter {
       dispatchStreamEvent(user, (user) => {
         context.emit(DownEvent.STREAM_CHANGED, user, error);
       });
+    });
+    im.on(DownEvent.STREAM_PUBLISH, (error, stream) => {
+      let { id: streamId } = stream;
+      let [userId, tag] = streamId.split('_');
+      context.emit(DownEvent.STREAM_PUBLISH, {
+        id: userId,
+        stream: {
+          tag,
+          mediaStream: stream
+        }
+      }, error);
     });
     request.setOption(option);
   }

@@ -120,8 +120,8 @@ const Cache = (cache) => {
   };
 };
 const Logger = console;
-const request = (option) => {
-  return fetch(option);
+const request = (url, option) => {
+  return fetch(url, option);
 };
 const map = (arrs, callback) => {
   return arrs.map(callback);
@@ -158,6 +158,9 @@ const isEmpty = (obj) => {
   }
   return result;
 };
+const toJSON = (value) => {
+  return JSON.stringify(value);
+}
 export default {
   isUndefined,
   isBoolean,
@@ -183,5 +186,6 @@ export default {
   uniq,
   some,
   isEqual,
-  isEmpty
+  isEmpty,
+  toJSON
 }

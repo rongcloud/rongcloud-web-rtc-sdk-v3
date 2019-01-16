@@ -51,10 +51,10 @@ export default class PeerConnection extends EventEmitter {
     return pc.setLocalDescription(desc);
   }
 
-  setAnwser(desc) {
+  setAnwser(sdp) {
     let context = this;
     let { pc } = context;
-    return pc.setRemoteDescription(new RTCSessionDescription(desc));
+    return pc.setRemoteDescription(new RTCSessionDescription(sdp));
   }
 
   close() {
@@ -68,13 +68,18 @@ export default class PeerConnection extends EventEmitter {
     let { pc } = context;
     let { stream: { mediaStream } } = user;
     return pc.createOffer().then(desc => {
-      let newStreamId = context.getStreamId(user);
-      let { id: streamId } = mediaStream;
-      let { sdp } = desc;
-      sdp = context.renameStream(sdp, streamId, newStreamId);
-      utils.extend(desc, {
-        sdp
-      });
+      if(mediaStream){
+        let newStreamId = context.getStreamId(user);
+        let { id: streamId } = mediaStream;
+        let { sdp } = desc;
+        sdp = context.renameStream(sdp, {
+          name: streamId, 
+          newName: newStreamId
+        });
+        utils.extend(desc, {
+          sdp
+        });
+      }
       utils.extend(context, {
         desc
       });
@@ -82,9 +87,14 @@ export default class PeerConnection extends EventEmitter {
     });
   }
 
-  getOffer(){
-    let { desc } = this;
-    return desc;
+  getOffer(callback){
+    let { desc, pc } = this;
+    if(desc){
+      return callback(desc);
+    }
+    pc.createOffer().then(desc => {
+      callback(desc);
+    });
   }
 
   renameStream(sdp, data) {

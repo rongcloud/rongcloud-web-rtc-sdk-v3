@@ -4,7 +4,7 @@ import { request } from './request';
 import PeerConnection from './peerconnection';
 import { Path } from './path';
 import Message from './im';
-import { CommonEvent, CommandEvent } from './events';
+import { CommonEvent, CommandEvent, PeerConnectionEvent } from './events';
 import EventEmitter from '../../event-emitter';
 import { StreamType } from '../../enum';
 import { ErrorType } from '../../error';
@@ -43,18 +43,26 @@ function StreamHandler(im) {
   eventEmitter.on(CommandEvent.EXCHANGE, () => {
     let isNotifyReady = DataCache.get(DataCacheName.IS_NOTIFY_READY);
     if (isNotifyReady) {
-      let subs = getSubs();
-      let offer = pc.getOffer();
-      let token = im.getToken();
-      request.post({
-        path: Path.SUBSCRIBE,
-        body: {
-          token,
-          sdp: offer,
-          subcribeList: subs
-        }
+      pc.getOffer(offer => {
+        let subs = getSubs();
+        let token = im.getToken();
+        let roomId = im.getRoomId();
+        let url = utils.tplEngine(Path.SUBSCRIBE, {
+          roomId
+        });
+        request.post({
+          path: url,
+          body: {
+            token,
+            sdp: offer,
+            subcribeList: subs
+          }
+        });
       });
     }
+  });
+  pc.on(PeerConnectionEvent.ADDED, (error, stream) => {
+    im.emit(DownEvent.STREAM_PUBLISH, stream, error);
   });
   let getUId = (user, tpl) => {
     tpl = tpl || '{userId}_{tag}_{type}';
@@ -65,29 +73,11 @@ function StreamHandler(im) {
       type
     });
   };
-  let setPublish = (user) => {
-    /* 
-      publishMap = {
-        userId_tag: {
-          type,
-          mediaStream
-        }
-      }
-    */
-    let publishMap = DataCache.get(DataCacheName.PUBLISH_MAP) || {};
-    let { stream: { type, mediaStream } } = user;
-    let key = getUId(user, '{userId}_{tag}');
-    publishMap[key] = {
-      type,
-      mediaStream
-    };
-    DataCache.set(DataCacheName.PUBLISH_MAP, publishMap);
-    eventEmitter.emit(CommandEvent.EXCHANGE, user);
-  };
   let dispatchStreamEvent = (user, callback) => {
     let { id, uris } = user;
+    uris = JSON.parse(uris);
     utils.forEach(uris, (item) => {
-      let { tag, type, uri } = item;
+      let { tag, mediaType: type, uri } = item;
       let key = getUId({ id, stream: { tag, type } });
       callback(key, uri);
     });
@@ -124,6 +114,9 @@ function StreamHandler(im) {
     }
     im.getUsers(room).then((users) => {
       DataCache.set(DataCacheName.USERS, users);
+      if (utils.isEmpty(users)) {
+        DataCache.set(DataCacheName.IS_NOTIFY_READY, true);
+      }
       utils.forEach(users, (data, id) => {
         let { uris } = data;
         uris = JSON.parse(uris);
@@ -147,135 +140,186 @@ function StreamHandler(im) {
             }
           }
         });
-        utils.forEach(streams, (stream) => {
+        let len = streams.length;
+        utils.forEach(streams, (stream, index) => {
+          let isFinished = utils.isEqual(index, len - 1);
+          if (isFinished) {
+            DataCache.set(DataCacheName.IS_NOTIFY_READY, true);
+          }
           let { tag } = stream;
           im.emit(DownEvent.STREAM_READIY, {
             id,
             tag
           });
         });
-        DataCache.set(DataCacheName.IS_NOTIFY_READY, true);
         // Stream Ready 派发完毕后，检查是否可进行 SDP 交换
         eventEmitter.emit(CommandEvent.EXCHANGE);
       });
     });
   });
   let getBody = () => {
-    let token = im.getToken();
-    let offer = pc.getOffer();
-    let subs = getSubs();
-    return {
-      token,
-      sdp: offer,
-      subscribeList: subs
-    };
+    return utils.deferred(resolve => {
+      pc.getOffer((offer) => {
+        let token = im.getToken();
+        let subs = getSubs();
+        resolve({
+          token,
+          sdp: offer,
+          subscribeList: subs
+        });
+      });
+    });
   };
   let isCurrentUser = (user) => {
     let { id } = im.getUser();
     return utils.isEqual(user.id, id);
   };
   let publish = (user) => {
-    let { stream: { type, mediaStream, tag } } = user;
-    let desc = pc.addStream(user);
-    pc.setOffer(desc);
-    let body = getBody();
-    utils.extend(body, {
-      subscribeList: []
-    });
-    return request.post({
-      path: Path.PUBLISH,
-      body
-    }).then(result => {
-      setPublish(user);
-      let { url } = result;
-      tag = tag || '';
-      let { id: streamId } = mediaStream;
-      return im.sendMessage({
-        type: Message.PUBLISH,
-        content: {
-          url,
-          type,
-          tag,
-          streamId
-        }
+    let { stream: { tag } } = user;
+    return pc.addStream(user).then(desc => {
+      pc.setOffer(desc);
+      return getBody().then(body => {
+        let roomId = im.getRoomId();
+        let url = utils.tplEngine(Path.SUBSCRIBE, {
+          roomId
+        });
+        return request.post({
+          path: url,
+          body
+        }).then(result => {
+          let { publishList } = result;
+          let uris = utils.map(publishList, (stream) => {
+            let { msid } = stream;
+            let [, tag] = msid.split('_');
+            utils.extend(stream, {
+              tag
+            });
+            return stream;
+          });
+          uris = utils.toJSON(uris)
+          tag = tag || '';
+          return im.sendMessage({
+            type: Message.PUBLISH,
+            content: {
+              uris
+            }
+          });
+        });
       });
     });
   };
   let unpublish = (user) => {
     let { stream: { type, mediaStream, tag } } = user;
-    let desc = pc.removeStream(user);
-    pc.setOffer(desc);
-    let body = getBody();
-    return request.post({
-      path: Path.UNPUBLISH,
-      body
-    }).then(() => {
-      tag = tag || '';
-      let { id: streamId } = mediaStream;
-      return im.sendMessage({
-        type: Message.UNPUBLISH,
-        content: {
-          type,
-          tag,
-          streamId
-        }
+    return pc.removeStream(user).then(desc => {
+      pc.setOffer(desc);
+      return getBody().then(body => {
+        let roomId = im.getRoomId();
+        let url = utils.tplEngine(Path.UNPUBLISH, {
+          roomId
+        });
+        return request.post({
+          path: url,
+          body
+        }).then(() => {
+          tag = tag || '';
+          let { id: streamId } = mediaStream;
+          return im.sendMessage({
+            type: Message.UNPUBLISH,
+            content: {
+              type,
+              tag,
+              streamId
+            }
+          });
+        });
       });
     });
   };
   let open = (user) => {
     let { id: userId, stream: { tag, type } } = user;
     let subs = SubscribeCache.get(userId) || [];
-    let key = getUId(user);
-    let uri = DataCache.get(key);
-    subs.push({
-      uri,
-      type,
-      tag
+    let types = [StreamType.VIDEO, StreamType.AUDIO];
+    if (!utils.isEqual(type, StreamType.AUDIO_AND_VIDEO)) {
+      types = [type];
+    }
+    utils.forEach(types, (type) => {
+      let tUser = {
+        id: userId,
+        stream: {
+          tag,
+          type
+        }
+      };
+      let key = getUId(tUser);
+      let uri = DataCache.get(key);
+      subs.push({
+        uri,
+        type,
+        tag
+      });
     });
-    SubscribeCache.set(key, subs);
+    SubscribeCache.set(userId, subs);
     let isNotifyReady = DataCache.get(DataCacheName.IS_NOTIFY_READY);
     // 只添加缓存，最后，一次性处理
     if (!isNotifyReady) {
       return utils.Defer.resolve();
     }
-    let body = getBody();
-    return request.post({
-      path: Path.OPEN,
-      body
+    return getBody().then(body => {
+      let roomId = im.getRoomId();
+      let url = utils.tplEngine(Path.OPEN, {
+        roomId
+      });
+      return request.post({
+        path: url,
+        body
+      }).then(result => {
+        let { sdp } = result;
+        pc.setAnwser(sdp);
+      });
     });
   };
   let close = (user) => {
     let key = getUId(user);
     SubscribeCache.remove(key);
-    let body = getBody();
-    return request.post({
-      path: Path.OPEN,
-      body
+    return getBody().then(body => {
+      let roomId = im.getRoomId();
+      let url = utils.tplEngine(Path.CLOSE, {
+        roomId
+      });
+      return request.post({
+        path: url,
+        body
+      });
     });
   };
   let resize = (user) => {
     let { stream: { size }, id } = user;
-    let body = getBody();
-    let streams = SubscribeCache.get(id);
-    let streamId = pc.getStreamId(user);
-    let stream = utils.filter(streams, (stream) => {
-      let isVideo = stream.type === StreamType.VIDEO;
-      return streamId === stream.streamId && isVideo;
-    })[0];
-    if (!stream) {
-      return utils.Defer.reject(ErrorType.Inner.STREAM_NOT_EXIST);
-    }
-    let { uri } = stream;
-    utils.forEach(body.subscribeList, (stream) => {
-      if (stream.uri === uri) {
-        utils.extend(stream, {
-          simulcast: size
-        })
+    return getBody().then(body => {
+      let streams = SubscribeCache.get(id);
+      let streamId = pc.getStreamId(user);
+      let stream = utils.filter(streams, (stream) => {
+        let isVideo = stream.type === StreamType.VIDEO;
+        return streamId === stream.streamId && isVideo;
+      })[0];
+      if (!stream) {
+        return utils.Defer.reject(ErrorType.Inner.STREAM_NOT_EXIST);
       }
-    });
-    return request.post({
-      path: Path.RESIZE,
-      body
+      let { uri } = stream;
+      utils.forEach(body.subscribeList, (stream) => {
+        if (stream.uri === uri) {
+          utils.extend(stream, {
+            simulcast: size
+          })
+        }
+      });
+      let roomId = im.getRoomId();
+      let url = utils.tplEngine(Path.RESIZE, {
+        roomId
+      });
+      return request.post({
+        path: url,
+        body
+      });
     });
   };
   let get = (user) => {
@@ -311,12 +355,12 @@ function StreamHandler(im) {
     let handler = {
       current: () => {
         utils.deferred(() => {
-        /*
-          1、移除 AudioTrack
-          2、获取本地 SDP、设置本地 SDP
-          3、交换 SDP
-          4、发送 Modify:Resource 通知消息
-        */
+          /*
+            1、移除 AudioTrack
+            2、获取本地 SDP、设置本地 SDP
+            3、交换 SDP
+            4、发送 Modify:Resource 通知消息
+          */
         });
       },
       other: () => {

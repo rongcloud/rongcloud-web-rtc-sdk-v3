@@ -103,12 +103,12 @@ export class IM extends EventEmitter {
   joinRoom(room) {
     let context = this;
     let { im } = context;
+    utils.extend(context, {
+      room
+    });
     return utils.deferred((resolve, reject) => {
       im.getInstance().joinRTCRoom(room, {
         onSuccess: () => {
-          utils.extend(context, {
-            room
-          });
           context.emit(CommonEvent.JOINED, room);
           resolve();
         },
@@ -154,6 +154,10 @@ export class IM extends EventEmitter {
   getToken() {
     let { room: { user: { token } } } = this;
     return token;
+  }
+  getRoomId(){
+    let { room: { id } } = this;
+    return id;
   }
   getUser() {
     let { room: { user } } = this;

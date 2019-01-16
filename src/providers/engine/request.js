@@ -13,11 +13,11 @@ class Request {
     });
     return utils.request(url, {
       method: 'POST',
-      body: body,
+      body: JSON.stringify(body),
       headers: {
         'Content-Type': 'application/json'
       }
-    });
+    }).then(response => response.json());
   }
 }
 export const request = new Request();
