@@ -10,6 +10,9 @@ const Message = {
   UNPUBLISH: 'RTCUnpublishResourceMessage',
   MODIFY: 'RTCModifyResourceMessage'
 };
+const Timeout = {
+  TIME: 10 * 1000
+};
 const errorHandler = (code, reject) => {
   let error = ErrorType[code] || {
     code
@@ -19,6 +22,12 @@ const errorHandler = (code, reject) => {
 export class IM extends EventEmitter {
   constructor() {
     super();
+    let timer = new utils.Timer({
+      timeout: Timeout.TIME
+    });
+    utils.extend(this, {
+      timer
+    });
   }
   setOption(option) {
     let context = this;
@@ -102,7 +111,7 @@ export class IM extends EventEmitter {
   }
   joinRoom(room) {
     let context = this;
-    let { im } = context;
+    let { im, timer } = context;
     utils.extend(context, {
       room
     });
@@ -110,6 +119,9 @@ export class IM extends EventEmitter {
       im.getInstance().joinRTCRoom(room, {
         onSuccess: () => {
           context.emit(CommonEvent.JOINED, room);
+          timer.resume(() => {
+            im.getInstance().RTCPing(room);
+          });
           resolve();
         },
         onError: (code) => {
@@ -119,7 +131,8 @@ export class IM extends EventEmitter {
     });
   }
   leaveRoom() {
-    let { im, room } = this;
+    let { im, room, timer } = this;
+    timer.pause();
     return utils.deferred((resolve, reject) => {
       im.getInstance().quitRTCRoom(room, {
         onSuccess: resolve,

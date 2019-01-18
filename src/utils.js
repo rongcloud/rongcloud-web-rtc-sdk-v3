@@ -1,4 +1,4 @@
-const noop = () => {};
+const noop = () => { };
 const isObject = (obj) => {
   return Object.prototype.toString.call(obj) === '[object Object]';
 };
@@ -93,7 +93,7 @@ const isContain = (str, keyword) => {
   return str.indexOf(keyword) > -1;
 };
 const Cache = (cache) => {
-  if(!isObject(cache)){
+  if (!isObject(cache)) {
     cache = {};
   }
   let set = (key, value) => {
@@ -107,7 +107,7 @@ const Cache = (cache) => {
   };
   let getKeys = () => {
     let keys = [];
-    for(let key in cache){
+    for (let key in cache) {
       keys.push(key);
     }
     return keys;
@@ -148,12 +148,12 @@ const isEqual = (source, target) => {
 };
 const isEmpty = (obj) => {
   let result = true;
-  if(isObject(obj)){
+  if (isObject(obj)) {
     forEach(obj, () => {
       result = false;
     });
   }
-  if(isString(obj) || isArray(obj)){
+  if (isString(obj) || isArray(obj)) {
     result = obj.length === 0;
   }
   return result;
@@ -161,7 +161,46 @@ const isEmpty = (obj) => {
 const toJSON = (value) => {
   return JSON.stringify(value);
 }
+function Timer(_option) {
+  _option = _option || {};
+  let option = {
+    timeout: 0,
+    // interval | timeout
+    type: 'interval'
+  };
+  extend(option, _option);
+  let timer = 0;
+  let { timeout, type } = option;
+  let timers = {
+    resume: {
+      interval: (callback) => {
+        return setInterval(callback, timeout);
+      },
+      timeout: (callback) => {
+        return setTimeout(callback, timeout);
+      }
+    },
+    pause: {
+      interval: () => {
+        return clearInterval(timer);
+      },
+      timeout: () => {
+        return clearTimeout(timer);
+      }
+    }
+  };
+  this.resume = function (callback) {
+    callback = callback || noop;
+    let { resume } = timers;
+    timer = resume[type](callback);
+  };
+  this.pause = function () {
+    let { pause } = timers;
+    timer = pause[type]();
+  }
+}
 export default {
+  Timer,
   isUndefined,
   isBoolean,
   isString,
