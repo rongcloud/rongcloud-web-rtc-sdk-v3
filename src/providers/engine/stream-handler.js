@@ -8,15 +8,19 @@ import { CommonEvent, CommandEvent, PeerConnectionEvent } from './events';
 import EventEmitter from '../../event-emitter';
 import { StreamType } from '../../enum';
 import { ErrorType } from '../../error';
+
+const TrackState = {
+  ENABLE: 1,
+  DISBALE: 2
+};
 function StreamHandler(im) {
   let DataCache = utils.Cache();
   let DataCacheName = {
     USERS: 'room_users',
     // 全部通知后一次性交换 SDP
-    IS_NOTIFY_READY: 'is_notify_ready',
-    // 已发布资源列表
-    PUBLISH_MAP: 'publish_map',
+    IS_NOTIFY_READY: 'is_notify_ready'
   };
+  let PubResourceCache = utils.Cache();
   /* 
     缓存已订阅 MediaStream
     userId_type: mediaStream
@@ -40,6 +44,36 @@ function StreamHandler(im) {
     });
     return subs;
   };
+  let getUris = (publishList) => {
+    return utils.map(publishList, (stream) => {
+      let { msid } = stream;
+      let [, tag] = msid.split('_');
+      utils.extend(stream, {
+        tag,
+        state: TrackState.ENABLE
+      });
+      return stream;
+    });
+  };
+  let exchangeHandler = (result, user, type) => {
+    let { publishList, sdp } = result;
+    let uris = getUris(publishList);
+    PubResourceCache.set(user.id, uris);
+    pc.setAnwser(sdp);
+    switch (type) {
+      case Message.PUBLISH:
+      case Message.UNPUBLISH:
+        uris = utils.toJSON(uris);
+        im.sendMessage({
+          type,
+          content: {
+            uris
+          }
+        });
+        break;
+    }
+    return utils.Defer.resolve();
+  };
   eventEmitter.on(CommandEvent.EXCHANGE, () => {
     let isNotifyReady = DataCache.get(DataCacheName.IS_NOTIFY_READY);
     if (isNotifyReady) {
@@ -57,11 +91,16 @@ function StreamHandler(im) {
             sdp: offer,
             subcribeList: subs
           }
+        }).then(result => {
+          let user = im.getUser();
+          exchangeHandler(result, user);
         });
       });
     }
   });
   pc.on(PeerConnectionEvent.ADDED, (error, stream) => {
+    let { id } = stream;
+    StreamCache.set(id, stream);
     im.emit(DownEvent.STREAM_PUBLISH, stream, error);
   });
   let getUId = (user, tpl) => {
@@ -175,7 +214,6 @@ function StreamHandler(im) {
     return utils.isEqual(user.id, id);
   };
   let publish = (user) => {
-    let { stream: { tag } } = user;
     return pc.addStream(user).then(desc => {
       pc.setOffer(desc);
       return getBody().then(body => {
@@ -187,29 +225,12 @@ function StreamHandler(im) {
           path: url,
           body
         }).then(result => {
-          let { publishList } = result;
-          let uris = utils.map(publishList, (stream) => {
-            let { msid } = stream;
-            let [, tag] = msid.split('_');
-            utils.extend(stream, {
-              tag
-            });
-            return stream;
-          });
-          uris = utils.toJSON(uris)
-          tag = tag || '';
-          return im.sendMessage({
-            type: Message.PUBLISH,
-            content: {
-              uris
-            }
-          });
+          return exchangeHandler(result, user, Message.PUBLISH);
         });
       });
     });
   };
   let unpublish = (user) => {
-    let { stream: { type, mediaStream, tag } } = user;
     return pc.removeStream(user).then(desc => {
       pc.setOffer(desc);
       return getBody().then(body => {
@@ -220,17 +241,8 @@ function StreamHandler(im) {
         return request.post({
           path: url,
           body
-        }).then(() => {
-          tag = tag || '';
-          let { id: streamId } = mediaStream;
-          return im.sendMessage({
-            type: Message.UNPUBLISH,
-            content: {
-              type,
-              tag,
-              streamId
-            }
-          });
+        }).then(result => {
+          return exchangeHandler(result, user, Message.UNPUBLISH);
         });
       });
     });
@@ -328,81 +340,74 @@ function StreamHandler(im) {
       resolve(StreamCache.get(streamId));
     });
   };
-  let mute = (user) => {
-    let handler = {
-      current: () => {
-        utils.deferred(() => {
-          /* 
-            1、移除 AudioTrack
-            2、获取本地 SDP、设置本地 SDP
-            3、交换 SDP
-            4、发送 Modify:Resource 通知消息
-          */
-        });
-      },
-      other: () => {
-        utils.deferred(() => {
-          /* 
-            1、修改订阅关系
-          */
+  let trackHandler = (user, type, isEnable) => {
+    let streamId = pc.getStreamId(user);
+    let stream = StreamCache.get(streamId);
+    if (stream) {
+      type = utils.isEqual(type, StreamType.AUDIO) ? 'Audio' : 'Video';
+      let tpl = 'get{type}Tracks';
+      type = utils.tplEngine(tpl, {
+        type
+      });
+      let tracks = stream[type]();
+      utils.forEach(tracks, (track) => {
+        track.enable = isEnable;
+      });
+    }
+  };
+
+  let getFitUris = (user, type, state) => {
+    let streamId = pc.getStreamId(user);
+    let uris = PubResourceCache.get(streamId) || [];
+    let { id, stream: { tag } } = user;
+    let targetId = [id, tag].join('_');
+    uris = utils.filter(uris, (stream) => {
+      let { streamId, mediaType } = stream;
+      let isSameStream = utils.isEqual(targetId, streamId),
+        isSameType = utils.isEqual(mediaType, type);
+      let isFit = !isSameStream && !isSameType;
+      // state 默认为 TrackState.ENABLE，为 DISABLE 未发布资源
+      if (isFit) {
+        utils.extend(stream, {
+          state
         });
       }
-    };
-    let type = isCurrentUser(user) ? 'current' : 'other';
-    return handler[type]();
+      return isFit;
+    });
+    return uris;
+  };
+  let sendModify = (user, type, state) => {
+    let uris = getFitUris(user, type, state);
+    // uris 为空表示没有发布资源，不需要修改
+    if(!utils.isEmpty(uris)){
+      im.sendMessage({
+        type: Message.MODIFY,
+        content: {
+          uris
+        }
+      });
+    }
+    return utils.Defer.resolve();
+  };
+  let modifyTrack = (user, type, state) => {
+    let isEnable = utils.isEqual(state, TrackState.ENABLE);
+    trackHandler(user, type, isEnable);
+    if(isCurrentUser(user)){
+      sendModify(user, type, state);
+    }
+    return utils.Defer.resolve();
+  };
+  let mute = (user) => {
+    return modifyTrack(user, StreamType.AUDIO, TrackState.DISBALE);
   }
   let unmute = (user) => {
-    let handler = {
-      current: () => {
-        utils.deferred(() => {
-          /*
-            1、移除 AudioTrack
-            2、获取本地 SDP、设置本地 SDP
-            3、交换 SDP
-            4、发送 Modify:Resource 通知消息
-          */
-        });
-      },
-      other: () => {
-        utils.deferred(() => {
-
-        });
-      }
-    };
-    let type = isCurrentUser(user) ? 'current' : 'other';
-    return handler[type]();
+    return modifyTrack(user, StreamType.AUDIO, TrackState.ENABLE);
   };
   let disable = (user) => {
-    let handler = {
-      current: () => {
-        utils.deferred(() => {
-
-        });
-      },
-      other: () => {
-        utils.deferred(() => {
-
-        });
-      }
-    };
-    let type = isCurrentUser(user) ? 'current' : 'other';
-    return handler[type]();
+    return modifyTrack(user, StreamType.VIDEO, TrackState.DISBALE);
   };
   let enable = (user) => {
-    let handler = {
-      current: () => {
-        utils.deferred(() => {
-
-        });
-      },
-      other: () => {
-        utils.deferred(() => {
-
-        });
-      }
-    };
-    let type = isCurrentUser(user) ? 'current' : 'other';
-    return handler[type]();
+    return modifyTrack(user, StreamType.VIDEO, TrackState.ENABLE);
   };
   let dispatch = (event, args) => {
     switch (event) {
