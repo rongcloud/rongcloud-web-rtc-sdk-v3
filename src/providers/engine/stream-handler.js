@@ -310,15 +310,15 @@ function StreamHandler(im) {
       let streams = SubscribeCache.get(id);
       let streamId = pc.getStreamId(user);
       let stream = utils.filter(streams, (stream) => {
-        let isVideo = stream.type === StreamType.VIDEO;
-        return streamId === stream.streamId && isVideo;
+        let isVideo = utils.isEqual(stream.type, StreamType.VIDEO);
+        return utils.isEqual(streamId, stream.streamId) && isVideo;
       })[0];
       if (!stream) {
         return utils.Defer.reject(ErrorType.Inner.STREAM_NOT_EXIST);
       }
       let { uri } = stream;
       utils.forEach(body.subscribeList, (stream) => {
-        if (stream.uri === uri) {
+        if (utils.isEqual(stream.uri, uri)) {
           utils.extend(stream, {
             simulcast: size
           })
@@ -379,7 +379,7 @@ function StreamHandler(im) {
   let sendModify = (user, type, state) => {
     let uris = getFitUris(user, type, state);
     // uris 为空表示没有发布资源，不需要修改
-    if(!utils.isEmpty(uris)){
+    if (!utils.isEmpty(uris)) {
       im.sendMessage({
         type: Message.MODIFY,
         content: {
@@ -392,7 +392,7 @@ function StreamHandler(im) {
   let modifyTrack = (user, type, state) => {
     let isEnable = utils.isEqual(state, TrackState.ENABLE);
     trackHandler(user, type, isEnable);
-    if(isCurrentUser(user)){
+    if (isCurrentUser(user)) {
       sendModify(user, type, state);
     }
     return utils.Defer.resolve();
