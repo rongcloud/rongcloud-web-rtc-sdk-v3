@@ -26,14 +26,14 @@ export default class Client extends EventEmitter {
       stream: StreamHandler(im)
     };
     let context = this;
-    utils.extend(context, {
-      im,
-      RequestHandler
-    });
     let { RongIMLib } = option;
+    let destroyed = false;
     utils.extend(context, {
       RongIMLib,
-      option
+      option,
+      destroyed,
+      im,
+      RequestHandler
     });
     let bindEvent = (event) => {
       let { name } = event;
@@ -99,12 +99,27 @@ export default class Client extends EventEmitter {
     request.setOption(option);
   }
   exec(params) {
-    let { im } = this;
+    let context = this;
+    let { im } = context;
+    if (context.isDestroyed()) {
+      return utils.Defer.reject(ErrorType.Inner.INSTANCE_IS_DESTROYED);
+    }
     if (!im.isReady()) {
       return utils.Defer.reject(ErrorType.Inner.IM_NOT_CONNECTED);
     }
     let { type, args, event } = params;
     let { RequestHandler } = this;
     return RequestHandler[type].dispatch(event, args);
+  }
+  isDestroyed() {
+    return this.destroyed;
+  }
+  destroy() {
+    let context = this;
+    utils.extend(context, {
+      destroyed: true
+    });
+    context.teardown();
+    context.im.teardown();
   }
 }

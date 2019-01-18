@@ -27,7 +27,8 @@ export default class RongRTC {
       Stream,
       StreamType,
       StreamSize,
-      option
+      option,
+      client
     });
     let { created, mounted, unmounted } = option;
     created();
@@ -38,9 +39,9 @@ export default class RongRTC {
       unmounted();
     });
   }
-  destory() {
-    let { option: { destroyed } } = this;
+  destroy() {
+    let { option: { destroyed }, client } = this;
     destroyed();
-    //TODO: destroy
+    client.destroy();
   }
 }

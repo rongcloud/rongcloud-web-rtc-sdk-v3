@@ -3,7 +3,7 @@ let getErrors = () => {
   let errors = [{
     code: 10000,
     name: 'INSTANCE_IS_DESTROYED',
-    msg: 'RongRTC 实例已销毁，请创建实例并绑定事件后再调用实例方法'
+    msg: 'RongRTC 实例已销毁，请重新创建实例'
   },
   {
     code: 10001,
