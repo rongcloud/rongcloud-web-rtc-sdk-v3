@@ -7,7 +7,9 @@ export const DownEvent = {
   STREAM_UNPUBLISH: 'stream_unpublish',
   STREAM_CHANGED: 'stream_changed',
   
-  RTC_ERROR: 'rtc_error'
+  RTC_ERROR: 'rtc_error',
+  RTC_MOUNTED: 'rtc_mounted',
+  RTC_UNMOUNTED: 'rtc_unmounted'
 };
 
 export const UpEvent = {

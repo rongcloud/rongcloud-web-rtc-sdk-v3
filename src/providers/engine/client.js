@@ -8,36 +8,33 @@ import RTCAdapter from './3rd/adapter';
 import { ErrorType } from '../../error';
 import { RoomEvents } from '../../modules/events';
 import { DownEvent } from '../../event-name';
+import { CommonEvent } from './events';
 
 export default class Client extends EventEmitter {
-  constructor() {
-    super();
-    RTCAdapter.init();
-    let im = new IM();
-    let RequestHandler = {
-      room: RoomHandler(im),
-      stream: StreamHandler(im)
-    };
-    utils.extend(this, {
-      im,
-      RequestHandler
-    });
-  }
   /* 
     let option = {
       url: 'mediaServer path',
       RongIMLib
     };
   */
-  setOption(option) {
+  constructor(option) {
+    super();
+    RTCAdapter.init();
+    let im = new IM(option);
+    let RequestHandler = {
+      room: RoomHandler(im),
+      stream: StreamHandler(im)
+    };
     let context = this;
-    let { im } = context;
+    utils.extend(context, {
+      im,
+      RequestHandler
+    });
     let { RongIMLib } = option;
     utils.extend(context, {
       RongIMLib,
       option
     });
-    im.setOption(option);
     let bindEvent = (event) => {
       let { name } = event;
       im.on(name, (error, user) => {
@@ -67,6 +64,12 @@ export default class Client extends EventEmitter {
         });
       });
     };
+    im.on(CommonEvent.JOINED, () => {
+      context.emit(DownEvent.RTC_MOUNTED);
+    });
+    im.on(CommonEvent.LEFT, () => {
+      context.emit(DownEvent.RTC_UNMOUNTED);
+    });
     im.on(DownEvent.STREAM_READIY, (error, user) => {
       dispatchStreamEvent(user, (user) => {
         context.emit(DownEvent.STREAM_READIY, user, error);

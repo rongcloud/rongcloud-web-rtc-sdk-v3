@@ -5,7 +5,8 @@ export const PeerConnectionEvent = {
 };
 
 export const CommonEvent = {
-  JOINED: 'common_joined'
+  JOINED: 'common_joined',
+  LEFT: 'common_left'
 };
 
 export const CommandEvent = {

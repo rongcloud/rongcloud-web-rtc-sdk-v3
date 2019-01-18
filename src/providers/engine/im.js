@@ -20,17 +20,15 @@ const errorHandler = (code, reject) => {
   reject(error);
 };
 export class IM extends EventEmitter {
-  constructor() {
+  constructor(option) {
     super();
     let timer = new utils.Timer({
       timeout: Timeout.TIME
     });
-    utils.extend(this, {
+    let context = this;
+    utils.extend(context, {
       timer
     });
-  }
-  setOption(option) {
-    let context = this;
     let { RongIMLib: { RongIMClient: im }, RongIMLib } = option;
     let connectState = -1;
     utils.extend(context, {
@@ -131,11 +129,15 @@ export class IM extends EventEmitter {
     });
   }
   leaveRoom() {
-    let { im, room, timer } = this;
+    let context = this;
+    let { im, room, timer } = context;
     timer.pause();
     return utils.deferred((resolve, reject) => {
       im.getInstance().quitRTCRoom(room, {
-        onSuccess: resolve,
+        onSuccess: () => {
+          context.emit(CommonEvent.LEFT, room);
+          resolve();
+        },
         onError: (code) => {
           return errorHandler(code, reject);
         }
@@ -168,7 +170,7 @@ export class IM extends EventEmitter {
     let { room: { user: { token } } } = this;
     return token;
   }
-  getRoomId(){
+  getRoomId() {
     let { room: { id } } = this;
     return id;
   }
