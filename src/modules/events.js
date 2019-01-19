@@ -9,7 +9,7 @@ export const RoomEvents = [{
 }];
 
 export const StreamEvents = [{
-  name: DownEvent.STREAM_READIY,
+  name: DownEvent.STREAM_READY,
   type: 'readied'
 },{
   name: DownEvent.STREAM_PUBLISH,

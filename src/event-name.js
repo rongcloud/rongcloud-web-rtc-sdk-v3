@@ -2,7 +2,7 @@ export const DownEvent = {
   ROOM_USER_JOINED: 'room_user_joined',
   ROOM_USER_LEFT: 'room_user_left',
 
-  STREAM_READIY: 'stream_ready',
+  STREAM_READY: 'stream_ready',
   STREAM_PUBLISH: 'stream_publish',
   STREAM_UNPUBLISH: 'stream_unpublish',
   STREAM_CHANGED: 'stream_changed',

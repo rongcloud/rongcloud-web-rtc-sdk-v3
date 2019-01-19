@@ -42,48 +42,20 @@ export default class Client extends EventEmitter {
       });
     };
     utils.forEach(RoomEvents, bindEvent);
-    let dispatchStreamEvent = (user, callback) => {
-      let { id, uris } = user;
-      uris = JSON.parse(uris);
-      let streams = [user];
-      if (uris) {
-        streams = utils.uniq(uris, (target) => {
-          let { streamId, tag } = target;
-          return {
-            key: [streamId, tag].join('_'),
-            value: {
-              tag
-            }
-          }
-        });
-      }
-      utils.forEach(streams, (stream) => {
-        callback({
-          id,
-          stream
-        });
-      });
-    };
     im.on(CommonEvent.JOINED, () => {
       context.emit(DownEvent.RTC_MOUNTED);
     });
     im.on(CommonEvent.LEFT, () => {
       context.emit(DownEvent.RTC_UNMOUNTED);
     });
-    im.on(DownEvent.STREAM_READIY, (error, user) => {
-      dispatchStreamEvent(user, (user) => {
-        context.emit(DownEvent.STREAM_READIY, user, error);
-      });
+    im.on(DownEvent.STREAM_READY, (error, { id, stream: { tag } }) => {
+      context.emit(DownEvent.STREAM_READY, { id, stream: { tag } }, error);
     });
     im.on(DownEvent.STREAM_UNPUBLISH, (error, user) => {
-      dispatchStreamEvent(user, (user) => {
-        context.emit(DownEvent.STREAM_UNPUBLISH, user, error);
-      });
+      context.emit(DownEvent.STREAM_UNPUBLISH, user, error);
     });
     im.on(DownEvent.STREAM_CHANGED, (error, user) => {
-      dispatchStreamEvent(user, (user) => {
-        context.emit(DownEvent.STREAM_CHANGED, user, error);
-      });
+      context.emit(DownEvent.STREAM_CHANGED, user, error);
     });
     im.on(DownEvent.STREAM_PUBLISH, (error, stream) => {
       let { id: streamId } = stream;

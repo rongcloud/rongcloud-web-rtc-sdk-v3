@@ -46,6 +46,29 @@ export class IM extends EventEmitter {
         });
       }
     });
+    let dispatchStreamEvent = (user, callback) => {
+      let { id, uris } = user;
+      uris = JSON.parse(uris);
+      let streams = [user];
+      if (uris) {
+        streams = utils.uniq(uris, (target) => {
+          let { streamId, tag } = target;
+          return {
+            key: [streamId, tag].join('_'),
+            value: {
+              tag,
+              uris
+            }
+          }
+        });
+      }
+      utils.forEach(streams, (stream) => {
+        callback({
+          id,
+          stream
+        });
+      });
+    };
     im.messageWatch((message) => {
       let { messageType: type, senderUserId: id, content: { uris } } = message;
       let user = { id };
@@ -58,15 +81,21 @@ export class IM extends EventEmitter {
           break;
         case Message.PUBLISH:
           user = { id, uris };
-          context.emit(DownEvent.STREAM_READIY, user);
+          dispatchStreamEvent(user, (user) => {
+            context.emit(DownEvent.STREAM_READY, user);
+          });
           break;
         case Message.UNPUBLISH:
           user = { id, uris };
-          context.emit(DownEvent.STREAM_UNPUBLISH, user);
+          dispatchStreamEvent(user, (user) => {
+            context.emit(DownEvent.STREAM_UNPUBLISH, user);
+          });
           break;
         case Message.MODIFY:
           user = { id, uris };
-          context.emit(DownEvent.STREAM_CHANGED, user);
+          dispatchStreamEvent(user, (user) => {
+            context.emit(DownEvent.STREAM_CHANGED, user);
+          });
           break;
         default:
           utils.Logger.log(`MessageWatch: unkown message type ${type}`);
@@ -177,6 +206,32 @@ export class IM extends EventEmitter {
   getUser() {
     let { room: { user } } = this;
     return user;
+  }
+  setUserInfo(key, value) {
+    let { room, im } = this;
+    value = utils.toJSON(value);
+    let info = {
+      key,
+      value
+    };
+    return utils.deferred((resolve, reject) => {
+      im.getInstance().setRTCUserInfo(room, info, {
+        onSuccess: resolve,
+        onError: reject
+      });
+    });
+  }
+  removeUserInfo(keys) {
+    let { room, im } = this;
+    let info = {
+      keys
+    };
+    return utils.deferred((resolve, reject) => {
+      im.getInstance().removeRTCUserInfo(room, info, {
+        onSuccess: resolve,
+        onError: reject
+      });
+    });
   }
   getExistUsers() {
     let { im, room } = this;

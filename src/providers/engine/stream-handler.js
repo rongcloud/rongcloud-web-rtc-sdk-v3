@@ -113,8 +113,7 @@ function StreamHandler(im) {
     });
   };
   let dispatchStreamEvent = (user, callback) => {
-    let { id, uris } = user;
-    uris = JSON.parse(uris);
+    let { id, stream: { uris } } = user;
     utils.forEach(uris, (item) => {
       let { tag, mediaType: type, uri } = item;
       let key = getUId({ id, stream: { tag, type } });
@@ -122,7 +121,7 @@ function StreamHandler(im) {
     });
   };
   /* 已在房间，再有新人发布资源触发此事件 */
-  im.on(DownEvent.STREAM_READIY, (error, user) => {
+  im.on(DownEvent.STREAM_READY, (error, user) => {
     if (error) {
       throw error;
     }
@@ -186,9 +185,12 @@ function StreamHandler(im) {
             DataCache.set(DataCacheName.IS_NOTIFY_READY, true);
           }
           let { tag } = stream;
-          im.emit(DownEvent.STREAM_READIY, {
+          im.emit(DownEvent.STREAM_READY, {
             id,
-            tag
+            stream: {
+              tag,
+              uris
+            }
           });
         });
         // Stream Ready 派发完毕后，检查是否可进行 SDP 交换
@@ -213,6 +215,16 @@ function StreamHandler(im) {
     let { id } = im.getUser();
     return utils.isEqual(user.id, id);
   };
+  let User = {
+    set: (key, data) => {
+      let { publishList } = data;
+      let uris = getUris(publishList);
+      return im.setUserInfo(key, uris).then(() => {
+        return data;
+      });
+    },
+    SET_USERINFO: 'uris'
+  };
   let publish = (user) => {
     return pc.addStream(user).then(desc => {
       pc.setOffer(desc);
@@ -224,6 +236,8 @@ function StreamHandler(im) {
         return request.post({
           path: url,
           body
+        }).then(result => {
+          return User.set(User.SET_USERINFO, result);
         }).then(result => {
           return exchangeHandler(result, user, Message.PUBLISH);
         });
@@ -241,6 +255,8 @@ function StreamHandler(im) {
         return request.post({
           path: url,
           body
+        }).then((result) => {
+          return User.set(User.SET_USERINFO, result);
         }).then(result => {
           return exchangeHandler(result, user, Message.UNPUBLISH);
         });
