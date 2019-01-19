@@ -48,19 +48,25 @@ export default class Client extends EventEmitter {
     im.on(CommonEvent.LEFT, () => {
       context.emit(DownEvent.RTC_UNMOUNTED);
     });
-    im.on(DownEvent.STREAM_READY, (error, { id, stream: { tag } }) => {
-      context.emit(DownEvent.STREAM_READY, { id, stream: { tag } }, error);
+    im.on(DownEvent.STREAM_PUBLISHED, (error, { id, stream: { tag } }) => {
+      context.emit(DownEvent.STREAM_PUBLISHED, { id, stream: { tag } }, error);
     });
-    im.on(DownEvent.STREAM_UNPUBLISH, (error, user) => {
-      context.emit(DownEvent.STREAM_UNPUBLISH, user, error);
+    im.on(DownEvent.STREAM_UNPUBLISHED, (error, user) => {
+      context.emit(DownEvent.STREAM_UNPUBLISHED, user, error);
     });
-    im.on(DownEvent.STREAM_CHANGED, (error, user) => {
-      context.emit(DownEvent.STREAM_CHANGED, user, error);
+    im.on(DownEvent.STREAM_DISABLED, (error, user) => {
+      context.emit(DownEvent.STREAM_DISABLED, user, error);
     });
-    im.on(DownEvent.STREAM_PUBLISH, (error, stream) => {
+    im.on(DownEvent.STREAM_ENABLED, (error, user) => {
+      context.emit(DownEvent.STREAM_ENABLED, user, error);
+    });
+    im.on(DownEvent.STREAM_MUTED, (error, user) => {
+      context.emit(DownEvent.STREAM_MUTED, user, error);
+    });
+    im.on(DownEvent.STREAM_SUBSCRIBED, (error, stream) => {
       let { id: streamId } = stream;
       let [userId, tag] = streamId.split('_');
-      context.emit(DownEvent.STREAM_PUBLISH, {
+      context.emit(DownEvent.STREAM_SUBSCRIBED, {
         id: userId,
         stream: {
           tag,

@@ -82,7 +82,7 @@ export class IM extends EventEmitter {
         case Message.PUBLISH:
           user = { id, uris };
           dispatchStreamEvent(user, (user) => {
-            context.emit(DownEvent.STREAM_READY, user);
+            context.emit(DownEvent.STREAM_PUBLISHED, user);
           });
           break;
         case Message.UNPUBLISH:
@@ -94,7 +94,8 @@ export class IM extends EventEmitter {
         case Message.MODIFY:
           user = { id, uris };
           dispatchStreamEvent(user, (user) => {
-            context.emit(DownEvent.STREAM_CHANGED, user);
+            // TODO: 根据 state 和 type 用来判断触发事件 MUTED、UNMUTED、DISABLED、ENABLED
+            context.emit(DownEvent.STREAM_MUTED, user);
           });
           break;
         default:

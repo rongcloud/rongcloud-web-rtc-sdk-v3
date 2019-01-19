@@ -101,7 +101,7 @@ function StreamHandler(im) {
   pc.on(PeerConnectionEvent.ADDED, (error, stream) => {
     let { id } = stream;
     StreamCache.set(id, stream);
-    im.emit(DownEvent.STREAM_PUBLISH, stream, error);
+    im.emit(DownEvent.STREAM_SUBSCRIBED, stream, error);
   });
   let getUId = (user, tpl) => {
     tpl = tpl || '{userId}_{tag}_{type}';
@@ -121,7 +121,7 @@ function StreamHandler(im) {
     });
   };
   /* 已在房间，再有新人发布资源触发此事件 */
-  im.on(DownEvent.STREAM_READY, (error, user) => {
+  im.on(DownEvent.STREAM_PUBLISHED, (error, user) => {
     if (error) {
       throw error;
     }
@@ -185,7 +185,7 @@ function StreamHandler(im) {
             DataCache.set(DataCacheName.IS_NOTIFY_READY, true);
           }
           let { tag } = stream;
-          im.emit(DownEvent.STREAM_READY, {
+          im.emit(DownEvent.STREAM_PUBLISHED, {
             id,
             stream: {
               tag,

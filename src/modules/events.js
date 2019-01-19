@@ -9,17 +9,29 @@ export const RoomEvents = [{
 }];
 
 export const StreamEvents = [{
-  name: DownEvent.STREAM_READY,
-  type: 'readied'
-},{
   name: DownEvent.STREAM_PUBLISH,
-  type: 'opened'
+  type: 'published'
 },{
   name: DownEvent.STREAM_UNPUBLISH,
-  type: 'closed'
+  type: 'unpublished'
 },{
-  name: DownEvent.STREAM_CHANGED,
-  type: 'changed'
+  name: DownEvent.STREAM_SUBSCRIBED,
+  type: 'subscribed'
+},{
+  name: DownEvent.STREAM_UNSUBSCRIBED,
+  type: 'unsubscribed'
+},{
+  name: DownEvent.STREAM_DISABLED,
+  type: 'disabled'
+},{
+  name: DownEvent.STREAM_ENABLED,
+  type: 'enabled'
+},{
+  name: DownEvent.STREAM_MUTED,
+  type: 'muted'
+},{
+  name: DownEvent.RTC_UNMOUNTED,
+  type: 'unmuted'
 }];
 
 export const ErrorEvents = [{
