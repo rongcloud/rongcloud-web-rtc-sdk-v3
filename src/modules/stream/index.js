@@ -49,7 +49,7 @@ export default class Stream {
       args: [user]
     });
   }
-  open(user) {
+  subscribe(user) {
     let { isIllegal, name } = check(user, ['id', 'stream.tag', 'stream.type']);
     if (isIllegal) {
       let error = getError(name);
@@ -57,12 +57,12 @@ export default class Stream {
     }
     let { client } = this;
     return client.exec({
-      event: UpEvent.STREAM_OPEN,
+      event: UpEvent.STREAM_SUBSCRIBE,
       type: 'stream',
       args: [user]
     });
   }
-  close(user) {
+  unsubscribe(user) {
     let { isIllegal, name } = check(user, ['id', 'stream.tag']);
     if (isIllegal) {
       let error = getError(name);
@@ -70,7 +70,7 @@ export default class Stream {
     }
     let { client } = this;
     return client.exec({
-      event: UpEvent.STREAM_CLOSE,
+      event: UpEvent.STREAM_UNSUBSCRIBE,
       type: 'stream',
       args: [user]
     });

@@ -23,8 +23,8 @@ export const UpEvent = {
 
   STREAM_PUBLISH: 'stream_publish',
   STREAM_UNPUBLISH: 'stream_UNPUBLISH',
-  STREAM_OPEN: 'stream_open',
-  STREAM_CLOSE: 'stream_close',
+  STREAM_SUBSCRIBE: 'stream_subscribe',
+  STREAM_UNSUBSCRIBE: 'stream_unsubscribe',
   STREAM_RESIZE: 'stream_resize',
   STREAM_GET: 'stream_get',
 
