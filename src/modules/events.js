@@ -15,12 +15,6 @@ export const StreamEvents = [{
   name: DownEvent.STREAM_UNPUBLISH,
   type: 'unpublished'
 },{
-  name: DownEvent.STREAM_SUBSCRIBED,
-  type: 'subscribed'
-},{
-  name: DownEvent.STREAM_UNSUBSCRIBED,
-  type: 'unsubscribed'
-},{
   name: DownEvent.STREAM_DISABLED,
   type: 'disabled'
 },{

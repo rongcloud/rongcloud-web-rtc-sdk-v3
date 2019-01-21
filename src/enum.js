@@ -1,4 +1,5 @@
 export const StreamType = {
+  NODE: 0,
   AUDIO: 1,
   VIDEO: 2,
   AUDIO_AND_VIDEO: 3

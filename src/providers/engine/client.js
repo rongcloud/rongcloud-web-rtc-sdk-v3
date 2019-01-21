@@ -63,17 +63,6 @@ export default class Client extends EventEmitter {
     im.on(DownEvent.STREAM_MUTED, (error, user) => {
       context.emit(DownEvent.STREAM_MUTED, user, error);
     });
-    im.on(DownEvent.STREAM_SUBSCRIBED, (error, stream) => {
-      let { id: streamId } = stream;
-      let [userId, tag] = streamId.split('_');
-      context.emit(DownEvent.STREAM_SUBSCRIBED, {
-        id: userId,
-        stream: {
-          tag,
-          mediaStream: stream
-        }
-      }, error);
-    });
     request.setOption(option);
   }
   exec(params) {

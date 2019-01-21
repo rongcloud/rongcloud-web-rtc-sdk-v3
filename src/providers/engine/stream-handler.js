@@ -20,6 +20,7 @@ function StreamHandler(im) {
     // 全部通知后一次性交换 SDP
     IS_NOTIFY_READY: 'is_notify_ready'
   };
+  let SubPromiseCache = utils.Cache();
   let PubResourceCache = utils.Cache();
   /* 
     缓存已订阅 MediaStream
@@ -33,6 +34,15 @@ function StreamHandler(im) {
   let SubscribeCache = utils.Cache();
   let pc = new PeerConnection();
   let eventEmitter = new EventEmitter();
+  let getSubPromiseUId = (user) => {
+    let { id, stream: { tag, type } } = user;
+    let tpl = '{id}_{tag}_{type}';
+    return utils.tplEngine(tpl, {
+      id,
+      tag,
+      type
+    });
+  };
   let getSubs = () => {
     let subs = [];
     let userIds = SubscribeCache.getKeys();
@@ -98,10 +108,48 @@ function StreamHandler(im) {
       });
     }
   });
+  let getStreamUser = (stream) => {
+    let { id } = stream, type = StreamType.NODE;
+    let [userId, tag] = id.split('_');
+    let videoTracks = stream.getVideoTracks();
+    let audioTrakcks = stream.getAudioTrakcs();
+    let isEmtpyVideo = utils.isEmpty(videoTracks);
+    let isEmptyAudio = utils.isEmpty(audioTrakcks)
+    if (isEmtpyVideo) {
+      type = StreamType.AUDIO;
+    }
+    if (isEmptyAudio) {
+      type = StreamType.VIDEO;
+    }
+    if (!isEmptyAudio && !isEmtpyVideo) {
+      type = StreamType.AUDIO_AND_VIDEO;
+    }
+    return {
+      id: userId,
+      stream: {
+        tag,
+        type,
+        mediaStream: stream
+      }
+    }
+  };
   pc.on(PeerConnectionEvent.ADDED, (error, stream) => {
+    if (error) {
+      throw error;
+    }
     let { id } = stream;
     StreamCache.set(id, stream);
-    im.emit(DownEvent.STREAM_SUBSCRIBED, stream, error);
+    let user = getStreamUser(stream);
+    let uid = getSubPromiseUId(user);
+    let promise = SubPromiseCache.get(uid);
+    promise.resolve(user);
+  });
+  pc.on(PeerConnectionEvent.REMOVED, (error, stream) => {
+    if (error) {
+      throw error;
+    }
+    let { id } = stream;
+    StreamCache.remove(id);
   });
   let getUId = (user, tpl) => {
     tpl = tpl || '{userId}_{tag}_{type}';
@@ -178,12 +226,7 @@ function StreamHandler(im) {
             }
           }
         });
-        let len = streams.length;
-        utils.forEach(streams, (stream, index) => {
-          let isFinished = utils.isEqual(index, len - 1);
-          if (isFinished) {
-            DataCache.set(DataCacheName.IS_NOTIFY_READY, true);
-          }
+        utils.forEach(streams, (stream) => {
           let { tag } = stream;
           im.emit(DownEvent.STREAM_PUBLISHED, {
             id,
@@ -193,6 +236,7 @@ function StreamHandler(im) {
             }
           });
         });
+        DataCache.set(DataCacheName.IS_NOTIFY_READY, true);
         // Stream Ready 派发完毕后，检查是否可进行 SDP 交换
         eventEmitter.emit(CommandEvent.EXCHANGE);
       });
@@ -263,7 +307,7 @@ function StreamHandler(im) {
       });
     });
   };
-  let open = (user) => {
+  let subscribe = (user) => {
     let { id: userId, stream: { tag, type } } = user;
     let subs = SubscribeCache.get(userId) || [];
     let types = [StreamType.VIDEO, StreamType.AUDIO];
@@ -287,31 +331,37 @@ function StreamHandler(im) {
       });
     });
     SubscribeCache.set(userId, subs);
-    let isNotifyReady = DataCache.get(DataCacheName.IS_NOTIFY_READY);
-    // 只添加缓存，最后，一次性处理
-    if (!isNotifyReady) {
-      return utils.Defer.resolve();
-    }
-    return getBody().then(body => {
-      let roomId = im.getRoomId();
-      let url = utils.tplEngine(Path.OPEN, {
-        roomId
-      });
-      return request.post({
-        path: url,
-        body
-      }).then(result => {
-        let { sdp } = result;
-        pc.setAnwser(sdp);
+    return utils.deferred((resolve, reject) => {
+      let isNotifyReady = DataCache.get(DataCacheName.IS_NOTIFY_READY);
+      // 首次加入分发未完成，只添加缓存，最后，一次性处理
+      if (isNotifyReady) {
+        getBody().then(body => {
+          let roomId = im.getRoomId();
+          let url = utils.tplEngine(Path.SUBSCRIBE, {
+            roomId
+          });
+          request.post({
+            path: url,
+            body
+          }).then(result => {
+            let { sdp } = result;
+            pc.setAnwser(sdp);
+          });
+        });
+      }
+      let uid = getSubPromiseUId(user);
+      SubPromiseCache.set(uid, {
+        resolve,
+        reject
       });
     });
   };
-  let close = (user) => {
+  let unsubscribe = (user) => {
     let key = getUId(user);
     SubscribeCache.remove(key);
     return getBody().then(body => {
       let roomId = im.getRoomId();
-      let url = utils.tplEngine(Path.CLOSE, {
+      let url = utils.tplEngine(Path.UNSUBSCRIBE, {
         roomId
       });
       return request.post({
@@ -431,10 +481,10 @@ function StreamHandler(im) {
         return publish(...args);
       case UpEvent.STREAM_UNPUBLISH:
         return unpublish(...args);
-      case UpEvent.STREAM_OPEN:
-        return open(...args);
-      case UpEvent.STREAM_CLOSE:
-        return close(...args);
+      case UpEvent.STREAM_SUBSCRIBE:
+        return subscribe(...args);
+      case UpEvent.STREAM_UNSUBSCRIBE:
+        return unsubscribe(...args);
       case UpEvent.STREAM_RESIZE:
         return resize(...args);
       case UpEvent.STREAM_GET:
