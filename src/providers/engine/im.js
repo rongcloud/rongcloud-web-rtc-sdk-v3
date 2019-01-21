@@ -3,6 +3,7 @@ import EventEmitter from '../../event-emitter';
 import { DownEvent } from '../../event-name';
 import { ErrorType } from '../../error';
 import { CommonEvent } from './events';
+import { StreamType, StreamState } from '../../enum';
 const Message = {
   JOIN: 'RTCJoinRoomMessage',
   LEAVE: 'RTCLeftRoomMessage',
@@ -69,6 +70,34 @@ export class IM extends EventEmitter {
         });
       });
     };
+    let getModifyEvents = () => {
+      let events = {}, tpl = '{type}_{state}';
+      // 禁用视频
+      let name = utils.tplEngine(tpl, {
+        type: StreamType.VIDEO,
+        state: StreamState.DISBALE
+      });
+      events[name] = DownEvent.STREAM_DISABLED;
+      // 启用视频
+      name = utils.tplEngine(tpl, {
+        type: StreamType.VIDEO,
+        state: StreamState.ENABLE
+      });
+      events[name] = DownEvent.STREAM_ENABLED;
+      // 音频静音
+      name = utils.tplEngine(tpl, {
+        type: StreamType.AUDIO,
+        state: StreamState.DISBALE
+      });
+      events[name] = DownEvent.STREAM_MUTED;
+      // 音频取消静音
+      name = utils.tplEngine(tpl, {
+        type: StreamType.AUDIO,
+        state: StreamState.ENABLE
+      });
+      events[name] = DownEvent.STREAM_UNMUTED;
+      return events;
+    };
     im.messageWatch((message) => {
       let { messageType: type, senderUserId: id, content: { uris } } = message;
       let user = { id };
@@ -94,8 +123,15 @@ export class IM extends EventEmitter {
         case Message.MODIFY:
           user = { id, uris };
           dispatchStreamEvent(user, (user) => {
-            // TODO: 根据 state 和 type 用来判断触发事件 MUTED、UNMUTED、DISABLED、ENABLED
-            context.emit(DownEvent.STREAM_MUTED, user);
+            let { stream: { mediaType: type, state } } = user;
+            let tpl = '{type}_{state}';
+            let name = utils.tplEngine(tpl, {
+              type,
+              state
+            });
+            let events = getModifyEvents();
+            let event = events[name];
+            context.emit(event, user);
           });
           break;
         default:

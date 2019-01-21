@@ -8,3 +8,8 @@ export const StreamSize = {
   MAX: 1,
   MIN: 2
 };
+
+export const StreamState = {
+  ENABLE: 1,
+  DISBALE: 2
+};
