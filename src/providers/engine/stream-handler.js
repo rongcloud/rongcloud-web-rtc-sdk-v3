@@ -112,7 +112,7 @@ function StreamHandler(im) {
     let { id } = stream, type = StreamType.NODE;
     let [userId, tag] = id.split('_');
     let videoTracks = stream.getVideoTracks();
-    let audioTrakcks = stream.getAudioTrakcs();
+    let audioTrakcks = stream.getAudioTracks();
     let isEmtpyVideo = utils.isEmpty(videoTracks);
     let isEmptyAudio = utils.isEmpty(audioTrakcks)
     if (isEmtpyVideo) {
@@ -207,7 +207,7 @@ function StreamHandler(im) {
         let { uris } = data;
         uris = JSON.parse(uris);
         utils.forEach(uris, (item) => {
-          let { type, tag, uri } = item;
+          let { mediaType: type, tag, uri } = item;
           let key = getUId({
             id,
             stream: {
@@ -336,6 +336,7 @@ function StreamHandler(im) {
       // 首次加入分发未完成，只添加缓存，最后，一次性处理
       if (isNotifyReady) {
         getBody().then(body => {
+          pc.setOffer(body.sdp);
           let roomId = im.getRoomId();
           let url = utils.tplEngine(Path.SUBSCRIBE, {
             roomId

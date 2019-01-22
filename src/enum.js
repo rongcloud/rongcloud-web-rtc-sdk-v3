@@ -1,8 +1,8 @@
 export const StreamType = {
-  NODE: 0,
-  AUDIO: 1,
-  VIDEO: 2,
-  AUDIO_AND_VIDEO: 3
+  NODE: -1,
+  AUDIO: 0,
+  VIDEO: 1,
+  AUDIO_AND_VIDEO: 2
 };
 
 export const StreamSize = {

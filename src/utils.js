@@ -199,6 +199,9 @@ function Timer(_option) {
     timer = pause[type]();
   }
 }
+const isInclude = (str, match) => {
+  return str.indexOf(match) > -1;
+};
 export default {
   Timer,
   isUndefined,
@@ -226,5 +229,6 @@ export default {
   some,
   isEqual,
   isEmpty,
-  toJSON
+  toJSON,
+  isInclude
 }

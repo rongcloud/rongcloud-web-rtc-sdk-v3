@@ -9,10 +9,10 @@ export const RoomEvents = [{
 }];
 
 export const StreamEvents = [{
-  name: DownEvent.STREAM_PUBLISH,
+  name: DownEvent.STREAM_PUBLISHED,
   type: 'published'
 },{
-  name: DownEvent.STREAM_UNPUBLISH,
+  name: DownEvent.STREAM_UNPUBLISHED,
   type: 'unpublished'
 },{
   name: DownEvent.STREAM_DISABLED,
