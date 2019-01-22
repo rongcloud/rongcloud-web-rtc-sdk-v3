@@ -46,10 +46,15 @@ export class IM extends EventEmitter {
           connectState: state
         });
       }
+      if(!isConnected){
+        timer.pause();
+      }
     });
     let dispatchStreamEvent = (user, callback) => {
       let { id, uris } = user;
-      uris = JSON.parse(uris);
+      if(utils.isString(uris)){
+        uris = JSON.parse(uris);
+      }
       let streams = [user];
       if (uris) {
         streams = utils.uniq(uris, (target) => {
@@ -183,6 +188,7 @@ export class IM extends EventEmitter {
       im.getInstance().joinRTCRoom(room, {
         onSuccess: () => {
           context.emit(CommonEvent.JOINED, room);
+          im.getInstance().RTCPing(room);
           timer.resume(() => {
             im.getInstance().RTCPing(room);
           });

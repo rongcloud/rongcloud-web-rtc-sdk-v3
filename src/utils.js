@@ -181,10 +181,10 @@ function Timer(_option) {
       }
     },
     pause: {
-      interval: () => {
+      interval: (timer) => {
         return clearInterval(timer);
       },
-      timeout: () => {
+      timeout: (timer) => {
         return clearTimeout(timer);
       }
     }
@@ -196,7 +196,7 @@ function Timer(_option) {
   };
   this.pause = function () {
     let { pause } = timers;
-    timer = pause[type]();
+    pause[type](timer);
   }
 }
 const isInclude = (str, match) => {

@@ -73,7 +73,6 @@ function StreamHandler(im) {
     switch (type) {
       case Message.PUBLISH:
       case Message.UNPUBLISH:
-        uris = utils.toJSON(uris);
         im.sendMessage({
           type,
           content: {
@@ -88,6 +87,7 @@ function StreamHandler(im) {
     let isNotifyReady = DataCache.get(DataCacheName.IS_NOTIFY_READY);
     if (isNotifyReady) {
       pc.getOffer(offer => {
+        pc.setOffer(offer);
         let subs = getSubs();
         let token = im.getToken();
         let roomId = im.getRoomId();
@@ -324,11 +324,21 @@ function StreamHandler(im) {
       };
       let key = getUId(tUser);
       let uri = DataCache.get(key);
-      subs.push({
-        uri,
-        type,
-        tag
+      let isAdd = true;
+      utils.forEach(subs, (sub) => {
+        let {uri: existUri, type: existType, tag: existTag} = sub;
+        let isExist = utils.isEqual(uri, existUri) && utils.isEqual(type, existType) && utils.isEqual(tag, existTag);
+        if(isExist){
+          isAdd = false;
+        }
       });
+      if (isAdd) {
+        subs.push({
+          uri,
+          type,
+          tag
+        });
+      }
     });
     SubscribeCache.set(userId, subs);
     return utils.deferred((resolve, reject) => {

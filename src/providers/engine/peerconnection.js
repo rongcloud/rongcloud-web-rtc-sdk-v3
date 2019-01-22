@@ -19,6 +19,9 @@ export default class PeerConnection extends EventEmitter {
       ondatachannel: function (event) {
         //TODO: 具体返回参数
         context.emit(PeerConnectionEvent.RECEIVED, event);
+      },
+      oniceconnectionstatechange: function(event){
+        utils.Logger.log(event);
       }
     };
     utils.forEach(events, (event, name) => {
@@ -118,12 +121,14 @@ export default class PeerConnection extends EventEmitter {
       code: 98,
       rtx: 99,
       value: 'a=rtpmap:98 H264/90000\r\na=rtcp-fb:98 ccm fir\r\na=rtcp-fb:98 nack\r\na=rtcp-fb:98 nack pli\r\na=rtcp-fb:98 goog-remb\r\na=rtcp-fb:98 transport-cc\r\na=fmtp:98 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f\r\na=rtpmap:99 rtx/90000\r\na=fmtp:99 apt=98'
-    }/*, {
+    }, {
       name: 'VP8/90000',
       code: 96,
+      rtx: 97,
       value: 'a=rtpmap:96 VP8/90000\r\na=rtcp-fb:96 ccm fir\r\na=rtcp-fb:96 nack\r\na=rtcp-fb:96 nack pli\r\na=rtcp-fb:96 goog-remb\r\na=rtcp-fb:96 transport-cc\r\na=rtpmap:97 rtx/90000\r\na=fmtp:97 apt=96'
     }, {
       name: 'red/90000',
+      rtx: '101',
       code: 100,
       value: 'a=rtpmap:100 red/90000\r\na=rtpmap:101 rtx/90000\r\na=fmtp:101 apt=100'
     }, {
@@ -134,7 +139,7 @@ export default class PeerConnection extends EventEmitter {
       name: 'flexfec-03/90000',
       code: 125,
       value: 'a=rtpmap:125 flexfec-03/90000\r\na=rtcp-fb:125 transport-cc\r\na=rtcp-fb:125 goog-remb\r\na=fmtp:125 repair-window=10000000'
-    }*/];
+    }];
     let separator = '\r\n';
     let getVideoCodecs = (len) => {
       let matches = sdp.match(/m=video\s+[\w\s/]+/);
