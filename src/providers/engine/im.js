@@ -122,7 +122,7 @@ export class IM extends EventEmitter {
         case Message.UNPUBLISH:
           user = { id, uris };
           dispatchStreamEvent(user, (user) => {
-            context.emit(DownEvent.STREAM_UNPUBLISH, user);
+            context.emit(DownEvent.STREAM_UNPUBLISHED, user);
           });
           break;
         case Message.MODIFY:
@@ -140,7 +140,7 @@ export class IM extends EventEmitter {
           });
           break;
         default:
-          utils.Logger.log(`MessageWatch: unkown message type ${type}`);
+          utils.Logger.log(`MessageWatch: unkown message type ${message.objectName}`);
       }
     });
   }

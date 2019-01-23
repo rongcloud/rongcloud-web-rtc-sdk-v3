@@ -67,12 +67,10 @@ function StreamHandler(im) {
   };
   let exchangeHandler = (result, user, type) => {
     let { publishList, sdp } = result;
-    let uris = getUris(publishList);
-    PubResourceCache.set(user.id, uris);
     pc.setAnwser(sdp);
+    let uris = getUris(publishList);
     switch (type) {
       case Message.PUBLISH:
-      case Message.UNPUBLISH:
         im.sendMessage({
           type,
           content: {
@@ -80,7 +78,25 @@ function StreamHandler(im) {
           }
         });
         break;
+      case Message.UNPUBLISH:
+        {
+          let { id: userId } = user;
+          let publishUris = PubResourceCache.get(userId);
+          let streamId = pc.getStreamId(user);
+          let unpublishUris = utils.filter(publishUris, (stream) => {
+            let { msid } = stream;
+            return utils.isEqual(msid, streamId);
+          });
+          im.sendMessage({
+            type,
+            content: {
+              uris: unpublishUris
+            }
+          });
+        }
+        break;
     }
+    PubResourceCache.set(user.id, uris);
     return utils.Defer.resolve();
   };
   eventEmitter.on(CommandEvent.EXCHANGE, () => {
@@ -270,6 +286,9 @@ function StreamHandler(im) {
     SET_USERINFO: 'uris'
   };
   let publish = (user) => {
+    let { stream: { mediaStream } } = user;
+    let streamId = pc.getStreamId(user);
+    StreamCache.set(streamId, mediaStream);
     return pc.addStream(user).then(desc => {
       pc.setOffer(desc);
       return getBody().then(body => {
@@ -289,6 +308,14 @@ function StreamHandler(im) {
     });
   };
   let unpublish = (user) => {
+    let streamId = pc.getStreamId(user);
+    let mediaStream = StreamCache.get(streamId);
+    if (!mediaStream) {
+      return utils.Defer.reject(ErrorType.Inner.STREAM_NOT_EXIST);
+    }
+    utils.extend(user.stream, {
+      mediaStream
+    });
     return pc.removeStream(user).then(desc => {
       pc.setOffer(desc);
       return getBody().then(body => {
@@ -300,6 +327,7 @@ function StreamHandler(im) {
           path: url,
           body
         }).then((result) => {
+          StreamCache.remove(streamId);
           return User.set(User.SET_USERINFO, result);
         }).then(result => {
           return exchangeHandler(result, user, Message.UNPUBLISH);
@@ -326,9 +354,9 @@ function StreamHandler(im) {
       let uri = DataCache.get(key);
       let isAdd = true;
       utils.forEach(subs, (sub) => {
-        let {uri: existUri, type: existType, tag: existTag} = sub;
+        let { uri: existUri, type: existType, tag: existTag } = sub;
         let isExist = utils.isEqual(uri, existUri) && utils.isEqual(type, existType) && utils.isEqual(tag, existTag);
-        if(isExist){
+        if (isExist) {
           isAdd = false;
         }
       });

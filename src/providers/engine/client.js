@@ -48,20 +48,30 @@ export default class Client extends EventEmitter {
     im.on(CommonEvent.LEFT, () => {
       context.emit(DownEvent.RTC_UNMOUNTED);
     });
-    im.on(DownEvent.STREAM_PUBLISHED, (error, { id, stream: { tag } }) => {
-      context.emit(DownEvent.STREAM_PUBLISHED, { id, stream: { tag } }, error);
+    let eventHandler = (name, result, error) => {
+      let { id, stream: { tag } } = result;
+      let user = {
+        id,
+        stream: {
+          tag
+        }
+      };
+      context.emit(name, user, error);
+    };
+    im.on(DownEvent.STREAM_PUBLISHED, (error, user) => {
+      eventHandler(DownEvent.STREAM_PUBLISHED, user, error);
     });
     im.on(DownEvent.STREAM_UNPUBLISHED, (error, user) => {
-      context.emit(DownEvent.STREAM_UNPUBLISHED, user, error);
+      eventHandler(DownEvent.STREAM_UNPUBLISHED, user, error);
     });
     im.on(DownEvent.STREAM_DISABLED, (error, user) => {
-      context.emit(DownEvent.STREAM_DISABLED, user, error);
+      eventHandler(DownEvent.STREAM_DISABLED, user, error);
     });
     im.on(DownEvent.STREAM_ENABLED, (error, user) => {
-      context.emit(DownEvent.STREAM_ENABLED, user, error);
+      eventHandler(DownEvent.STREAM_ENABLED, user, error);
     });
     im.on(DownEvent.STREAM_MUTED, (error, user) => {
-      context.emit(DownEvent.STREAM_MUTED, user, error);
+      eventHandler(DownEvent.STREAM_MUTED, user, error);
     });
     request.setOption(option);
   }
