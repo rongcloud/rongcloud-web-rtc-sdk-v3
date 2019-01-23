@@ -14,3 +14,9 @@ export const StreamState = {
   ENABLE: 1,
   DISBALE: 2
 };
+
+export const UserState = {
+  JOINED: 0,
+  LEFT: 1,
+  OFFLINE: 2
+};

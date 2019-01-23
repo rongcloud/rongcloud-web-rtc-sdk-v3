@@ -3,13 +3,12 @@ import EventEmitter from '../../event-emitter';
 import { DownEvent } from '../../event-name';
 import { ErrorType } from '../../error';
 import { CommonEvent } from './events';
-import { StreamType, StreamState } from '../../enum';
+import { StreamType, StreamState, UserState } from '../../enum';
 const Message = {
-  JOIN: 'RTCJoinRoomMessage',
-  LEAVE: 'RTCLeftRoomMessage',
   PUBLISH: 'RTCPublishResourceMessage',
   UNPUBLISH: 'RTCUnpublishResourceMessage',
-  MODIFY: 'RTCModifyResourceMessage'
+  MODIFY: 'RTCModifyResourceMessage',
+  STATE: 'RTCUserChangeMessage'
 };
 const Timeout = {
   TIME: 10 * 1000
@@ -46,13 +45,13 @@ export class IM extends EventEmitter {
           connectState: state
         });
       }
-      if(!isConnected){
+      if (!isConnected) {
         timer.pause();
       }
     });
     let dispatchStreamEvent = (user, callback) => {
       let { id, uris } = user;
-      if(utils.isString(uris)){
+      if (utils.isString(uris)) {
         uris = JSON.parse(uris);
       }
       let streams = [user];
@@ -103,15 +102,28 @@ export class IM extends EventEmitter {
       events[name] = DownEvent.STREAM_UNMUTED;
       return events;
     };
+    let roomEventHandler = (users) => {
+      utils.forEach(users, (user) => {
+        let { userId: id, state } = user;
+        switch (+state) {
+          case UserState.JOINED:
+            context.emit(DownEvent.ROOM_USER_JOINED, { id });
+            break;
+          case UserState.LEFT:
+          case UserState.OFFLINE:
+            context.emit(DownEvent.ROOM_USER_LEFT, { id });
+            break;
+          default:
+            utils.Logger.log(`UserState: unkown state ${state}`);
+        }
+      });
+    };
     im.messageWatch((message) => {
-      let { messageType: type, senderUserId: id, content: { uris } } = message;
+      let { messageType: type, senderUserId: id, content: { uris, users } } = message;
       let user = { id };
       switch (type) {
-        case Message.JOIN:
-          context.emit(DownEvent.ROOM_USER_JOINED, user);
-          break;
-        case Message.LEAVE:
-          context.emit(DownEvent.ROOM_USER_LEFT, user);
+        case Message.STATE:
+          roomEventHandler(users);
           break;
         case Message.PUBLISH:
           user = { id, uris };
@@ -154,14 +166,6 @@ export class IM extends EventEmitter {
       im.registerMessageType(type, name, tag, props);
     };
     let messages = [{
-      type: Message.JOIN,
-      name: 'RCRTC:Join',
-      props: []
-    }, {
-      type: Message.LEAVE,
-      name: 'RCRTC:Left',
-      props: []
-    }, {
       type: Message.PUBLISH,
       name: 'RCRTC:PublishResource',
       props: ['uris']
@@ -173,6 +177,10 @@ export class IM extends EventEmitter {
       type: Message.MODIFY,
       name: 'RCRTC:ModifyResource',
       props: ['uris']
+    }, {
+      type: Message.STATE,
+      name: 'RCRTC:state',
+      props: ['users']
     }];
     utils.forEach(messages, (message) => {
       register(message);
