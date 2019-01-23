@@ -99,7 +99,7 @@ function StreamHandler(im) {
           body: {
             token,
             sdp: offer,
-            subcribeList: subs
+            subscribeList: subs
           }
         }).then(result => {
           let user = im.getUser();
