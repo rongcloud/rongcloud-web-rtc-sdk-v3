@@ -101,7 +101,7 @@ function StreamHandler(im) {
   };
   eventEmitter.on(CommandEvent.EXCHANGE, () => {
     let isNotifyReady = DataCache.get(DataCacheName.IS_NOTIFY_READY);
-    if (isNotifyReady) {
+    if (!isNotifyReady) {
       pc.getOffer(offer => {
         pc.setOffer(offer);
         let subs = getSubs();
@@ -252,10 +252,10 @@ function StreamHandler(im) {
             }
           });
         });
-        DataCache.set(DataCacheName.IS_NOTIFY_READY, true);
-        // Stream Ready 派发完毕后，检查是否可进行 SDP 交换
-        eventEmitter.emit(CommandEvent.EXCHANGE);
       });
+      // Stream Ready 派发完毕后，检查是否可进行 SDP 交换
+      eventEmitter.emit(CommandEvent.EXCHANGE);
+      DataCache.set(DataCacheName.IS_NOTIFY_READY, true);
     });
   });
   let getBody = () => {
