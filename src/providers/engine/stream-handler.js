@@ -456,7 +456,7 @@ function StreamHandler(im) {
       });
       let tracks = stream[type]();
       utils.forEach(tracks, (track) => {
-        track.enable = isEnable;
+        track.enabled = isEnable;
       });
     }
   };
@@ -493,25 +493,28 @@ function StreamHandler(im) {
     }
     return utils.Defer.resolve();
   };
-  let modifyTrack = (user, type, state) => {
-    let isEnable = utils.isEqual(state, TrackState.ENABLE);
-    trackHandler(user, type, isEnable);
+  let modifyTrack = (user, type, state, isEnabled) => {
+    trackHandler(user, type, isEnabled);
     if (isCurrentUser(user)) {
       sendModify(user, type, state);
     }
     return utils.Defer.resolve();
   };
   let mute = (user) => {
-    return modifyTrack(user, StreamType.AUDIO, TrackState.DISBALE);
+    let isEnabled = false;
+    return modifyTrack(user, StreamType.AUDIO, TrackState.DISBALE, isEnabled);
   }
   let unmute = (user) => {
-    return modifyTrack(user, StreamType.AUDIO, TrackState.ENABLE);
+    let isEnabled = true;
+    return modifyTrack(user, StreamType.AUDIO, TrackState.ENABLE, isEnabled);
   };
   let disable = (user) => {
-    return modifyTrack(user, StreamType.VIDEO, TrackState.DISBALE);
+    let isEnabled = false;
+    return modifyTrack(user, StreamType.VIDEO, TrackState.DISBALE, isEnabled);
   };
   let enable = (user) => {
-    return modifyTrack(user, StreamType.VIDEO, TrackState.ENABLE);
+    let isEnabled = true;
+    return modifyTrack(user, StreamType.VIDEO, TrackState.ENABLE, isEnabled);
   };
   let dispatch = (event, args) => {
     switch (event) {
