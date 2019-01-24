@@ -24,7 +24,7 @@ export const StreamEvents = [{
   name: DownEvent.STREAM_MUTED,
   type: 'muted'
 },{
-  name: DownEvent.RTC_UNMOUNTED,
+  name: DownEvent.STREAM_UNMUTED,
   type: 'unmuted'
 }];
 

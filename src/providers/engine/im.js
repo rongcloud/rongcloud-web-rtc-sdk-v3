@@ -57,12 +57,14 @@ export class IM extends EventEmitter {
       let streams = [user];
       if (uris) {
         streams = utils.uniq(uris, (target) => {
-          let { streamId, tag } = target;
+          let { streamId, tag, mediaType, state } = target;
           return {
             key: [streamId, tag].join('_'),
             value: {
               tag,
-              uris
+              uris,
+              mediaType,
+              state
             }
           }
         });

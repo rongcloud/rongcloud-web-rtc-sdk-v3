@@ -462,15 +462,14 @@ function StreamHandler(im) {
   };
 
   let getFitUris = (user, type, state) => {
-    let streamId = pc.getStreamId(user);
-    let uris = PubResourceCache.get(streamId) || [];
-    let { id, stream: { tag } } = user;
-    let targetId = [id, tag].join('_');
+    let { id } = user;
+    let uris = PubResourceCache.get(id) || [];
+    let targetId = pc.getStreamId(user);
     uris = utils.filter(uris, (stream) => {
-      let { streamId, mediaType } = stream;
-      let isSameStream = utils.isEqual(targetId, streamId),
+      let { msid, mediaType } = stream;
+      let isSameStream = utils.isEqual(targetId, msid),
         isSameType = utils.isEqual(mediaType, type);
-      let isFit = !isSameStream && !isSameType;
+      let isFit = isSameStream && isSameType;
       // state 默认为 TrackState.ENABLE，为 DISABLE 未发布资源
       if (isFit) {
         utils.extend(stream, {

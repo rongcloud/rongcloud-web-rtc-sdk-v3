@@ -73,6 +73,9 @@ export default class Client extends EventEmitter {
     im.on(DownEvent.STREAM_MUTED, (error, user) => {
       eventHandler(DownEvent.STREAM_MUTED, user, error);
     });
+    im.on(DownEvent.STREAM_UNMUTED, (error, user) => {
+      eventHandler(DownEvent.STREAM_UNMUTED, user, error);
+    });
     request.setOption(option);
   }
   exec(params) {
