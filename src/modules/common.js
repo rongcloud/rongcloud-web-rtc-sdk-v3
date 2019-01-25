@@ -39,16 +39,21 @@ export const check = (data, rules) => {
     if (isTier) {
       let props = rule.split('.');
       let [parent, child] = props;
-      let tData = data[parent];
-      isIllegal = utils.isUndefined(tData);
+      let parentData = data[parent];
+      isIllegal = utils.isUndefined(parentData);
       if (isIllegal) {
         return name = parent;
       }
-      let childData = tData[child];
-      isIllegal = utils.isUndefined(childData);
-      if (isIllegal) {
-        return name = child;
+      if(!utils.isArray(parentData)){
+        parentData = [parentData];
       }
+      utils.forEach(parentData, (parent) => {
+        let childData = parent[child];
+        isIllegal = utils.isUndefined(childData);
+        if (isIllegal) {
+          return name = child;
+        }
+      });
     }
   });
   return getBody();
