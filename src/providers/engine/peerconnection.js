@@ -1,6 +1,7 @@
 import utils from '../../utils';
 import EventEmitter from '../../event-emitter';
 import { PeerConnectionEvent } from './events';
+import { StreamSize } from '../../enum';
 
 export default class PeerConnection extends EventEmitter {
   constructor() {
@@ -20,7 +21,7 @@ export default class PeerConnection extends EventEmitter {
         //TODO: 具体返回参数
         context.emit(PeerConnectionEvent.RECEIVED, event);
       },
-      oniceconnectionstatechange: function(event){
+      oniceconnectionstatechange: function (event) {
         utils.Logger.log(event);
       }
     };
@@ -35,16 +36,26 @@ export default class PeerConnection extends EventEmitter {
   addStream(user) {
     let context = this;
     let { pc } = context;
-    let { stream: { mediaStream } } = user;
-    pc.addStream(mediaStream);
+    let { stream } = user;
+    if (!utils.isArray(stream)) {
+      stream = [stream];
+    }
+    utils.forEach(stream, ({ mediaStream }) => {
+      pc.addStream(mediaStream);
+    });
     return context.createOffer(user);
   }
 
   removeStream(user) {
     let context = this;
     let { pc } = context;
-    let { stream: { mediaStream } } = user;
-    pc.removeStream(mediaStream);
+    let { stream } = user;
+    if (!utils.isArray(stream)) {
+      stream = [stream];
+    }
+    utils.forEach(stream, ({ mediaStream }) => {
+      pc.removeStream(mediaStream);
+    });
     return context.createOffer(user);
   }
 
@@ -77,11 +88,14 @@ export default class PeerConnection extends EventEmitter {
   createOffer(user) {
     let context = this;
     let { pc } = context;
-    let { stream: { mediaStream } } = user;
+    let { stream } = user;
+    if (!utils.isArray(stream)) {
+      stream = [stream];
+    }
     let option = context.getOption();
     return pc.createOffer(option).then(desc => {
-      if (mediaStream) {
-        let newStreamId = context.getStreamId(user);
+      utils.forEach(stream, ({ mediaStream, size }) => {
+        let newStreamId = context.getStreamId(user, size);
         let { id: streamId } = mediaStream;
         let { sdp } = desc;
         sdp = context.renameStream(sdp, {
@@ -91,8 +105,8 @@ export default class PeerConnection extends EventEmitter {
         utils.extend(desc, {
           sdp
         });
-        desc = context.renameCodec(desc);
-      }
+      })
+      desc = context.renameCodec(desc);
       utils.extend(context, {
         desc
       });
@@ -191,9 +205,16 @@ export default class PeerConnection extends EventEmitter {
     return offer;
   }
 
-  getStreamId(user) {
+  getStreamId(user, size) {
     let tpl = '{userId}_{tag}';
-    let { id: userId, stream: { tag } } = user;
+    let { id: userId, stream } = user;
+    if (!utils.isArray(stream)) {
+      stream = [stream];
+    }
+    let [{ tag }] = stream;
+    if (utils.isEqual(size, StreamSize.MIN)) {
+      tpl = '{userId}_{tag}_tiny';
+    }
     return utils.tplEngine(tpl, {
       userId,
       tag

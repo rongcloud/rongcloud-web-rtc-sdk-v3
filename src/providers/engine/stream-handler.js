@@ -221,7 +221,7 @@ function StreamHandler(im) {
       }
       let { id: currentUserId } = im.getUser();
       utils.forEach(users, (data, id) => {
-        if(utils.isEqual(currentUserId, id)){
+        if (utils.isEqual(currentUserId, id)) {
           return;
         }
         let { uris } = data;
@@ -364,8 +364,10 @@ function StreamHandler(im) {
           isAdd = false;
         }
       });
+      let msid = pc.getStreamId(user);
       if (isAdd) {
         subs.push({
+          msid,
           uri,
           type,
           tag
@@ -415,12 +417,15 @@ function StreamHandler(im) {
   };
   let resize = (user) => {
     let { stream: { size }, id } = user;
+    let streams = SubscribeCache.get(id);
+    if (utils.isUndefined(streams)) {
+      return utils.Defer.reject(ErrorType.Inner.STREAM_NOT_EXIST);
+    }
     return getBody().then(body => {
-      let streams = SubscribeCache.get(id);
       let streamId = pc.getStreamId(user);
       let stream = utils.filter(streams, (stream) => {
-        let isVideo = utils.isEqual(stream.type, StreamType.VIDEO);
-        return utils.isEqual(streamId, stream.streamId) && isVideo;
+        let { msid } = stream;
+        return utils.isEqual(streamId, msid);
       })[0];
       if (!stream) {
         return utils.Defer.reject(ErrorType.Inner.STREAM_NOT_EXIST);
