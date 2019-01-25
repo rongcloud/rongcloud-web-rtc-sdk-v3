@@ -219,7 +219,11 @@ function StreamHandler(im) {
       if (utils.isEmpty(users)) {
         DataCache.set(DataCacheName.IS_NOTIFY_READY, true);
       }
+      let { id: currentUserId } = im.getUser();
       utils.forEach(users, (data, id) => {
+        if(utils.isEqual(currentUserId, id)){
+          return;
+        }
         let { uris } = data;
         uris = JSON.parse(uris);
         utils.forEach(uris, (item) => {
