@@ -1,5 +1,7 @@
 import { UpEvent, DownEvent } from '../../event-name';
 import utils from '../../utils';
+import { request } from './request';
+import { Path } from './path';
 function RoomHandler(im) {
   let join = (room) => {
     return im.joinRoom(room).then(() => {
@@ -16,7 +18,21 @@ function RoomHandler(im) {
     });
   };
   let leave = () => {
-    return im.leaveRoom();
+    return im.leaveRoom().then(() => {
+      let roomId = im.getRoomId();
+      let token = im.getToken();
+      if(utils.isString(token)){
+        let url = utils.tplEngine(Path.EXIT, {
+          roomId
+        });
+        request.post({
+          path: url,
+          body: {
+            token
+          }
+        });
+      }
+    });
   };
   let get = () => {
     return im.getRoom();
