@@ -365,7 +365,7 @@ function StreamHandler(im) {
         }
       });
       let msid = pc.getStreamId(user);
-      if (isAdd) {
+      if (isAdd && !utils.isUndefined(uri)) {
         subs.push({
           msid,
           uri,
