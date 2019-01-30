@@ -169,9 +169,9 @@ function Timer(_option) {
     type: 'interval'
   };
   extend(option, _option);
-  let timer = 0;
+  let timers = [];
   let { timeout, type } = option;
-  let timers = {
+  let timerType = {
     resume: {
       interval: (callback) => {
         return setInterval(callback, timeout);
@@ -191,12 +191,15 @@ function Timer(_option) {
   };
   this.resume = function (callback) {
     callback = callback || noop;
-    let { resume } = timers;
-    timer = resume[type](callback);
+    let { resume } = timerType;
+    let timer = resume[type](callback);
+    timers.push(timer);
   };
   this.pause = function () {
-    let { pause } = timers;
-    pause[type](timer);
+    let { pause } = timerType;
+    forEach(timers, timer => {
+      pause[type](timer);
+    });
   }
 }
 const isInclude = (str, match) => {
