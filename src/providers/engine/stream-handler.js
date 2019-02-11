@@ -31,7 +31,26 @@ function StreamHandler(im) {
     缓存订阅关系，每次修改需同步全量数据
     userId: [{ streamId: '', uri: '', type: 1, tag: ''}]
   */
-  let SubscribeCache = utils.Cache();
+  let subCache = utils.Cache();
+  let SubscribeCache = {
+    get: (userId) => {
+      return subCache.get(userId);
+    },
+    set: (userId, subs) => {
+      return subCache.set(userId, subs);
+    },
+    getKeys: () => {
+      return subCache.getKeys();
+    },
+    remove: (userId, tag, type) => {
+      let subs = subCache.get(userId);
+      type = type || StreamType.AUDIO_AND_VIDEO;
+      subs = utils.filter(subs, ({ tag: mediaTag, mediaType }) => {
+        return !utils.isEqual(mediaTag, tag) && utils.isEqual(mediaType, type)
+      });
+      subCache.set(userId, subs);
+    }
+  };
   let pc = new PeerConnection();
   let eventEmitter = new EventEmitter();
   let getSubPromiseUId = (user) => {
@@ -290,9 +309,14 @@ function StreamHandler(im) {
     SET_USERINFO: 'uris'
   };
   let publish = (user) => {
-    let { stream: { mediaStream } } = user;
-    let streamId = pc.getStreamId(user);
-    StreamCache.set(streamId, mediaStream);
+    let { stream: streams } = user;
+    if (!utils.isArray(streams)) {
+      streams = [streams];
+    }
+    utils.forEach(streams, ({ mediaStream }) => {
+      let streamId = pc.getStreamId(user);
+      StreamCache.set(streamId, mediaStream);
+    });
     return pc.addStream(user).then(desc => {
       pc.setOffer(desc);
       return getBody().then(body => {
@@ -402,8 +426,8 @@ function StreamHandler(im) {
     });
   };
   let unsubscribe = (user) => {
-    let key = getUId(user);
-    SubscribeCache.remove(key);
+    let { id, stream: { type, tag } } = user;
+    SubscribeCache.remove(id, tag, type);
     return getBody().then(body => {
       let roomId = im.getRoomId();
       let url = utils.tplEngine(Path.UNSUBSCRIBE, {
