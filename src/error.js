@@ -12,6 +12,11 @@ let getErrors = () => {
   },
   {
     code: 10002,
+    name: 'RTC_NOT_JOIN_ROOM',
+    msg: '未加入房间，加入成功后方可调用业务方法'
+  },
+  {
+    code: 10003,
     name: 'SOCKET_UNAVAILABLE',
     msg: 'IM Server Socket 连接不可用'
   },

@@ -4,7 +4,7 @@ import { request } from './request';
 import PeerConnection from './peerconnection';
 import { Path } from './path';
 import Message from './im';
-import { CommonEvent, CommandEvent, PeerConnectionEvent } from './events';
+import { CommonEvent, PeerConnectionEvent } from './events';
 import EventEmitter from '../../event-emitter';
 import { StreamType } from '../../enum';
 import { ErrorType } from '../../error';
@@ -33,6 +33,7 @@ function StreamHandler(im) {
     userId: [{ streamId: '', uri: '', type: 1, tag: ''}]
   */
   let subCache = utils.Cache();
+  let prosumer = new utils.Prosumer();
   let SubscribeCache = {
     get: (userId) => {
       return subCache.get(userId);
@@ -52,7 +53,7 @@ function StreamHandler(im) {
       subCache.set(userId, subs);
     }
   };
-  let pc = new PeerConnection();
+  let pc = null;
   let eventEmitter = new EventEmitter();
   let getSubPromiseUId = (user) => {
     let { id, stream: { tag, type } } = user;
@@ -119,74 +120,41 @@ function StreamHandler(im) {
     PubResourceCache.set(user.id, uris);
     return utils.Defer.resolve();
   };
-  eventEmitter.on(CommandEvent.EXCHANGE, () => {
-    let isNotifyReady = DataCache.get(DataCacheName.IS_NOTIFY_READY);
-    if (!isNotifyReady) {
-      pc.getOffer(offer => {
-        pc.setOffer(offer);
-        let subs = getSubs();
-        let token = im.getToken();
-        let roomId = im.getRoomId();
-        let url = utils.tplEngine(Path.SUBSCRIBE, {
-          roomId
-        });
-        request.post({
-          path: url,
-          body: {
-            token,
-            sdp: offer,
-            subscribeList: subs
-          }
-        }).then(result => {
-          let user = im.getUser();
-          exchangeHandler(result, user);
-        });
+  eventEmitter.on(CommonEvent.CONSUME, () => {
+    prosumer.consume(({ sdp, body }, next) => {
+      pc.setOffer(sdp);
+      request.post(body).then(result => {
+        let { sdp } = result;
+        pc.setAnwser(sdp);
+        next();
       });
-    }
+    });
   });
-  let getStreamUser = (stream) => {
-    let { id } = stream, type = StreamType.NODE;
-    let [userId, tag] = id.split('_');
-    let videoTracks = stream.getVideoTracks();
-    let audioTrakcks = stream.getAudioTracks();
-    let isEmtpyVideo = utils.isEmpty(videoTracks);
-    let isEmptyAudio = utils.isEmpty(audioTrakcks)
-    if (isEmtpyVideo) {
-      type = StreamType.AUDIO;
-    }
-    if (isEmptyAudio) {
-      type = StreamType.VIDEO;
-    }
-    if (!isEmptyAudio && !isEmtpyVideo) {
-      type = StreamType.AUDIO_AND_VIDEO;
-    }
-    return {
-      id: userId,
-      stream: {
-        tag,
-        type,
-        mediaStream: stream
-      }
-    }
-  };
-  pc.on(PeerConnectionEvent.ADDED, (error, stream) => {
-    if (error) {
-      throw error;
-    }
-    let { id } = stream;
-    StreamCache.set(id, stream);
-    let user = getStreamUser(stream);
-    let uid = getSubPromiseUId(user);
-    let promise = SubPromiseCache.get(uid);
-    promise.resolve(user);
-  });
-  pc.on(PeerConnectionEvent.REMOVED, (error, stream) => {
-    if (error) {
-      throw error;
-    }
-    let { id } = stream;
-    StreamCache.remove(id);
-  });
+  // eventEmitter.on(CommandEvent.EXCHANGE, () => {
+  //   let isNotifyReady = DataCache.get(DataCacheName.IS_NOTIFY_READY);
+  //   if (!isNotifyReady) {
+  //     pc.getOffer(offer => {
+  //       pc.setOffer(offer);
+  //       let subs = getSubs();
+  //       let token = im.getToken();
+  //       let roomId = im.getRoomId();
+  //       let url = utils.tplEngine(Path.SUBSCRIBE, {
+  //         roomId
+  //       });
+  //       request.post({
+  //         path: url,
+  //         body: {
+  //           token,
+  //           sdp: offer,
+  //           subscribeList: subs
+  //         }
+  //       }).then(result => {
+  //         let user = im.getUser();
+  //         exchangeHandler(result, user);
+  //       });
+  //     });
+  //   }
+  // });
   let getUId = (user, tpl) => {
     tpl = tpl || '{userId}_{tag}_{type}';
     let { id: userId, stream: { tag, type } } = user
@@ -234,6 +202,50 @@ function StreamHandler(im) {
     if (error) {
       throw error;
     }
+    pc = new PeerConnection();
+    let getStreamUser = (stream) => {
+      let { id } = stream, type = StreamType.NODE;
+      let [userId, tag] = id.split('_');
+      let videoTracks = stream.getVideoTracks();
+      let audioTrakcks = stream.getAudioTracks();
+      let isEmtpyVideo = utils.isEmpty(videoTracks);
+      let isEmptyAudio = utils.isEmpty(audioTrakcks)
+      if (isEmtpyVideo) {
+        type = StreamType.AUDIO;
+      }
+      if (isEmptyAudio) {
+        type = StreamType.VIDEO;
+      }
+      if (!isEmptyAudio && !isEmtpyVideo) {
+        type = StreamType.AUDIO_AND_VIDEO;
+      }
+      return {
+        id: userId,
+        stream: {
+          tag,
+          type,
+          mediaStream: stream
+        }
+      }
+    };
+    pc.on(PeerConnectionEvent.ADDED, (error, stream) => {
+      if (error) {
+        throw error;
+      }
+      let { id } = stream;
+      StreamCache.set(id, stream);
+      let user = getStreamUser(stream);
+      let uid = getSubPromiseUId(user);
+      let promise = SubPromiseCache.get(uid);
+      promise.resolve(user);
+    });
+    pc.on(PeerConnectionEvent.REMOVED, (error, stream) => {
+      if (error) {
+        throw error;
+      }
+      let { id } = stream;
+      StreamCache.remove(id);
+    });
     im.getUsers(room).then((users) => {
       DataCache.set(DataCacheName.USERS, users);
       if (utils.isEmpty(users)) {
@@ -268,19 +280,24 @@ function StreamHandler(im) {
         });
         utils.forEach(streams, (stream) => {
           let { tag } = stream;
-          im.emit(DownEvent.STREAM_PUBLISHED, {
-            id,
-            stream: {
-              tag,
-              uris
-            }
+          setTimeout(() => {
+            im.emit(DownEvent.STREAM_PUBLISHED, {
+              id,
+              stream: {
+                tag,
+                uris
+              }
+            });
           });
         });
       });
-      // Stream Ready 派发完毕后，检查是否可进行 SDP 交换
-      eventEmitter.emit(CommandEvent.EXCHANGE);
       DataCache.set(DataCacheName.IS_NOTIFY_READY, true);
     });
+  });
+  im.on(CommonEvent.LEFT, () => {
+    if (pc) {
+      pc.close();
+    }
   });
   let getBody = () => {
     return utils.deferred(resolve => {
@@ -405,18 +422,20 @@ function StreamHandler(im) {
       // 首次加入分发未完成，只添加缓存，最后，一次性处理
       if (isNotifyReady) {
         getBody().then(body => {
-          pc.setOffer(body.sdp);
+          let { sdp } = body;
           let roomId = im.getRoomId();
           let url = utils.tplEngine(Path.SUBSCRIBE, {
             roomId
           });
-          request.post({
+          body = {
             path: url,
             body
-          }).then(result => {
-            let { sdp } = result;
-            pc.setAnwser(sdp);
+          };
+          prosumer.produce({
+            sdp,
+            body
           });
+          eventEmitter.emit(CommonEvent.CONSUME);
         });
       }
       let uid = getSubPromiseUId(user);

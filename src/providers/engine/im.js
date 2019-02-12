@@ -27,8 +27,10 @@ export class IM extends EventEmitter {
       timeout: Timeout.TIME
     });
     let context = this;
+    let isJoinRoom = false;
     utils.extend(context, {
-      timer
+      timer,
+      isJoinRoom
     });
     let { RongIMLib: { RongIMClient: im }, RongIMLib } = option;
     let connectState = -1;
@@ -193,7 +195,8 @@ export class IM extends EventEmitter {
     let context = this;
     let { im } = context;
     utils.extend(context, {
-      room
+      room,
+      isJoinRoom: true
     });
     return utils.deferred((resolve, reject) => {
       im.getInstance().joinRTCRoom(room, {
@@ -212,6 +215,9 @@ export class IM extends EventEmitter {
     let context = this;
     let { im, room, timer } = context;
     timer.pause();
+    utils.extend(context, {
+      isJoinRoom: false
+    });
     return utils.deferred((resolve, reject) => {
       im.getInstance().quitRTCRoom(room, {
         onSuccess: () => {
@@ -320,6 +326,10 @@ export class IM extends EventEmitter {
     let context = this;
     let { RongIMLib: { ConnectionStatus: { CONNECTED } } } = context;
     return context.connectState === CONNECTED;
+  }
+  isJoined() {
+    let context = this;
+    return context.isJoinRoom;
   }
   rtcPing(room) {
     let context = this;

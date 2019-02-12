@@ -7,7 +7,7 @@ import { request } from './request';
 import RTCAdapter from './3rd/adapter';
 import { ErrorType } from '../../error';
 import { RoomEvents } from '../../modules/events';
-import { DownEvent } from '../../event-name';
+import { DownEvent, UpEvent} from '../../event-name';
 import { CommonEvent } from './events';
 
 export default class Client extends EventEmitter {
@@ -91,6 +91,9 @@ export default class Client extends EventEmitter {
       return utils.Defer.reject(ErrorType.Inner.IM_NOT_CONNECTED);
     }
     let { type, args, event } = params;
+    if (!utils.isEqual(UpEvent.ROOM_JOIN, event) && !im.isJoined()) {
+      return utils.Defer.reject(ErrorType.Inner.RTC_NOT_JOIN_ROOM);
+    }
     let { RequestHandler } = this;
     return RequestHandler[type].dispatch(event, args);
   }

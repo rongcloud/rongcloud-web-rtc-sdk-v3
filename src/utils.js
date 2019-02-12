@@ -228,8 +228,36 @@ function Observer() {
     });
   };
 }
+function Prosumer() {
+  let data = [], isConsuming = false;
+  this.produce = (res) => {
+    data.push(res);
+  };
+  this.consume = (callback) => {
+    if (isConsuming) {
+      return;
+    }
+    isConsuming = true;
+    let next = () => {
+      let res = data.shift();
+      if(isUndefined(res)){
+        isConsuming = false;
+        return;
+      }
+      callback(res, next);
+    };
+    next();
+  };
+}
+/* 
+ prosumer.consume(function(data, next){
+  //dosomething
+  next();
+ });
+*/
 const Log = console;
 export default {
+  Prosumer,
   Log,
   Observer,
   Timer,
