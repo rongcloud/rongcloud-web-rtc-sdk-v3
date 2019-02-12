@@ -4,19 +4,31 @@ import { StreamType, StreamSize } from './enum';
 import Client from './providers/engine/client';
 import utils from './utils';
 import { DownEvent } from './event-name';
+import Logger from './logger';
 
 export default class RongRTC {
   constructor(_option) {
     let context = this;
     let option = {
       url: 'https://ms-xq.rongcloud.net/',
+      debug: false,
       // url: 'http://10.13.10.123:7788/',
       created: () => { },
       mounted: () => { },
       unmounted: () => { },
-      destroyed: () => { }
+      destroyed: () => { },
+      error: () => { }
     };
     utils.extend(option, _option);
+    let { logger, debug } = option;
+    if (utils.isFunction(logger)) {
+      Logger.watch(logger);
+    }
+    if (debug) {
+      Logger.watch(log => {
+        utils.Log.log(log);
+      });
+    }
     let client = new Client(option);
     utils.forEach([Room, Stream], (module) => {
       module.prototype.getClient = () => {
@@ -31,13 +43,16 @@ export default class RongRTC {
       option,
       client
     });
-    let { created, mounted, unmounted } = option;
+    let { created, mounted, unmounted, error } = option;
     created();
     client.on(DownEvent.RTC_MOUNTED, () => {
       mounted();
     });
     client.on(DownEvent.RTC_UNMOUNTED, () => {
       unmounted();
+    });
+    client.on(DownEvent.RTC_ERROR, (e) => {
+      error(e);
     });
   }
   destroy() {

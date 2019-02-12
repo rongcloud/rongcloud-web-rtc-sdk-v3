@@ -3,7 +3,8 @@ import EventEmitter from '../../event-emitter';
 import { DownEvent } from '../../event-name';
 import { ErrorType } from '../../error';
 import { CommonEvent } from './events';
-import { StreamType, StreamState, UserState } from '../../enum';
+import { StreamType, StreamState, UserState, PingCount } from '../../enum';
+import Logger from '../../logger';
 const Message = {
   PUBLISH: 'RTCPublishResourceMessage',
   UNPUBLISH: 'RTCUnpublishResourceMessage',
@@ -116,7 +117,7 @@ export class IM extends EventEmitter {
             context.emit(DownEvent.ROOM_USER_LEFT, { id });
             break;
           default:
-            utils.Logger.log(`UserState: unkown state ${state}`);
+            Logger.warn(`UserState: unkown state ${state}`);
         }
       });
     };
@@ -154,7 +155,7 @@ export class IM extends EventEmitter {
           });
           break;
         default:
-          utils.Logger.log(`MessageWatch: unkown message type ${message.objectName}`);
+          Logger.warn(`MessageWatch: unkown message type ${message.objectName}`);
       }
     });
   }
@@ -190,7 +191,7 @@ export class IM extends EventEmitter {
   }
   joinRoom(room) {
     let context = this;
-    let { im, timer } = context;
+    let { im } = context;
     utils.extend(context, {
       room
     });
@@ -198,10 +199,7 @@ export class IM extends EventEmitter {
       im.getInstance().joinRTCRoom(room, {
         onSuccess: () => {
           context.emit(CommonEvent.JOINED, room);
-          im.getInstance().RTCPing(room);
-          timer.resume(() => {
-            im.getInstance().RTCPing(room);
-          });
+          context.rtcPing(room);
           resolve();
         },
         onError: (code) => {
@@ -299,7 +297,7 @@ export class IM extends EventEmitter {
   }
   sendMessage(message) {
     let { im, room } = this;
-    return utils.deferred((resolve) => {
+    return utils.deferred((resolve, reject) => {
       let conversationType = 12,
         targetId = room.id;
       let create = () => {
@@ -312,7 +310,8 @@ export class IM extends EventEmitter {
           resolve(room);
         },
         onError: (code) => {
-          utils.Logger.warn('SendMessage Error:', code);
+          Logger.error('SendMessage Error:', code);
+          reject(code);
         }
       });
     });
@@ -321,6 +320,41 @@ export class IM extends EventEmitter {
     let context = this;
     let { RongIMLib: { ConnectionStatus: { CONNECTED } } } = context;
     return context.connectState === CONNECTED;
+  }
+  rtcPing(room) {
+    let context = this;
+    let { im, timer } = context;
+    let count = 0, isPing = false;
+    let { SOCKET_UNAVAILABLE: error } = ErrorType;
+    let Status = {
+      reset: (isAdd) => {
+        isPing = false;
+        if (isAdd) {
+          return count += 1;
+        }
+        count = 0;
+      },
+      update: () => {
+        isPing = true;
+      }
+    };
+    timer.resume(() => {
+      if (isPing) {
+        count += 1;
+      }
+      if (count >= PingCount) {
+        return context.emit(CommonEvent.ERROR, error);
+      }
+      Status.update();
+      im.getInstance().RTCPing(room, {
+        onSuccess: () => {
+          Status.reset();
+        },
+        onError: () => {
+          Status.reset(true);
+        }
+      });
+    }, true);
   }
 }
 

@@ -2,6 +2,7 @@ import { UpEvent, DownEvent } from '../../event-name';
 import utils from '../../utils';
 import { request } from './request';
 import { Path } from './path';
+import Logger from '../../logger';
 function RoomHandler(im) {
   let join = (room) => {
     return im.joinRoom(room).then(() => {
@@ -46,7 +47,7 @@ function RoomHandler(im) {
       case UpEvent.ROOM_GET:
         return get(...args);
       default:
-        utils.Logger.log(`RoomHandler: unkown upevent ${event}`);
+        Logger.warn(`RoomHandler: unkown upevent ${event}`);
     }
   };
   return {

@@ -8,6 +8,7 @@ import { CommonEvent, CommandEvent, PeerConnectionEvent } from './events';
 import EventEmitter from '../../event-emitter';
 import { StreamType } from '../../enum';
 import { ErrorType } from '../../error';
+import Logger from '../../logger';
 
 const TrackState = {
   ENABLE: 1,
@@ -572,7 +573,7 @@ function StreamHandler(im) {
       case UpEvent.VIDEO_ENABLE:
         return enable(...args);
       default:
-        utils.Logger.log(`StreamHandler: unkown upevent ${event}`);
+        Logger.warn(`StreamHandler: unkown upevent ${event}`);
     }
   };
   return {

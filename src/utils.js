@@ -119,7 +119,6 @@ const Cache = (cache) => {
     getKeys
   };
 };
-const Logger = console;
 const request = (url, option) => {
   return fetch(url, option);
 };
@@ -173,10 +172,16 @@ function Timer(_option) {
   let { timeout, type } = option;
   let timerType = {
     resume: {
-      interval: (callback) => {
+      interval: (callback, immediate) => {
+        if (immediate) {
+          callback();
+        }
         return setInterval(callback, timeout);
       },
-      timeout: (callback) => {
+      timeout: (callback, immediate) => {
+        if (immediate) {
+          callback();
+        }
         return setTimeout(callback, timeout);
       }
     },
@@ -189,10 +194,10 @@ function Timer(_option) {
       }
     }
   };
-  this.resume = function (callback) {
+  this.resume = function (callback, immediate) {
     callback = callback || noop;
     let { resume } = timerType;
-    let timer = resume[type](callback);
+    let timer = resume[type](callback, immediate);
     timers.push(timer);
   };
   this.pause = function () {
@@ -205,7 +210,28 @@ function Timer(_option) {
 const isInclude = (str, match) => {
   return str.indexOf(match) > -1;
 };
+function Observer() {
+  let observers = [];
+  this.add = (observer) => {
+    if (isFunction(observer)) {
+      observers.push(observer);
+    }
+  };
+  this.remove = (observer) => {
+    observers = filter(observers, (_observer) => {
+      return _observer !== observer
+    });
+  };
+  this.emit = (data) => {
+    forEach(observers, (observer) => {
+      observer(data);
+    });
+  };
+}
+const Log = console;
 export default {
+  Log,
+  Observer,
   Timer,
   isUndefined,
   isBoolean,
@@ -224,7 +250,6 @@ export default {
   isContain,
   noop,
   Cache,
-  Logger,
   request,
   map,
   filter,

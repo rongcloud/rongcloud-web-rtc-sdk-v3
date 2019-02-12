@@ -20,3 +20,5 @@ export const UserState = {
   LEFT: 1,
   OFFLINE: 2
 };
+
+export const PingCount = 3;

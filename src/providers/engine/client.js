@@ -48,6 +48,9 @@ export default class Client extends EventEmitter {
     im.on(CommonEvent.LEFT, () => {
       context.emit(DownEvent.RTC_UNMOUNTED);
     });
+    im.on(CommonEvent.ERROR, (error) => {
+      context.emit(DownEvent.RTC_ERROR, error);
+    });
     let eventHandler = (name, result, error) => {
       let { id, stream: { tag } } = result;
       let user = {
