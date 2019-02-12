@@ -44,7 +44,7 @@ export const check = (data, rules) => {
       if (isIllegal) {
         return name = parent;
       }
-      if(!utils.isArray(parentData)){
+      if (!utils.isArray(parentData)) {
         parentData = [parentData];
       }
       utils.forEach(parentData, (parent) => {
@@ -69,3 +69,10 @@ export const getError = (name) => {
     msg
   });
 };
+
+export const getContent = (tag, meta) => {
+  return {
+    tag,
+    meta
+  }
+}
