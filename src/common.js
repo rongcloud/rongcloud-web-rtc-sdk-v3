@@ -1,5 +1,5 @@
-import utils from '../utils';
-import { ErrorType } from '../error';
+import utils from './utils';
+import { ErrorType } from './error';
 
 /* 
   data： 任意对象

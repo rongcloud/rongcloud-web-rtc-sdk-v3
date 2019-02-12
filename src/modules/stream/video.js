@@ -1,5 +1,5 @@
 import { UpEvent } from '../../event-name';
-import { check, getError } from '../common';
+import { check, getError } from '../../common';
 import utils from '../../utils';
 export default function Video(client) {
   return {

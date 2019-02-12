@@ -1,6 +1,6 @@
 import { UpEvent } from '../../event-name';
 import utils from '../../utils';
-import { check, getError } from '../common';
+import { check, getError } from '../../common';
 
 export default function Audio(client) {
   return {

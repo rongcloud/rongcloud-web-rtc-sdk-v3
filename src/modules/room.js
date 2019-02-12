@@ -1,7 +1,7 @@
 import utils from '../utils';
 import { RoomEvents } from './events';
 import { UpEvent } from '../event-name';
-import { check, getError } from './common';
+import { check, getError } from '../common';
 
 export default class Room {
   constructor(option) {

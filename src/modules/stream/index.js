@@ -3,7 +3,7 @@ import { StreamEvents } from '../events';
 import Video from './video';
 import Audio from './audio';
 import { UpEvent } from '../../event-name';
-import { check, getError } from '../common';
+import { check, getError } from '../../common';
 
 export default class Stream {
   constructor(option) {
