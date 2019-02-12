@@ -131,6 +131,7 @@ export default class PeerConnection extends EventEmitter {
 
   renameCodec(offer) {
     let { sdp } = offer;
+    sdp = sdp.replace(new RegExp('a=group:BUNDLE 0 1', 'g'), 'a=group:BUNDLE audio video')
     let codecs = [{
       name: 'H264/90000',
       code: 98,
