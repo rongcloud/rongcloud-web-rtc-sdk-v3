@@ -6,14 +6,10 @@ import { Path } from './path';
 import Message from './im';
 import { CommonEvent, PeerConnectionEvent } from './events';
 import EventEmitter from '../../event-emitter';
-import { StreamType } from '../../enum';
+import { StreamType, StreamState } from '../../enum';
 import { ErrorType } from '../../error';
 import Logger from '../../logger';
 
-const TrackState = {
-  ENABLE: 1,
-  DISBALE: 2
-};
 function StreamHandler(im) {
   let DataCache = utils.Cache();
   let DataCacheName = {
@@ -81,7 +77,7 @@ function StreamHandler(im) {
       let [, tag] = msid.split('_');
       utils.extend(stream, {
         tag,
-        state: TrackState.ENABLE
+        state: StreamState.ENABLE
       });
       return stream;
     });
@@ -400,8 +396,8 @@ function StreamHandler(im) {
       let uri = DataCache.get(key);
       let isAdd = true;
       utils.forEach(subs, (sub) => {
-        let { uri: existUri, type: existType, tag: existTag } = sub;
-        let isExist = utils.isEqual(uri, existUri) && utils.isEqual(type, existType) && utils.isEqual(tag, existTag);
+        let { type: existType, tag: existTag } = sub;
+        let isExist = utils.isEqual(type, existType) && utils.isEqual(tag, existTag);
         if (isExist) {
           isAdd = false;
         }
@@ -523,7 +519,7 @@ function StreamHandler(im) {
       let isSameStream = utils.isEqual(targetId, msid),
         isSameType = utils.isEqual(mediaType, type);
       let isFit = isSameStream && isSameType;
-      // state 默认为 TrackState.ENABLE，为 DISABLE 未发布资源
+      // state 默认为 StreamState.ENABLE，为 DISABLE 未发布资源
       if (isFit) {
         utils.extend(stream, {
           state
@@ -555,19 +551,19 @@ function StreamHandler(im) {
   };
   let mute = (user) => {
     let isEnabled = false;
-    return modifyTrack(user, StreamType.AUDIO, TrackState.DISBALE, isEnabled);
+    return modifyTrack(user, StreamType.AUDIO, StreamState.DISBALE, isEnabled);
   }
   let unmute = (user) => {
     let isEnabled = true;
-    return modifyTrack(user, StreamType.AUDIO, TrackState.ENABLE, isEnabled);
+    return modifyTrack(user, StreamType.AUDIO, StreamState.ENABLE, isEnabled);
   };
   let disable = (user) => {
     let isEnabled = false;
-    return modifyTrack(user, StreamType.VIDEO, TrackState.DISBALE, isEnabled);
+    return modifyTrack(user, StreamType.VIDEO, StreamState.DISBALE, isEnabled);
   };
   let enable = (user) => {
     let isEnabled = true;
-    return modifyTrack(user, StreamType.VIDEO, TrackState.ENABLE, isEnabled);
+    return modifyTrack(user, StreamType.VIDEO, StreamState.ENABLE, isEnabled);
   };
   let dispatch = (event, args) => {
     switch (event) {

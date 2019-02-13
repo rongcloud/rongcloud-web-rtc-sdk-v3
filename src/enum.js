@@ -12,7 +12,7 @@ export const StreamSize = {
 
 export const StreamState = {
   ENABLE: 1,
-  DISBALE: 2
+  DISBALE: 0
 };
 
 export const UserState = {
