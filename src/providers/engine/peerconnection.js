@@ -8,7 +8,9 @@ export default class PeerConnection extends EventEmitter {
   constructor() {
     super();
     let context = this;
-    let pc = new RTCPeerConnection();
+    let pc = new RTCPeerConnection({
+      sdpSemantics: 'plan-b'
+    });
     let events = {
       onaddstream: function (event) {
         let { stream } = event;
@@ -131,7 +133,7 @@ export default class PeerConnection extends EventEmitter {
 
   renameCodec(offer) {
     let { sdp } = offer;
-    sdp = sdp.replace(new RegExp('a=group:BUNDLE 0 1', 'g'), 'a=group:BUNDLE audio video')
+    // sdp = sdp.replace(new RegExp('a=group:BUNDLE 0 1', 'g'), 'a=group:BUNDLE audio video')
     let codecs = [{
       name: 'H264/90000',
       code: 98,
