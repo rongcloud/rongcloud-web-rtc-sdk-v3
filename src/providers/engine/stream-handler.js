@@ -177,7 +177,7 @@ function StreamHandler(im) {
       DataCache.set(key, uri);
     });
   });
-  im.on(DownEvent.STREAM_UNPUBLISH, (error, user) => {
+  im.on(DownEvent.STREAM_UNPUBLISHED, (error, user) => {
     if (error) {
       throw error;
     }

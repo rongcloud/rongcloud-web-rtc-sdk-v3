@@ -12,7 +12,6 @@ export default class RongRTC {
     let option = {
       url: 'https://ms-xq.rongcloud.net/',
       debug: false,
-      // url: 'http://10.13.10.123:7788/',
       created: () => { },
       mounted: () => { },
       unmounted: () => { },
