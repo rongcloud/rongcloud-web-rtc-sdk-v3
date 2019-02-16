@@ -1,7 +1,7 @@
 import utils from '../../utils';
 import EventEmitter from '../../event-emitter';
 import { PeerConnectionEvent } from './events';
-import { StreamSize } from '../../enum';
+import { StreamSize, LogTag } from '../../enum';
 import Logger from '../../logger';
 
 export default class PeerConnection extends EventEmitter {
@@ -25,7 +25,7 @@ export default class PeerConnection extends EventEmitter {
         context.emit(PeerConnectionEvent.RECEIVED, event);
       },
       oniceconnectionstatechange: function (event) {
-        Logger.log(event);
+        Logger.log(LogTag.ICE, event);
       }
     };
     utils.forEach(events, (event, name) => {

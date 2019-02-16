@@ -1,6 +1,6 @@
 import Room from './modules/room';
 import Stream from './modules/stream/index';
-import { StreamType, StreamSize } from './enum';
+import { StreamType, StreamSize, LogTag } from './enum';
 import Client from './providers/engine/client';
 import utils from './utils';
 import { DownEvent } from './event-name';
@@ -44,11 +44,20 @@ export default class RongRTC {
     });
     let { created, mounted, unmounted, error } = option;
     created();
+    Logger.log(LogTag.LIFECYCLE, {
+      state: 'created'
+    });
     client.on(DownEvent.RTC_MOUNTED, () => {
       mounted();
+      Logger.log(LogTag.LIFECYCLE, {
+        state: 'mounted'
+      });
     });
     client.on(DownEvent.RTC_UNMOUNTED, () => {
       unmounted();
+      Logger.log(LogTag.LIFECYCLE, {
+        state: 'unmounted'
+      });
     });
     client.on(DownEvent.RTC_ERROR, (e) => {
       error(e);
@@ -58,5 +67,8 @@ export default class RongRTC {
     let { option: { destroyed }, client } = this;
     destroyed();
     client.destroy();
+    Logger.log(LogTag.LIFECYCLE, {
+      state: 'destroyed'
+    });
   }
 }

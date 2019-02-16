@@ -69,10 +69,3 @@ export const getError = (name) => {
     msg
   });
 };
-
-export const getContent = (tag, meta) => {
-  return {
-    tag,
-    meta
-  }
-}

@@ -3,26 +3,66 @@ import utils from '../../utils';
 import { request } from './request';
 import { Path } from './path';
 import Logger from '../../logger';
+import { LogTag } from '../../enum';
 function RoomHandler(im) {
   let join = (room) => {
+    Logger.log(LogTag.ROOM_HANDLER, {
+      msg: 'join:before',
+      room
+    });
     return im.joinRoom(room).then(() => {
+      Logger.log(LogTag.ROOM_HANDLER, {
+        msg: 'join:after',
+        room
+      });
+      Logger.log(LogTag.ROOM_HANDLER, {
+        msg: 'getUsers:before',
+        room
+      });
       return im.getExistUsers().then(({ users }) => {
+        Logger.log(LogTag.ROOM_HANDLER, {
+          msg: 'getUsers:after',
+          room,
+          users
+        });
         utils.forEach(users, (user) => {
           let { userId: id } = user;
           im.emit(DownEvent.ROOM_USER_JOINED, {
             id
           });
         });
+      }, error => {
+        Logger.log(LogTag.ROOM_HANDLER, {
+          msg: 'getUsers:after',
+          room,
+          error
+        });
+        return error;
       });
+    }, (error) => {
+      Logger.log(LogTag.ROOM_HANDLER, {
+        msg: 'join:after',
+        room,
+        error
+      });
+      return error;
     }).then(() => {
       return room;
     });
   };
   let leave = () => {
+    let roomId = im.getRoomId();
+    Logger.log(LogTag.ROOM_HANDLER, {
+      msg: 'leave:before',
+      roomId
+    });
     return im.leaveRoom().then(() => {
-      let roomId = im.getRoomId();
+      Logger.log(LogTag.ROOM_HANDLER, {
+        msg: 'leave:after',
+        roomId
+      });
       let token = im.getToken();
-      if(utils.isString(token)){
+      if (utils.isString(token)) {
         let url = utils.tplEngine(Path.EXIT, {
           roomId
         });
@@ -33,6 +73,13 @@ function RoomHandler(im) {
           }
         });
       }
+    }, error => {
+      Logger.log(LogTag.ROOM_HANDLER, {
+        msg: 'leave:after',
+        roomId,
+        error
+      });
+      return error;
     });
   };
   let get = () => {
@@ -47,7 +94,10 @@ function RoomHandler(im) {
       case UpEvent.ROOM_GET:
         return get(...args);
       default:
-        Logger.warn(`RoomHandler: unkown upevent ${event}`);
+        Logger.warn(LogTag.ROOM_HANDLER, {
+          event,
+          msg: 'unkown event'
+        });
     }
   };
   return {

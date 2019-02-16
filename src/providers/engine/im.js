@@ -3,7 +3,7 @@ import EventEmitter from '../../event-emitter';
 import { DownEvent } from '../../event-name';
 import { ErrorType } from '../../error';
 import { CommonEvent } from './events';
-import { StreamType, StreamState, UserState, PingCount } from '../../enum';
+import { StreamType, StreamState, UserState, PingCount, LogTag } from '../../enum';
 import Logger from '../../logger';
 const Message = {
   PUBLISH: 'RTCPublishResourceMessage',
@@ -311,12 +311,23 @@ export class IM extends EventEmitter {
         return new im.RegisterMessage[type](content);
       };
       let msg = create();
+      Logger.log(LogTag.IM, {
+        msg: 'send:before',
+        message
+      });
       im.getInstance().sendMessage(conversationType, targetId, msg, {
         onSuccess: () => {
+          Logger.log(LogTag.IM, {
+            msg: 'send:after',
+            message
+          });
           resolve(room);
         },
         onError: (code) => {
-          Logger.error('SendMessage Error:', code);
+          Logger.log(LogTag.IM, {
+            msg: 'send:after',
+            error: code
+          });
           reject(code);
         }
       });

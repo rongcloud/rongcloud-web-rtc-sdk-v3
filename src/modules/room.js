@@ -2,6 +2,8 @@ import utils from '../utils';
 import { RoomEvents } from './events';
 import { UpEvent } from '../event-name';
 import { check, getError } from '../common';
+import Logger from '../logger';
+import { LogTag } from '../enum';
 
 export default class Room {
   constructor(option) {
@@ -12,6 +14,10 @@ export default class Room {
       client.on(name, (error, user) => {
         event = option[type] || utils.noop;
         event(user, error);
+        Logger.log(LogTag.ROOM, {
+          event: type,
+          user
+        });
       });
     });
     let { id } = option;

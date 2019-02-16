@@ -9,6 +9,8 @@ import { ErrorType } from '../../error';
 import { RoomEvents } from '../../modules/events';
 import { DownEvent, UpEvent} from '../../event-name';
 import { CommonEvent } from './events';
+import Logger from '../../logger';
+import { EventType } from '../../enum';
 
 export default class Client extends EventEmitter {
   /* 
@@ -95,7 +97,25 @@ export default class Client extends EventEmitter {
       return utils.Defer.reject(ErrorType.Inner.RTC_NOT_JOIN_ROOM);
     }
     let { RequestHandler } = this;
-    return RequestHandler[type].dispatch(event, args);
+    Logger.log(type, {
+      func: event,
+      type: EventType.REQUEST,
+      args
+    });
+    return RequestHandler[type].dispatch(event, args).then(result => {
+      Logger.log(type, {
+        func: event,
+        type: EventType.RESPONSE,
+        result
+      });
+      return result;
+    }, (error) => {
+      Logger.log(type, {
+        func: event,
+        type: EventType.RESPONSE,
+        error
+      });
+    });
   }
   isDestroyed() {
     return this.destroyed;

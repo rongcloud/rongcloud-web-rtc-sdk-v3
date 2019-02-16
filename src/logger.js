@@ -1,29 +1,30 @@
 import utils from './utils';
+import { LogLevel } from './enum';
 
 function Logger() {
   let observer = new utils.Observer();
-  let write = (level, content) => {
-    let { tag, meta } = content;
+  let write = (level, tag, meta) => {
     let time = new Date().getTime();
     let log = {
       level,
       tag,
       meta,
-      time
+      time,
+      platform: 'web'
     };
     observer.emit(log);
   };
-  let warn = (content) => {
-    return write('W', content);
+  let warn = (tag, meta) => {
+    return write(LogLevel.WARN, tag, meta);
   };
-  let error = (content) => {
-    return write('E', content);
+  let error = (tag, meta) => {
+    return write(LogLevel.ERROR, tag, meta);
   };
-  let info = (content) => {
-    return write('I', content);
+  let info = (tag, meta) => {
+    return write(LogLevel.INFO, tag, meta);
   };
-  let log = (content) => {
-    return write('V', content);
+  let log = (tag, meta) => {
+    return write(LogLevel.VERBOSE, tag, meta);
   };
   let watch = (watcher) => {
     observer.add(watcher);

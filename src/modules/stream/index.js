@@ -4,6 +4,8 @@ import Video from './video';
 import Audio from './audio';
 import { UpEvent } from '../../event-name';
 import { check, getError } from '../../common';
+import Logger from '../../logger';
+import { LogTag } from '../../enum';
 
 export default class Stream {
   constructor(option) {
@@ -14,6 +16,10 @@ export default class Stream {
       client.on(name, (error, user) => {
         event = option[type] || utils.noop;
         event(user, error);
+        Logger.log(LogTag.STREAM, {
+          event: type,
+          user
+        });
       });
     });
     utils.extend(context, {

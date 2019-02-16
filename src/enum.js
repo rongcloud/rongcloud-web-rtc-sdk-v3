@@ -22,3 +22,26 @@ export const UserState = {
 };
 
 export const PingCount = 3;
+
+export const LogTag = {
+  ICE: 'ice',
+  LIFECYCLE: 'lifecycle',
+  ROOM: 'room',
+  STREAM: 'stream',
+  STREAM_HANDLER: 'stream_handler',
+  ROOM_HANDLER: 'room_handler',
+  IM: 'im'
+};
+
+export const LogLevel = {
+  INFO: 'I',
+  DEBUG: 'D',
+  VERBOSE: 'V',
+  WARN: 'W',
+  ERROR: 'E'
+};
+
+export const EventType = {
+  REQUEST: 1,
+  RESPONSE: 2
+}

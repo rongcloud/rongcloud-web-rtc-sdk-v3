@@ -6,7 +6,7 @@ import { Path } from './path';
 import Message from './im';
 import { CommonEvent, PeerConnectionEvent } from './events';
 import EventEmitter from '../../event-emitter';
-import { StreamType, StreamState } from '../../enum';
+import { StreamType, StreamState, LogTag } from '../../enum';
 import { ErrorType } from '../../error';
 import Logger from '../../logger';
 
@@ -117,11 +117,24 @@ function StreamHandler(im) {
     return utils.Defer.resolve();
   };
   eventEmitter.on(CommonEvent.CONSUME, () => {
+    let user = im.getUser();
+    let roomId = im.getRoomId();
     prosumer.consume(({ sdp, body }, next) => {
+      Logger.log(LogTag.STREAM_HANDLER, {
+        msg: 'subscribe:request',
+        roomId,
+        body
+      });
       pc.setOffer(sdp);
-      request.post(body).then(result => {
-        let { sdp } = result;
+      request.post(body).then(response => {
+        let { sdp } = response;
         pc.setAnwser(sdp);
+        Logger.log(LogTag.STREAM_HANDLER, {
+          msg: 'subscribe:response',
+          roomId,
+          user,
+          response
+        });
         next();
       });
     });
@@ -331,18 +344,43 @@ function StreamHandler(im) {
       let streamId = pc.getStreamId(user);
       StreamCache.set(streamId, mediaStream);
     });
+    let roomId = im.getRoomId();
+    Logger.log(LogTag.STREAM_HANDLER, {
+      msg: 'publish:start',
+      roomId,
+      user
+    });
     return pc.addStream(user).then(desc => {
       pc.setOffer(desc);
       return getBody().then(body => {
-        let roomId = im.getRoomId();
         let url = utils.tplEngine(Path.SUBSCRIBE, {
           roomId
+        });
+        Logger.log(LogTag.STREAM_HANDLER, {
+          msg: 'publish:request',
+          roomId,
+          user,
+          body
         });
         return request.post({
           path: url,
           body
-        }).then(result => {
-          return User.set(User.SET_USERINFO, result);
+        }).then(response => {
+          Logger.log(LogTag.STREAM_HANDLER, {
+            msg: 'publish:response',
+            roomId,
+            user,
+            response
+          });
+          return User.set(User.SET_USERINFO, response);
+        }, error => {
+          Logger.log(LogTag.STREAM_HANDLER, {
+            msg: 'publish:response',
+            roomId,
+            user,
+            error
+          });
+          return error;
         }).then(result => {
           return exchangeHandler(result, user, Message.PUBLISH);
         });
@@ -358,19 +396,43 @@ function StreamHandler(im) {
     utils.extend(user.stream, {
       mediaStream
     });
+    let roomId = im.getRoomId();
+    Logger.log(LogTag.STREAM_HANDLER, {
+      msg: 'unpublish:start',
+      roomId,
+      user
+    });
     return pc.removeStream(user).then(desc => {
       pc.setOffer(desc);
       return getBody().then(body => {
-        let roomId = im.getRoomId();
         let url = utils.tplEngine(Path.UNPUBLISH, {
           roomId
+        });
+        Logger.log(LogTag.STREAM_HANDLER, {
+          msg: 'unpublish:request',
+          roomId,
+          user,
+          body
         });
         return request.post({
           path: url,
           body
-        }).then((result) => {
+        }).then((response) => {
+          Logger.log(LogTag.STREAM_HANDLER, {
+            msg: 'unpublish:response',
+            roomId,
+            user,
+            response
+          });
           StreamCache.remove(streamId);
-          return User.set(User.SET_USERINFO, result);
+          return User.set(User.SET_USERINFO, response);
+        }, error => {
+          Logger.log(LogTag.STREAM_HANDLER, {
+            msg: 'unpublish:response',
+            roomId,
+            user,
+            error
+          });
         }).then(result => {
           return exchangeHandler(result, user, Message.UNPUBLISH);
         });
@@ -413,13 +475,18 @@ function StreamHandler(im) {
       }
     });
     SubscribeCache.set(userId, subs);
+    let roomId = im.getRoomId();
+    Logger.log(LogTag.STREAM_HANDLER, {
+      msg: 'subscribe:start',
+      roomId,
+      user
+    });
     return utils.deferred((resolve, reject) => {
       let isNotifyReady = DataCache.get(DataCacheName.IS_NOTIFY_READY);
       // 首次加入分发未完成，只添加缓存，最后，一次性处理
       if (isNotifyReady) {
         getBody().then(body => {
           let { sdp } = body;
-          let roomId = im.getRoomId();
           let url = utils.tplEngine(Path.SUBSCRIBE, {
             roomId
           });
@@ -444,14 +511,39 @@ function StreamHandler(im) {
   let unsubscribe = (user) => {
     let { id, stream: { type, tag } } = user;
     SubscribeCache.remove(id, tag, type);
+    let roomId = im.getRoomId();
+    Logger.log(LogTag.STREAM_HANDLER, {
+      msg: 'unsubscribe:start',
+      roomId,
+      user
+    });
     return getBody().then(body => {
-      let roomId = im.getRoomId();
       let url = utils.tplEngine(Path.UNSUBSCRIBE, {
         roomId
+      });
+      Logger.log(LogTag.STREAM_HANDLER, {
+        msg: 'unsubscribe:request',
+        roomId,
+        user,
+        body
       });
       return request.post({
         path: url,
         body
+      }).then(response => {
+        Logger.log(LogTag.STREAM_HANDLER, {
+          msg: 'unsubscribe:response',
+          roomId,
+          user,
+          response
+        });
+      }, error => {
+        Logger.log(LogTag.STREAM_HANDLER, {
+          msg: 'unsubscribe:response',
+          roomId,
+          user,
+          error
+        });
       });
     });
   };
@@ -461,6 +553,12 @@ function StreamHandler(im) {
     if (utils.isUndefined(streams)) {
       return utils.Defer.reject(ErrorType.Inner.STREAM_NOT_EXIST);
     }
+    let roomId = im.getRoomId();
+    Logger.log(LogTag.STREAM_HANDLER, {
+      msg: 'resize:start',
+      roomId,
+      user
+    });
     return getBody().then(body => {
       let streamId = pc.getStreamId(user);
       let stream = utils.filter(streams, (stream) => {
@@ -468,7 +566,14 @@ function StreamHandler(im) {
         return utils.isEqual(streamId, msid);
       })[0];
       if (!stream) {
-        return utils.Defer.reject(ErrorType.Inner.STREAM_NOT_EXIST);
+        let error = ErrorType.Inner.STREAM_NOT_EXIST;
+        Logger.log(LogTag.STREAM_HANDLER, {
+          msg: 'resize:response',
+          roomId,
+          user,
+          error
+        });
+        return utils.Defer.reject(error);
       }
       let { uri } = stream;
       utils.forEach(body.subscribeList, (stream) => {
@@ -478,13 +583,32 @@ function StreamHandler(im) {
           })
         }
       });
-      let roomId = im.getRoomId();
       let url = utils.tplEngine(Path.RESIZE, {
         roomId
+      });
+      Logger.log(LogTag.STREAM_HANDLER, {
+        msg: 'resize:request',
+        roomId,
+        user,
+        body
       });
       return request.post({
         path: url,
         body
+      }).then(response => {
+        Logger.log(LogTag.STREAM_HANDLER, {
+          msg: 'resize:response',
+          roomId,
+          user,
+          response
+        });
+      }, error => {
+        Logger.log(LogTag.STREAM_HANDLER, {
+          msg: 'resize:response',
+          roomId,
+          user,
+          error
+        });
       });
     });
   };
@@ -588,7 +712,10 @@ function StreamHandler(im) {
       case UpEvent.VIDEO_ENABLE:
         return enable(...args);
       default:
-        Logger.warn(`StreamHandler: unkown upevent ${event}`);
+        Logger.warn(LogTag.STREAM_HANDLER, {
+          event,
+          msg: 'unkown event'
+        });
     }
   };
   return {
