@@ -4,6 +4,10 @@ export const PeerConnectionEvent = {
   RECEIVED: 'p_stream_received'
 };
 
+export const ICEEvent = {
+  FAILED: 'failed'
+};
+
 export const CommonEvent = {
   JOINED: 'common_joined',
   LEFT: 'common_left',

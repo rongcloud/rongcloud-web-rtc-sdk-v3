@@ -24,8 +24,12 @@ export default class PeerConnection extends EventEmitter {
         //TODO: 具体返回参数
         context.emit(PeerConnectionEvent.RECEIVED, event);
       },
-      oniceconnectionstatechange: function (event) {
-        Logger.log(LogTag.ICE, event);
+      oniceconnectionstatechange: function () {
+        let state = pc.iceConnectionState;
+        utils.extend(context, {
+          state
+        });
+        Logger.log(LogTag.ICE, { state });
       }
     };
     utils.forEach(events, (event, name) => {
@@ -82,10 +86,14 @@ export default class PeerConnection extends EventEmitter {
 
   getOption() {
     return {
-      // iceRestart: true,
+      iceRestart: true,
       offerToReceiveAudio: true,
       offerToReceiveVideo: true
     };
+  }
+
+  getState() {
+    return this.state;
   }
 
   createOffer(user) {

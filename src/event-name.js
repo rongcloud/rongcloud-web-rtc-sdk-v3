@@ -35,3 +35,8 @@ export const UpEvent = {
   DEVICE_CHECK: 'device_check',
   DEVICE_GET_LIST: 'device_get_list'
 };
+
+export const NetworkEvent = {
+  ONLINE: 'online',
+  OFFLINE: 'offline'
+};

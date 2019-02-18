@@ -7,7 +7,7 @@ import { request } from './request';
 import RTCAdapter from './3rd/adapter';
 import { ErrorType } from '../../error';
 import { RoomEvents } from '../../modules/events';
-import { DownEvent, UpEvent} from '../../event-name';
+import { DownEvent, UpEvent } from '../../event-name';
 import { CommonEvent } from './events';
 import Logger from '../../logger';
 import { EventType } from '../../enum';

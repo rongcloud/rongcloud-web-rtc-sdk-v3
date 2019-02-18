@@ -1,14 +1,15 @@
-import { UpEvent, DownEvent } from '../../event-name';
+import { UpEvent, DownEvent, NetworkEvent } from '../../event-name';
 import utils from '../../utils';
 import { request } from './request';
 import PeerConnection from './peerconnection';
 import { Path } from './path';
 import Message from './im';
-import { CommonEvent, PeerConnectionEvent } from './events';
+import { CommonEvent, PeerConnectionEvent, ICEEvent } from './events';
 import EventEmitter from '../../event-emitter';
 import { StreamType, StreamState, LogTag } from '../../enum';
 import { ErrorType } from '../../error';
 import Logger from '../../logger';
+import Network from '../../network';
 
 function StreamHandler(im) {
   let DataCache = utils.Cache();
@@ -71,6 +72,19 @@ function StreamHandler(im) {
     });
     return subs;
   };
+  let getBody = () => {
+    return utils.deferred(resolve => {
+      pc.getOffer((offer) => {
+        let token = im.getToken();
+        let subs = getSubs();
+        resolve({
+          token,
+          sdp: offer,
+          subscribeList: subs
+        });
+      });
+    });
+  };
   let getUris = (publishList) => {
     return utils.map(publishList, (stream) => {
       let { msid } = stream;
@@ -82,6 +96,49 @@ function StreamHandler(im) {
       return stream;
     });
   };
+  let negotiate = (response) => {
+    pc.getOffer(offer => {
+      pc.setOffer(offer);
+      let { sdp } = response;
+      pc.setAnwser(sdp);
+    });
+  }
+  let network = new Network();
+  network.on(NetworkEvent.ONLINE, () => {
+    let state = pc.getState();
+    let roomId = im.getRoomId();
+    if (utils.isEqual(state, ICEEvent.FAILED)) {
+      getBody().then(body => {
+        let url = utils.tplEngine(Path.SUBSCRIBE, {
+          roomId
+        });
+        Logger.log(LogTag.STREAM_HANDLER, {
+          msg: 'publish:reconnect:request',
+          roomId,
+          body
+        });
+        return request.post({
+          path: url,
+          body
+        }).then(response => {
+          Logger.log(LogTag.STREAM_HANDLER, {
+            msg: 'publish:reconnect:response',
+            roomId,
+            response
+          });
+          //TODO: 重新设置数据
+          negotiate(response);
+        }, error => {
+          Logger.log(LogTag.STREAM_HANDLER, {
+            msg: 'publish:reconnect:response',
+            roomId,
+            error
+          });
+          return error;
+        })
+      });
+    }
+  });
   let exchangeHandler = (result, user, type) => {
     let { publishList, sdp } = result;
     pc.setAnwser(sdp);
@@ -139,31 +196,6 @@ function StreamHandler(im) {
       });
     });
   });
-  // eventEmitter.on(CommandEvent.EXCHANGE, () => {
-  //   let isNotifyReady = DataCache.get(DataCacheName.IS_NOTIFY_READY);
-  //   if (!isNotifyReady) {
-  //     pc.getOffer(offer => {
-  //       pc.setOffer(offer);
-  //       let subs = getSubs();
-  //       let token = im.getToken();
-  //       let roomId = im.getRoomId();
-  //       let url = utils.tplEngine(Path.SUBSCRIBE, {
-  //         roomId
-  //       });
-  //       request.post({
-  //         path: url,
-  //         body: {
-  //           token,
-  //           sdp: offer,
-  //           subscribeList: subs
-  //         }
-  //       }).then(result => {
-  //         let user = im.getUser();
-  //         exchangeHandler(result, user);
-  //       });
-  //     });
-  //   }
-  // });
   let getUId = (user, tpl) => {
     tpl = tpl || '{userId}_{tag}_{type}';
     let { id: userId, stream: { tag, type } } = user
@@ -308,19 +340,6 @@ function StreamHandler(im) {
       pc.close();
     }
   });
-  let getBody = () => {
-    return utils.deferred(resolve => {
-      pc.getOffer((offer) => {
-        let token = im.getToken();
-        let subs = getSubs();
-        resolve({
-          token,
-          sdp: offer,
-          subscribeList: subs
-        });
-      });
-    });
-  };
   let isCurrentUser = (user) => {
     let { id } = im.getUser();
     return utils.isEqual(user.id, id);
@@ -537,12 +556,7 @@ function StreamHandler(im) {
           user,
           response
         });
-        pc.getOffer((offer) => {
-          pc.setOffer(offer);
-          let {sdp} = response;
-          pc.setAnwser(sdp);
-        });
-        
+        negotiate(response);
       }, error => {
         Logger.log(LogTag.STREAM_HANDLER, {
           msg: 'unsubscribe:response',
