@@ -537,6 +537,12 @@ function StreamHandler(im) {
           user,
           response
         });
+        pc.getOffer((offer) => {
+          pc.setOffer(offer);
+          let {sdp} = response;
+          pc.setAnwser(sdp);
+        });
+        
       }, error => {
         Logger.log(LogTag.STREAM_HANDLER, {
           msg: 'unsubscribe:response',
