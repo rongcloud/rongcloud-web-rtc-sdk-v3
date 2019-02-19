@@ -1,11 +1,13 @@
 export const PeerConnectionEvent = {
   ADDED: 'p_stream_added',
   REMOVED: 'p_stream_removed',
-  RECEIVED: 'p_stream_received'
+  RECEIVED: 'p_stream_received',
+  CHANGED: 'p_ice_changed'
 };
 
 export const ICEEvent = {
-  FAILED: 'failed'
+  FAILED: 'failed',
+  DISCONNECTED: 'disconnected'
 };
 
 export const CommonEvent = {

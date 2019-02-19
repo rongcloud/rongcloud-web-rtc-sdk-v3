@@ -4,7 +4,7 @@ import { request } from './request';
 import PeerConnection from './peerconnection';
 import { Path } from './path';
 import Message from './im';
-import { CommonEvent, PeerConnectionEvent, ICEEvent } from './events';
+import { CommonEvent, PeerConnectionEvent } from './events';
 import EventEmitter from '../../event-emitter';
 import { StreamType, StreamState, LogTag } from '../../enum';
 import { ErrorType } from '../../error';
@@ -85,6 +85,45 @@ function StreamHandler(im) {
       });
     });
   };
+  let negotiate = (response) => {
+    pc.getOffer(offer => {
+      pc.setOffer(offer);
+      let { sdp } = response;
+      pc.setAnwser(sdp);
+    });
+  }
+  let republish = () => {
+    let roomId = im.getRoomId();
+    getBody().then(body => {
+      let url = utils.tplEngine(Path.SUBSCRIBE, {
+        roomId
+      });
+      Logger.log(LogTag.STREAM_HANDLER, {
+        msg: 'publish:reconnect:request',
+        roomId,
+        body
+      });
+      return request.post({
+        path: url,
+        body
+      }).then(response => {
+        Logger.log(LogTag.STREAM_HANDLER, {
+          msg: 'publish:reconnect:response',
+          roomId,
+          response
+        });
+        //TODO: 重新设置数据
+        negotiate(response);
+      }, error => {
+        Logger.log(LogTag.STREAM_HANDLER, {
+          msg: 'publish:reconnect:response',
+          roomId,
+          error
+        });
+        return error;
+      })
+    });
+  };
   let getUris = (publishList) => {
     return utils.map(publishList, (stream) => {
       let { msid } = stream;
@@ -96,47 +135,10 @@ function StreamHandler(im) {
       return stream;
     });
   };
-  let negotiate = (response) => {
-    pc.getOffer(offer => {
-      pc.setOffer(offer);
-      let { sdp } = response;
-      pc.setAnwser(sdp);
-    });
-  }
   let network = new Network();
   network.on(NetworkEvent.ONLINE, () => {
-    let state = pc.getState();
-    let roomId = im.getRoomId();
-    if (utils.isEqual(state, ICEEvent.FAILED)) {
-      getBody().then(body => {
-        let url = utils.tplEngine(Path.SUBSCRIBE, {
-          roomId
-        });
-        Logger.log(LogTag.STREAM_HANDLER, {
-          msg: 'publish:reconnect:request',
-          roomId,
-          body
-        });
-        return request.post({
-          path: url,
-          body
-        }).then(response => {
-          Logger.log(LogTag.STREAM_HANDLER, {
-            msg: 'publish:reconnect:response',
-            roomId,
-            response
-          });
-          //TODO: 重新设置数据
-          negotiate(response);
-        }, error => {
-          Logger.log(LogTag.STREAM_HANDLER, {
-            msg: 'publish:reconnect:response',
-            roomId,
-            error
-          });
-          return error;
-        })
-      });
+    if (pc.isNegotiate()) {
+      republish();
     }
   });
   let exchangeHandler = (result, user, type) => {
@@ -286,6 +288,14 @@ function StreamHandler(im) {
       }
       let { id } = stream;
       StreamCache.remove(id);
+    });
+    pc.on(PeerConnectionEvent.CHANGED, () => {
+      if (error) {
+        throw error;
+      }
+      if (pc.isNegotiate() && network.isOnline()) {
+        republish();
+      }
     });
     im.getUsers(room).then((users) => {
       DataCache.set(DataCacheName.USERS, users);

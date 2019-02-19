@@ -9,4 +9,7 @@ export default class Network extends EventEmitter {
       context.emit(NetworkEvent.ONLINE);
     });
   }
+  isOnline(){
+    return navigator.onLine;
+  }
 }

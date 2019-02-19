@@ -1,6 +1,6 @@
 import utils from '../../utils';
 import EventEmitter from '../../event-emitter';
-import { PeerConnectionEvent } from './events';
+import { PeerConnectionEvent, ICEEvent } from './events';
 import { StreamSize, LogTag } from '../../enum';
 import Logger from '../../logger';
 
@@ -26,6 +26,7 @@ export default class PeerConnection extends EventEmitter {
       },
       oniceconnectionstatechange: function () {
         let state = pc.iceConnectionState;
+        context.emit(PeerConnectionEvent.CHANGED, state);
         utils.extend(context, {
           state
         });
@@ -92,8 +93,9 @@ export default class PeerConnection extends EventEmitter {
     };
   }
 
-  getState() {
-    return this.state;
+  isNegotiate() {
+    let { state } = this;
+    return utils.isEqual(state, ICEEvent.FAILED) || utils.isEqual(state, ICEEvent.DISCONNECTED)
   }
 
   createOffer(user) {
