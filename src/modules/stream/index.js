@@ -69,7 +69,7 @@ export default class Stream {
     });
   }
   unsubscribe(user) {
-    let { isIllegal, name } = check(user, ['id', 'stream.tag']);
+    let { isIllegal, name } = check(user, ['id', 'stream.tag', 'stream.type']);
     if (isIllegal) {
       let error = getError(name);
       return utils.Defer.reject(error);

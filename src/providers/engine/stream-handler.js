@@ -240,6 +240,20 @@ function StreamHandler(im) {
       DataCache.set(key, uri);
     });
   });
+  im.on(CommonEvent.LEFT, (error) => {
+    if (error) {
+      throw error;
+    }
+    let streamIds = StreamCache.getKeys();
+    utils.forEach(streamIds, (streamId) => {
+      let stream = StreamCache.get(streamId);
+      let tracks = stream.getTracks();
+      utils.forEach(tracks, (track) => {
+        track.stop();
+      });
+    });
+    pc.close();
+  });
   /* 加入房间成功后，主动获取已发布资源的人员列表，通知应用层 */
   im.on(CommonEvent.JOINED, (error, room) => {
     if (error) {
@@ -656,7 +670,8 @@ function StreamHandler(im) {
     let streamId = pc.getStreamId(user);
     let stream = StreamCache.get(streamId);
     if (stream) {
-      type = utils.isEqual(type, StreamType.AUDIO) ? 'Audio' : 'Video';
+      let isAudio = utils.isEqual(type, StreamType.AUDIO);
+      type = isAudio ? 'Audio' : 'Video';
       let tpl = 'get{type}Tracks';
       type = utils.tplEngine(tpl, {
         type
