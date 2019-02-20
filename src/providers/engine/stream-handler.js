@@ -431,6 +431,10 @@ function StreamHandler(im) {
       roomId,
       user
     });
+    let tracks = mediaStream.getTracks();
+    utils.forEach(tracks, (track) => {
+      track.stop();
+    });
     return pc.removeStream(user).then(desc => {
       pc.setOffer(desc);
       return getBody().then(body => {
