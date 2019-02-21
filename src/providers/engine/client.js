@@ -24,8 +24,8 @@ export default class Client extends EventEmitter {
     RTCAdapter.init();
     let im = new IM(option);
     let RequestHandler = {
-      room: RoomHandler(im),
-      stream: StreamHandler(im)
+      room: RoomHandler(im, option),
+      stream: StreamHandler(im, option)
     };
     let context = this;
     let { RongIMLib } = option;

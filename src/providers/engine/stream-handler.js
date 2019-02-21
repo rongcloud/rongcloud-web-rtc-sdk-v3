@@ -1,4 +1,4 @@
-import { UpEvent, DownEvent, NetworkEvent } from '../../event-name';
+import { UpEvent, DownEvent } from '../../event-name';
 import utils from '../../utils';
 import { request } from './request';
 import PeerConnection from './peerconnection';
@@ -11,7 +11,7 @@ import { ErrorType } from '../../error';
 import Logger from '../../logger';
 import Network from '../../network';
 
-function StreamHandler(im) {
+function StreamHandler(im, option) {
   let DataCache = utils.Cache();
   let DataCacheName = {
     USERS: 'room_users',
@@ -135,12 +135,8 @@ function StreamHandler(im) {
       return stream;
     });
   };
-  let network = new Network();
-  network.on(NetworkEvent.ONLINE, () => {
-    if (pc.isNegotiate()) {
-      republish();
-    }
-  });
+  let { detect } = option;
+  let network = new Network(detect);
   let exchangeHandler = (result, user, type) => {
     let { publishList, sdp } = result;
     pc.setAnwser(sdp);
@@ -307,8 +303,12 @@ function StreamHandler(im) {
       if (error) {
         throw error;
       }
-      if (pc.isNegotiate() && network.isOnline()) {
-        republish();
+      if (pc.isNegotiate()) {
+        network.detect((isOnline) => {
+          if (isOnline) {
+            republish();
+          }
+        });
       }
     });
     im.getUsers(room).then((users) => {

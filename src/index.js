@@ -10,7 +10,7 @@ export default class RongRTC {
   constructor(_option) {
     let context = this;
     let option = {
-      url: 'https://ms-xq.rongcloud.net/',
+      url: 'https://msqa.rongcloud.net/',
       debug: false,
       created: () => { },
       mounted: () => { },
