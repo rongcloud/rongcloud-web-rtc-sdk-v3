@@ -64,7 +64,9 @@ const rename = (origin, newNames) => {
 const extend = (destination, sources) => {
   for (let key in sources) {
     let value = sources[key];
-    destination[key] = value;
+    if(!isUndefined(value)){
+      destination[key] = value;
+    }
   }
   return destination;
 };

@@ -115,6 +115,7 @@ export default class Client extends EventEmitter {
         type: EventType.RESPONSE,
         error
       });
+      throw error;
     });
   }
   isDestroyed() {
