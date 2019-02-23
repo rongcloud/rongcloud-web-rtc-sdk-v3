@@ -216,6 +216,9 @@ function Timer(_option) {
 const isInclude = (str, match) => {
   return str.indexOf(match) > -1;
 };
+const clone = (source) => {
+  return JSON.parse(JSON.stringify(source));
+};
 function Observer() {
   let observers = [];
   this.add = (observer) => {
@@ -277,6 +280,7 @@ export default {
   parse,
   rename,
   extend,
+  clone,
   deferred,
   Defer,
   forEach,

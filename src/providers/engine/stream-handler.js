@@ -6,7 +6,7 @@ import { Path } from './path';
 import Message from './im';
 import { CommonEvent, PeerConnectionEvent } from './events';
 import EventEmitter from '../../event-emitter';
-import { StreamType, StreamState, LogTag } from '../../enum';
+import { StreamType, StreamState, LogTag, StreamSize } from '../../enum';
 import { ErrorType } from '../../error';
 import Logger from '../../logger';
 import Network from '../../network';
@@ -391,8 +391,13 @@ function StreamHandler(im, option) {
     if (!utils.isArray(streams)) {
       streams = [streams];
     }
-    utils.forEach(streams, ({ mediaStream }) => {
-      let streamId = pc.getStreamId(user);
+    let { id } = user;
+    utils.forEach(streams, (stream) => {
+      let { mediaStream, size } = stream;
+      let streamId = pc.getStreamId({
+        id,
+        stream
+      }, size);
       StreamCache.set(streamId, mediaStream);
     });
     let roomId = im.getRoomId();
@@ -439,13 +444,34 @@ function StreamHandler(im, option) {
     });
   };
   let unpublish = (user) => {
+    user = utils.clone(user);
     let streamId = pc.getStreamId(user);
     let mediaStream = StreamCache.get(streamId);
     if (!mediaStream) {
       return utils.Defer.reject(ErrorType.Inner.STREAM_NOT_EXIST);
     }
-    utils.extend(user.stream, {
+    let streams = [];
+    let { stream } = user;
+    let tinyStream = utils.clone(stream);
+    let { id } = user;
+    stream = utils.extend(stream, {
       mediaStream
+    });
+    streams.push(stream);
+
+    let tinyStreamId = pc.getStreamId({
+      id,
+      stream: tinyStream
+    }, StreamSize.MIN);
+    let tinyMeidaStream = StreamCache.get(tinyStreamId);
+    if (tinyMeidaStream) {
+      tinyStream = utils.extend(tinyStream, {
+        mediaStream: tinyMeidaStream
+      });
+      streams.push(tinyStream);
+    }
+    utils.extend(user, {
+      stream: streams
     });
     let roomId = im.getRoomId();
     Logger.log(LogTag.STREAM_HANDLER, {
@@ -453,9 +479,11 @@ function StreamHandler(im, option) {
       roomId,
       user
     });
-    let tracks = mediaStream.getTracks();
-    utils.forEach(tracks, (track) => {
-      track.stop();
+    utils.forEach(streams, ({ mediaStream }) => {
+      let tracks = mediaStream.getTracks();
+      utils.forEach(tracks, (track) => {
+        track.stop();
+      });
     });
     return pc.removeStream(user).then(desc => {
       pc.setOffer(desc);
