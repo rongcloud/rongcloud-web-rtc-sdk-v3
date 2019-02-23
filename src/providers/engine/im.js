@@ -361,9 +361,13 @@ export class IM extends EventEmitter {
   rePing() {
     let context = this;
     let { timer } = context;
-    let room = context.getRoom();
-    timer.pause();
-    context.rtcPing(room);
+    let roomId = context.getRoomId();
+    if (!utils.isUndefined(roomId)) {
+      timer.pause();
+      context.rtcPing({
+        id: roomId
+      });
+    }
   }
   rtcPing(room) {
     let context = this;
