@@ -18,7 +18,12 @@ let getErrors = () => {
   {
     code: 10003,
     name: 'SOCKET_UNAVAILABLE',
-    msg: 'IM Server Socket 连接不可用'
+    msg: 'IM Socket 连接不可用'
+  },
+  {
+    code: 10004,
+    name: 'NETWORK_UNAVAILABLE',
+    msg: '网络不可用'
   },
   {
     code: 20001,
@@ -29,6 +34,26 @@ let getErrors = () => {
     code: 30001,
     name: 'PARAMTER_ILLEGAL',
     msg: '请检查参数，{name} 参数为必传入项'
+  },{
+    code: 40001,
+    name: 'NOT_IN_ROOM',
+    msg: '当前用户不在房间内'
+  },{
+    code: 40002,
+    name: 'INTERNAL_ERROR',
+    msg: 'IM Server 内部错误'
+  },{
+    code: 40003,
+    name: 'HAS_NO_ROOM',
+    msg: 'IM Server 房间信息不存在'
+  },{
+    code: 40004,
+    name: 'INVALID_USERID',
+    msg: 'userId 不合法'
+  },{
+    code: 40005,
+    name: 'REPEAT_JOIN_ROOM',
+    msg: '重复加入房间'
   }];
 
   let errorMap = {

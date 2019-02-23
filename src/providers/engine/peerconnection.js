@@ -26,10 +26,10 @@ export default class PeerConnection extends EventEmitter {
       },
       oniceconnectionstatechange: function () {
         let state = pc.iceConnectionState;
-        context.emit(PeerConnectionEvent.CHANGED, state);
         utils.extend(context, {
           state
         });
+        context.emit(PeerConnectionEvent.CHANGED, state);
         Logger.log(LogTag.ICE, { state });
       }
     };

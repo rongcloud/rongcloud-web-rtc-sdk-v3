@@ -114,11 +114,15 @@ const Cache = (cache) => {
     }
     return keys;
   };
+  let clear = () => {
+    cache = {};
+  };
   return {
     set,
     get,
     remove,
-    getKeys
+    getKeys,
+    clear
   };
 };
 const request = (url, option) => {

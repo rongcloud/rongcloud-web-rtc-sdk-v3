@@ -48,7 +48,17 @@ function StreamHandler(im, option) {
         return !utils.isEqual(mediaTag, tag) && utils.isEqual(mediaType, type)
       });
       subCache.set(userId, subs);
+    },
+    clear: () => {
+      subCache.clear();
     }
+  };
+  let clear = () => {
+    DataCache.clear();
+    SubPromiseCache.clear();
+    PubResourceCache.clear();
+    StreamCache.clear();
+    SubscribeCache.clear();
   };
   let pc = null;
   let eventEmitter = new EventEmitter();
@@ -236,10 +246,7 @@ function StreamHandler(im, option) {
       DataCache.set(key, uri);
     });
   });
-  im.on(CommonEvent.LEFT, (error) => {
-    if (error) {
-      throw error;
-    }
+  im.on(CommonEvent.LEFT, () => {
     let streamIds = StreamCache.getKeys();
     utils.forEach(streamIds, (streamId) => {
       let stream = StreamCache.get(streamId);
@@ -248,7 +255,10 @@ function StreamHandler(im, option) {
         track.stop();
       });
     });
-    pc.close();
+    clear();
+    if (pc) {
+      pc.close();
+    }
   });
   /* 加入房间成功后，主动获取已发布资源的人员列表，通知应用层 */
   im.on(CommonEvent.JOINED, (error, room) => {
@@ -307,6 +317,9 @@ function StreamHandler(im, option) {
         network.detect((isOnline) => {
           if (isOnline) {
             republish();
+          } else {
+            let { Inner } = ErrorType;
+            im.emit(CommonEvent.ERROR, Inner.NETWORK_UNAVAILABLE)
           }
         });
       }
@@ -358,11 +371,6 @@ function StreamHandler(im, option) {
       });
       DataCache.set(DataCacheName.IS_NOTIFY_READY, true);
     });
-  });
-  im.on(CommonEvent.LEFT, () => {
-    if (pc) {
-      pc.close();
-    }
   });
   let isCurrentUser = (user) => {
     let { id } = im.getUser();

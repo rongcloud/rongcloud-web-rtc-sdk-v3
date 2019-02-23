@@ -59,8 +59,11 @@ export default class RongRTC {
         state: 'unmounted'
       });
     });
-    client.on(DownEvent.RTC_ERROR, (e) => {
-      error(e);
+    client.on(DownEvent.RTC_ERROR, (e, data) => {
+      if (e) {
+        throw new Error(e);
+      }
+      error(data);
     });
   }
   destroy() {

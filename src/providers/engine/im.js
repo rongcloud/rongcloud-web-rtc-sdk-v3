@@ -354,10 +354,11 @@ export class IM extends EventEmitter {
     let context = this;
     let { im, timer } = context;
     let count = 0;
-    let { SOCKET_UNAVAILABLE: error } = ErrorType;
+    let isPinging = false;
     let Status = {
       reset: () => {
         count = 0;
+        isPinging = false;
       },
       sum: () => {
         count += 1;
@@ -365,14 +366,29 @@ export class IM extends EventEmitter {
     };
     timer.resume(() => {
       if (count > PingCount) {
-        return context.emit(CommonEvent.ERROR, error);
+        timer.pause();
+        let { Inner } = ErrorType;
+        utils.extend(context, {
+          isJoinRoom: false
+        });
+        context.emit(CommonEvent.LEFT);
+        return context.emit(CommonEvent.ERROR, Inner.SOCKET_UNAVAILABLE);
       }
+      // 如果上次 Ping 没有结束，累计 Ping 次数
+      if (isPinging) {
+        Status.sum();
+      }
+      isPinging = true;
       im.getInstance().RTCPing(room, {
         onSuccess: () => {
           Status.reset();
         },
-        onError: () => {
-          Status.sum();
+        onError: (code) => {
+          let error = ErrorType[code];
+          if (error) {
+            context.emit(CommonEvent.ERROR, error);
+            timer.pause();
+          }
         }
       });
     }, true);
