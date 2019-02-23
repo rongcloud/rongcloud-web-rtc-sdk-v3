@@ -64,7 +64,7 @@ const rename = (origin, newNames) => {
 const extend = (destination, sources) => {
   for (let key in sources) {
     let value = sources[key];
-    if(!isUndefined(value)){
+    if (!isUndefined(value)) {
       destination[key] = value;
     }
   }
@@ -242,7 +242,7 @@ function Prosumer() {
     isConsuming = true;
     let next = () => {
       let res = data.shift();
-      if(isUndefined(res)){
+      if (isUndefined(res)) {
         isConsuming = false;
         return;
       }

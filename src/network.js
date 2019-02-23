@@ -4,8 +4,9 @@ export default class Network {
   constructor(_option) {
     _option = _option || {};
     let option = {
-      url: 'https://cdn.ronghub.com/ping',
-      timeout: 2000
+      url: 'https://cdn.ronghub.com/detecting',
+      timeout: 1500,
+      max: 30
     };
     utils.extend(option, _option);
     utils.extend(this, {
@@ -21,12 +22,10 @@ export default class Network {
     utils.extend(context, {
       detecting: true
     });
-    let { url, timeout } = option;
-    let count = 1, maxCount = 30;
+    let { url, timeout, max } = option;
+    let count = 1;
     let getCount = () => {
-      if (count > 5) {
-        count += 2;
-      }
+      count += 1;
       return count;
     };
     let isOnline = false;
@@ -39,12 +38,12 @@ export default class Network {
         isOnline = true;
         callback(isOnline);
       }, () => {
-        if (utils.isEqual(maxCount, count)) {
+        if (utils.isEqual(max, count)) {
           return callback(isOnline);
         }
         setTimeout(() => {
           ajax();
-        }, timeout * count);
+        }, timeout);
       });
     };
     ajax();
