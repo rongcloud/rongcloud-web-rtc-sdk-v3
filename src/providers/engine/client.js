@@ -10,7 +10,7 @@ import { RoomEvents } from '../../modules/events';
 import { DownEvent, UpEvent } from '../../event-name';
 import { CommonEvent } from './events';
 import Logger from '../../logger';
-import { EventType } from '../../enum';
+import { EventType, StreamType } from '../../enum';
 
 export default class Client extends EventEmitter {
   /* 
@@ -53,12 +53,34 @@ export default class Client extends EventEmitter {
     im.on(CommonEvent.ERROR, (error, data) => {
       context.emit(DownEvent.RTC_ERROR, data, error);
     });
+    let getMSType = (uris) => {
+      let check = (msType) => {
+        return utils.some(uris, ({ mediaType }) => {
+          return utils.isEqual(msType, mediaType);
+        });
+      };
+      let type = StreamType.NODE;
+      let hasAudio = check(StreamType.AUDIO);
+      let hasVideo = check(StreamType.VIDEO);
+      if (hasAudio) {
+        type = StreamType.AUDIO;
+      }
+      if (hasVideo) {
+        type = StreamType.VIDEO;
+      }
+      if (hasVideo && hasAudio) {
+        type = StreamType.AUDIO_AND_VIDEO;
+      }
+      return type;
+    };
     let eventHandler = (name, result, error) => {
-      let { id, stream: { tag } } = result;
+      let { id, stream: { tag, uris } } = result;
+      let type = getMSType(uris);
       let user = {
         id,
         stream: {
-          tag
+          tag,
+          type
         }
       };
       context.emit(name, user, error);
