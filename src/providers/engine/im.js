@@ -39,18 +39,19 @@ export class IM extends EventEmitter {
       im,
       RongIMLib
     });
-    let { ConnectionStatus: { CONNECTED } } = RongIMLib;
-    im.statusWatch((state) => {
-      let isConnected = state === CONNECTED;
-      if (isConnected) {
-        context.registerMessage();
-        utils.extend(context, {
-          connectState: state
-        });
+    let { ConnectionStatus } = RongIMLib;
+    im.statusWatch((status) => {
+      switch (status) {
+        case ConnectionStatus.CONNECTED:
+          if (context.isJoinRoom) {
+            context.rePing();
+          }
+          context.registerMessage();
+          break;
       }
-      if (!isConnected) {
-        timer.pause();
-      }
+      utils.extend(context, {
+        connectState: status
+      });
     });
     let dispatchStreamEvent = (user, callback) => {
       let { id, uris } = user;
@@ -342,37 +343,36 @@ export class IM extends EventEmitter {
     let context = this;
     return context.isJoinRoom;
   }
+  rePing() {
+    let context = this;
+    let { timer } = context;
+    let room = context.getRoom();
+    timer.pause();
+    context.rtcPing(room);
+  }
   rtcPing(room) {
     let context = this;
     let { im, timer } = context;
-    let count = 0, isPing = false;
+    let count = 0;
     let { SOCKET_UNAVAILABLE: error } = ErrorType;
     let Status = {
-      reset: (isAdd) => {
-        isPing = false;
-        if (isAdd) {
-          return count += 1;
-        }
+      reset: () => {
         count = 0;
       },
-      update: () => {
-        isPing = true;
+      sum: () => {
+        count += 1;
       }
     };
     timer.resume(() => {
-      if (isPing) {
-        count += 1;
-      }
-      if (count >= PingCount) {
+      if (count > PingCount) {
         return context.emit(CommonEvent.ERROR, error);
       }
-      Status.update();
       im.getInstance().RTCPing(room, {
         onSuccess: () => {
           Status.reset();
         },
         onError: () => {
-          Status.reset(true);
+          Status.sum();
         }
       });
     }, true);
