@@ -33,20 +33,35 @@ export class IM extends EventEmitter {
       isJoinRoom
     });
     let { RongIMLib: { RongIMClient: im }, RongIMLib } = option;
+    let init = () => {
+      if (context.isJoinRoom) {
+        context.rePing();
+      }
+      context.registerMessage();
+    };
     let connectState = -1;
+    try {
+      connectState = im.getInstance().getCurrentConnectionStatus();
+    } catch (error) {
+      Logger.error(LogTag.IM, {
+        content: error,
+        pos: 'new RongRTC'
+      });
+    }
+    let { ConnectionStatus: { CONNECTED } } = RongIMLib;
+    // 如果实例化 RongRTC 时，IM 已连接成功，主动触发内部 init
+    if (utils.isEqual(connectState, CONNECTED)) {
+      init();
+    }
     utils.extend(context, {
       connectState,
       im,
       RongIMLib
     });
-    let { ConnectionStatus } = RongIMLib;
     im.statusWatch((status) => {
       switch (status) {
-        case ConnectionStatus.CONNECTED:
-          if (context.isJoinRoom) {
-            context.rePing();
-          }
-          context.registerMessage();
+        case CONNECTED:
+          init();
           break;
       }
       utils.extend(context, {
