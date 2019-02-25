@@ -31,6 +31,7 @@ function StreamHandler(im, option) {
   */
   let subCache = utils.Cache();
   let prosumer = new utils.Prosumer();
+  let pc = null;
   let SubscribeCache = {
     get: (userId) => {
       return subCache.get(userId);
@@ -41,11 +42,12 @@ function StreamHandler(im, option) {
     getKeys: () => {
       return subCache.getKeys();
     },
-    remove: (userId, tag, type) => {
+    remove: (user) => {
+      let { id: userId } = user;
       let subs = subCache.get(userId) || [];
-      type = type || StreamType.AUDIO_AND_VIDEO;
-      subs = utils.filter(subs, ({ tag: mediaTag, mediaType }) => {
-        return !utils.isEqual(mediaTag, tag) && utils.isEqual(mediaType, type)
+      let streamId = pc.getStreamId(user);
+      subs = utils.filter(subs, ({ msid }) => {
+        return !utils.isEqual(streamId, msid)
       });
       subCache.set(userId, subs);
     },
@@ -60,7 +62,6 @@ function StreamHandler(im, option) {
     StreamCache.clear();
     SubscribeCache.clear();
   };
-  let pc = null;
   let eventEmitter = new EventEmitter();
   let getSubPromiseUId = (user) => {
     let { id, stream: { tag, type } } = user;
@@ -151,31 +152,42 @@ function StreamHandler(im, option) {
     let { publishList, sdp } = result;
     pc.setAnwser(sdp);
     let uris = getUris(publishList);
+
+    let getTempUris = (type) => {
+      let { id: userId } = user;
+      let cacheUris = PubResourceCache.get(userId) || [];
+      let isPublish = utils.isEqual(type, Message.PUBLISH);
+      if (isPublish) {
+        cacheUris = uris;
+      }
+      let streamId = pc.getStreamId(user);
+      let getCondition = (stream) => {
+        let { msid } = stream;
+        return utils.isEqual(msid, streamId);
+      };
+      let tempUris = utils.filter(cacheUris, (stream) => {
+        return getCondition(stream);
+      });
+      // 第一次 publish 过滤后 tempUris 为空，使用默认值
+      return utils.isEmpty(tempUris) ? uris : tempUris;
+    };
+    let sendUris = getTempUris(type);
     switch (type) {
       case Message.PUBLISH:
         im.sendMessage({
           type,
           content: {
-            uris
+            uris: sendUris
           }
         });
         break;
       case Message.UNPUBLISH:
-        {
-          let { id: userId } = user;
-          let publishUris = PubResourceCache.get(userId);
-          let streamId = pc.getStreamId(user);
-          let unpublishUris = utils.filter(publishUris, (stream) => {
-            let { msid } = stream;
-            return utils.isEqual(msid, streamId);
-          });
-          im.sendMessage({
-            type,
-            content: {
-              uris: unpublishUris
-            }
-          });
-        }
+        im.sendMessage({
+          type,
+          content: {
+            uris: sendUris
+          }
+        });
         break;
     }
     PubResourceCache.set(user.id, uris);
@@ -592,8 +604,7 @@ function StreamHandler(im, option) {
     });
   };
   let unsubscribe = (user) => {
-    let { id, stream: { type, tag } } = user;
-    SubscribeCache.remove(id, tag, type);
+    SubscribeCache.remove(user);
     let roomId = im.getRoomId();
     Logger.log(LogTag.STREAM_HANDLER, {
       msg: 'unsubscribe:start',
