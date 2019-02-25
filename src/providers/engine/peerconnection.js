@@ -9,7 +9,9 @@ export default class PeerConnection extends EventEmitter {
     super();
     let context = this;
     let pc = new RTCPeerConnection({
-      sdpSemantics: 'plan-b'
+      sdpSemantics: 'plan-b',
+      // Chrome 49 Test
+      iceServers: []
     });
     let events = {
       onaddstream: function (event) {
@@ -106,24 +108,28 @@ export default class PeerConnection extends EventEmitter {
       stream = [stream];
     }
     let option = context.getOption();
-    return pc.createOffer(option).then(desc => {
-      utils.forEach(stream, ({ mediaStream, size }) => {
-        let newStreamId = context.getStreamId(user, size);
-        let { id: streamId } = mediaStream;
-        let { sdp } = desc;
-        sdp = context.renameStream(sdp, {
-          name: streamId,
-          newName: newStreamId
+    return utils.deferred((resole, reject) => {
+      pc.createOffer((desc) => {
+        utils.forEach(stream, ({ mediaStream, size }) => {
+          let newStreamId = context.getStreamId(user, size);
+          let { id: streamId } = mediaStream;
+          let { sdp } = desc;
+          sdp = context.renameStream(sdp, {
+            name: streamId,
+            newName: newStreamId
+          });
+          utils.extend(desc, {
+            sdp
+          });
+        })
+        desc = context.renameCodec(desc);
+        utils.extend(context, {
+          desc
         });
-        utils.extend(desc, {
-          sdp
-        });
-      })
-      desc = context.renameCodec(desc);
-      utils.extend(context, {
-        desc
-      });
-      return desc;
+        resole(desc);
+      }, (error) => {
+        reject(error);
+      }, option);
     });
   }
 
@@ -131,9 +137,12 @@ export default class PeerConnection extends EventEmitter {
     let context = this;
     let { pc } = context;
     let option = context.getOption();
-    pc.createOffer(option).then(desc => {
+    pc.createOffer((desc) => {
       callback(context.renameCodec(desc));
-    });
+    }, () => { }, option)
+    // pc.createOffer(option).then(desc => {
+    //   callback(context.renameCodec(desc));
+    // });
   }
 
   renameStream(sdp, data) {

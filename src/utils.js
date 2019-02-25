@@ -94,6 +94,9 @@ const tplEngine = (tpl, data, regexp) => {
 const isContain = (str, keyword) => {
   return str.indexOf(keyword) > -1;
 };
+const isEqual = (source, target) => {
+  return source === target;
+};
 const Cache = (cache) => {
   if (!isObject(cache)) {
     cache = {};
@@ -126,7 +129,32 @@ const Cache = (cache) => {
   };
 };
 const request = (url, option) => {
-  return fetch(url, option);
+  return deferred((resolve, reject) => {
+    let xhr = new XMLHttpRequest();
+    let method = option.method || 'GET';
+    xhr.open(method, url, true);
+    let headers = option.headers || {};
+    forEach(headers, (header, name) => {
+      xhr.setRequestHeader(name, header);
+    });
+    let body = option.body;
+    let isSuccess = () => {
+      return /^(200|202)$/.test(xhr.status);
+    };
+    xhr.onreadystatechange = function () {
+      if (isEqual(xhr.readyState, 4)) {
+        let { responseText } = xhr;
+        let result = JSON.parse(responseText);
+        if (isSuccess()) {
+          resolve(result);
+        } else {
+          reject(result);
+        }
+      }
+    };
+    xhr.send(body);
+  });
+  // return fetch(url, option);
 };
 const map = (arrs, callback) => {
   return arrs.map(callback);
@@ -147,9 +175,6 @@ const uniq = (arrs, callback) => {
 };
 const some = (arrs, callback) => {
   return arrs.some(callback);
-};
-const isEqual = (source, target) => {
-  return source === target;
 };
 const isEmpty = (obj) => {
   let result = true;

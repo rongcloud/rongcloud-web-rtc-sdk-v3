@@ -17,7 +17,7 @@ class Request {
       headers: {
         'Content-Type': 'application/json'
       }
-    }).then(response => response.json());
+    });
   }
 }
 export const request = new Request();
