@@ -42,7 +42,7 @@ function StreamHandler(im, option) {
       return subCache.getKeys();
     },
     remove: (userId, tag, type) => {
-      let subs = subCache.get(userId);
+      let subs = subCache.get(userId) || [];
       type = type || StreamType.AUDIO_AND_VIDEO;
       subs = utils.filter(subs, ({ tag: mediaTag, mediaType }) => {
         return !utils.isEqual(mediaTag, tag) && utils.isEqual(mediaType, type)
