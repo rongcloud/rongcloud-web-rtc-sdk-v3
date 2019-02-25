@@ -49,15 +49,15 @@ export class IM extends EventEmitter {
       });
     }
     let { ConnectionStatus: { CONNECTED } } = RongIMLib;
-    // 如果实例化 RongRTC 时，IM 已连接成功，主动触发内部 init
-    if (utils.isEqual(connectState, CONNECTED)) {
-      init();
-    }
     utils.extend(context, {
       connectState,
       im,
       RongIMLib
     });
+    // 如果实例化 RongRTC 时，IM 已连接成功，主动触发内部 init
+    if (utils.isEqual(connectState, CONNECTED)) {
+      init();
+    }
     im.statusWatch((status) => {
       switch (status) {
         case CONNECTED:
