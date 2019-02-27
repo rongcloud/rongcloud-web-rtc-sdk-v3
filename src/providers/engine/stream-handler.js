@@ -242,14 +242,7 @@ function StreamHandler(im, option) {
       DataCache.set(key, uri);
     });
   });
-  im.on(DownEvent.STREAM_UNPUBLISHED, (error, user) => {
-    if (error) {
-      throw error;
-    }
-    dispatchStreamEvent(user, (key) => {
-      DataCache.remove(key);
-    });
-  });
+
   im.on(DownEvent.STREAM_CHANGED, (error, user) => {
     if (error) {
       throw error;
@@ -788,6 +781,49 @@ function StreamHandler(im, option) {
     let isEnabled = true;
     return modifyTrack(user, StreamType.VIDEO, StreamState.ENABLE, isEnabled);
   };
+  let getUsersById = (user) => {
+    let { id } = user;
+    let subs = SubscribeCache.get(id);
+    let streams = {}, msTypes = {};
+    utils.forEach(subs, ({ msid, tag, type }) => {
+      streams[msid] = tag;
+      let types = msTypes[msid] || [];
+      types.push(type);
+      msTypes[msid] = types;
+    });
+    let users = [];
+    utils.forEach(streams, (tag, msid) => {
+      let types = msTypes[msid] || [];
+      let type = msTypes[0];
+      type = utils.isEqual(types.length, 2) ? StreamType.AUDIO_AND_VIDEO : type;
+      users.push({
+        id,
+        stream: {
+          tag,
+          type
+        }
+      });
+    });
+    return users;
+  };
+  im.on(DownEvent.ROOM_USER_LEFT, (error, user) => {
+    if (error) {
+      throw error;
+    }
+    let users = getUsersById(user);
+    utils.forEach(users, (user) => {
+      unsubscribe(user);
+    });
+  });
+  im.on(DownEvent.STREAM_UNPUBLISHED, (error, user) => {
+    if (error) {
+      throw error;
+    }
+    dispatchStreamEvent(user, (key) => {
+      DataCache.remove(key);
+    });
+    unsubscribe(user);
+  });
   let dispatch = (event, args) => {
     switch (event) {
       case UpEvent.STREAM_PUBLISH:
