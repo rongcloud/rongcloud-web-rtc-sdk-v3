@@ -753,6 +753,9 @@ function StreamHandler(im, option) {
     let uris = getFitUris(user, type, state);
     // uris 为空表示没有发布资源，不需要修改
     if (!utils.isEmpty(uris)) {
+      let { id } = user;
+      let fullUris = PubResourceCache.get(id);
+      im.setUserInfo(User.SET_USERINFO, fullUris);
       im.sendMessage({
         type: Message.MODIFY,
         content: {

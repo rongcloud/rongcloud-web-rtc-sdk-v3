@@ -10,7 +10,7 @@ import { RoomEvents } from '../../modules/events';
 import { DownEvent, UpEvent } from '../../event-name';
 import { CommonEvent } from './events';
 import Logger from '../../logger';
-import { EventType, StreamType } from '../../enum';
+import { EventType, StreamType, StreamState } from '../../enum';
 
 export default class Client extends EventEmitter {
   /* 
@@ -55,8 +55,8 @@ export default class Client extends EventEmitter {
     });
     let getMSType = (uris) => {
       let check = (msType) => {
-        return utils.some(uris, ({ mediaType }) => {
-          return utils.isEqual(msType, mediaType);
+        return utils.some(uris, ({ mediaType, state }) => {
+          return utils.isEqual(msType, mediaType) && utils.isEqual(state, StreamState.ENABLE);
         });
       };
       let type = StreamType.NODE;
