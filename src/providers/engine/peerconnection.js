@@ -137,12 +137,12 @@ export default class PeerConnection extends EventEmitter {
     let context = this;
     let { pc } = context;
     let option = context.getOption();
-    pc.createOffer((desc) => {
-      callback(context.renameCodec(desc));
-    }, () => { }, option)
-    // pc.createOffer(option).then(desc => {
-    //   callback(context.renameCodec(desc));
-    // });
+    let success = function (desc) {
+      desc = context.renameCodec(desc);
+      callback && callback(desc);
+      return desc;
+    };
+    return pc.createOffer(option).then(success);
   }
 
   renameStream(sdp, data) {

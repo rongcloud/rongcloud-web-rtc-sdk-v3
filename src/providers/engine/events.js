@@ -14,7 +14,8 @@ export const CommonEvent = {
   JOINED: 'common_joined',
   LEFT: 'common_left',
   ERROR: 'common_error',
-  CONSUME: 'common_consume'
+  CONSUME: 'common_consume',
+  CONSUME_FINISHED: 'common_consume_finished'
 };
 
 export const CommandEvent = {

@@ -267,7 +267,7 @@ function Prosumer() {
   this.produce = (res) => {
     data.push(res);
   };
-  this.consume = (callback) => {
+  this.consume = (callback, finished) => {
     if (isConsuming) {
       return;
     }
@@ -276,11 +276,15 @@ function Prosumer() {
       let res = data.shift();
       if (isUndefined(res)) {
         isConsuming = false;
+        finished && finished();
         return;
       }
       callback(res, next);
     };
     next();
+  };
+  this.isExeuting = function(){
+    return isConsuming;
   };
 }
 /* 

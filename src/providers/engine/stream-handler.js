@@ -214,6 +214,8 @@ function StreamHandler(im, option) {
         });
         next();
       });
+    }, () => {
+      eventEmitter.emit(CommonEvent.CONSUME_FINISHED);
     });
   });
   let getUId = (user, tpl) => {
@@ -391,27 +393,22 @@ function StreamHandler(im, option) {
     },
     SET_USERINFO: 'uris'
   };
-  let publish = (user) => {
-    let { stream: streams } = user;
-    if (!utils.isArray(streams)) {
-      streams = [streams];
+  let publishTempStreams = [];
+  let publishInvoke = (users) => {
+    if (!utils.isArray(users)) {
+      users = [users];
     }
-    let { id } = user;
-    utils.forEach(streams, (stream) => {
-      let { mediaStream, size } = stream;
-      let streamId = pc.getStreamId({
-        id,
-        stream
-      }, size);
-      StreamCache.set(streamId, mediaStream);
+    utils.forEach(users, (user) => {
+      pc.addStream(user);
     });
+    let [user] = users
     let roomId = im.getRoomId();
     Logger.log(LogTag.STREAM_HANDLER, {
       msg: 'publish:start',
       roomId,
       user
     });
-    return pc.addStream(user).then(desc => {
+    return pc.createOffer(user).then(desc => {
       pc.setOffer(desc);
       return getBody().then(body => {
         let url = utils.tplEngine(Path.SUBSCRIBE, {
@@ -443,10 +440,37 @@ function StreamHandler(im, option) {
           });
           return error;
         }).then(result => {
+          publishTempStreams.length = 0;
           return exchangeHandler(result, user, Message.PUBLISH);
         });
       });
     });
+  };
+  eventEmitter.on(CommonEvent.CONSUME_FINISHED, () => {
+    if(!utils.isEmpty(publishTempStreams)){
+      publishInvoke(publishTempStreams)
+    }
+  });
+  let publish = (user) => {
+    let { stream: streams } = user;
+    if (!utils.isArray(streams)) {
+      streams = [streams];
+    }
+    let { id } = user;
+    utils.forEach(streams, (stream) => {
+      let { mediaStream, size } = stream;
+      let streamId = pc.getStreamId({
+        id,
+        stream
+      }, size);
+      StreamCache.set(streamId, mediaStream);
+    });
+
+    if (prosumer.isExeuting()) {
+      publishTempStreams.push(user);
+      return utils.Defer.resolve();
+    }
+    return publishInvoke(user);
   };
   let unpublish = (user) => {
     user = utils.clone(user);
