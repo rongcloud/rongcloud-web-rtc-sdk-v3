@@ -32,12 +32,14 @@ export default class Network {
     let ajax = () => {
       count = getCount();
       utils.request(url).then(() => {
-        utils.extend(context, {
-          detecting: false
-        });
-        isOnline = true;
-        callback(isOnline);
-      }, () => {
+      }, ({ status }) => {
+        if (utils.isEqual(status, 404)) {
+          utils.extend(context, {
+            detecting: false
+          });
+          isOnline = true;
+          return callback(isOnline);
+        }
         if (utils.isEqual(max, count)) {
           return callback(isOnline);
         }

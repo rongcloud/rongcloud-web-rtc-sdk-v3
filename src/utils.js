@@ -42,6 +42,18 @@ const forEach = (obj, callback) => {
     loopArr();
   }
 };
+const isEmpty = (obj) => {
+  let result = true;
+  if (isObject(obj)) {
+    forEach(obj, () => {
+      result = false;
+    });
+  }
+  if (isString(obj) || isArray(obj)) {
+    result = obj.length === 0;
+  }
+  return result;
+};
 const rename = (origin, newNames) => {
   var isObj = isObject(origin);
   if (isObj) {
@@ -130,6 +142,7 @@ const Cache = (cache) => {
 };
 const request = (url, option) => {
   return deferred((resolve, reject) => {
+    option = option || {};
     let xhr = new XMLHttpRequest();
     let method = option.method || 'GET';
     xhr.open(method, url, true);
@@ -137,18 +150,26 @@ const request = (url, option) => {
     forEach(headers, (header, name) => {
       xhr.setRequestHeader(name, header);
     });
-    let body = option.body;
+    let body = option.body || {};
     let isSuccess = () => {
       return /^(200|202)$/.test(xhr.status);
     };
     xhr.onreadystatechange = function () {
       if (isEqual(xhr.readyState, 4)) {
         let { responseText } = xhr;
+        if (isEmpty(responseText)) {
+          return reject({
+            status: xhr
+          });
+        }
         let result = JSON.parse(responseText);
         if (isSuccess()) {
           resolve(result);
         } else {
-          reject(result);
+          let { status } = xhr;
+          reject({
+            status
+          });
         }
       }
     };
@@ -175,18 +196,6 @@ const uniq = (arrs, callback) => {
 };
 const some = (arrs, callback) => {
   return arrs.some(callback);
-};
-const isEmpty = (obj) => {
-  let result = true;
-  if (isObject(obj)) {
-    forEach(obj, () => {
-      result = false;
-    });
-  }
-  if (isString(obj) || isArray(obj)) {
-    result = obj.length === 0;
-  }
-  return result;
 };
 const toJSON = (value) => {
   return JSON.stringify(value);
@@ -283,7 +292,7 @@ function Prosumer() {
     };
     next();
   };
-  this.isExeuting = function(){
+  this.isExeuting = function () {
     return isConsuming;
   };
 }
