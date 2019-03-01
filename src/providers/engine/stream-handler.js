@@ -83,21 +83,28 @@ function StreamHandler(im, option) {
     });
     return subs;
   };
-  let getBody = () => {
-    return utils.deferred(resolve => {
-      pc.getOffer((offer) => {
-        let token = im.getToken();
-        let subs = getSubs();
-        resolve({
-          token,
-          sdp: offer,
-          subscribeList: subs
-        });
+  let getBody = (desc) => {
+    let token = im.getToken();
+    let subs = getSubs();
+    let body = {
+      token,
+      subscribeList: subs
+    };
+    if(desc){
+      utils.extend(body, {
+        sdp: desc
       });
+      return utils.Defer.resolve(body);
+    }
+    return pc.getOffer().then((offer) => {
+      utils.extend(body, {
+        sdp: offer
+      })
+      return body;
     });
   };
   let negotiate = (response) => {
-    pc.getOffer(offer => {
+    pc.getOffer().then(offer => {
       pc.setOffer(offer);
       let { sdp } = response;
       pc.setAnwser(sdp);
@@ -410,7 +417,7 @@ function StreamHandler(im, option) {
     });
     return pc.createOffer(user).then(desc => {
       pc.setOffer(desc);
-      return getBody().then(body => {
+      return getBody(desc).then(body => {
         let url = utils.tplEngine(Path.SUBSCRIBE, {
           roomId
         });
@@ -447,7 +454,7 @@ function StreamHandler(im, option) {
     });
   };
   eventEmitter.on(CommonEvent.CONSUME_FINISHED, () => {
-    if(!utils.isEmpty(publishTempStreams)){
+    if (!utils.isEmpty(publishTempStreams)) {
       publishInvoke(publishTempStreams)
     }
   });
