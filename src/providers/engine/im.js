@@ -306,6 +306,67 @@ export class IM extends EventEmitter {
       });
     });
   }
+  setUserData(key, value, isInner, message) {
+    let { room: { id }, im } = this;
+    value = utils.toJSON(value);
+    return utils.deferred((resolve, reject) => {
+      im.getInstance().setRTCUserData(id, key, value, isInner, {
+        onSuccess: resolve,
+        onError: reject
+      }, message);
+    });
+  }
+  getUserData(keys, isInner) {
+    let { room: { id }, im } = this;
+    return utils.deferred((resolve, reject) => {
+      im.getInstance().getRTCUserData(id, keys, isInner, {
+        onSuccess: function (data) {
+          resolve(data);
+        },
+        onError: function (error) {
+          reject(error);
+        }
+      });
+    });
+  }
+  removeUserData(keys, isInner, message) {
+    let { room: { id }, im } = this;
+    return utils.deferred((resolve, reject) => {
+      im.getInstance().removeRTCUserData(id, keys, isInner, {
+        onSuccess: resolve,
+        onError: reject
+      }, message);
+    });
+  }
+  setRoomData(key, value, isInner, message) {
+    let { room: { id }, im } = this;
+    return utils.deferred((resolve, reject) => {
+      im.getInstance().setRTCRoomData(id, key, value, isInner, {
+        onSuccess: resolve,
+        onError: reject
+      }, message);
+    });
+  }
+  getRoomData(keys, isInner) {
+    let { room: { id }, im } = this;
+    return utils.deferred((resolve, reject) => {
+      im.getInstance().getRTCRoomData(id, keys, isInner, {
+        onSuccess: function (data) {
+          resolve(data);
+        },
+        onError: reject
+      });
+    });
+  }
+  removeRoomData(keys, isInner, message) {
+    let { room: { id }, im } = this;
+    return utils.deferred((resolve, reject) => {
+      im.getInstance().removeRTCRoomData(id, keys, isInner, {
+        onSuccess: resolve,
+        onError: reject
+      }, message);
+    });
+  }
   getExistUsers() {
     let { im, room } = this;
     return utils.deferred((resolve, reject) => {
