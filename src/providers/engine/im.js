@@ -9,7 +9,18 @@ const Message = {
   PUBLISH: 'RTCPublishResourceMessage',
   UNPUBLISH: 'RTCUnpublishResourceMessage',
   MODIFY: 'RTCModifyResourceMessage',
-  STATE: 'RTCUserChangeMessage'
+  STATE: 'RTCUserChangeMessage',
+  ROOM_NOTIFY: 'RTCRoomDataNotifyMessage',
+  USER_NOTIFY: 'RTCUserDataNotifyMessage'
+};
+
+const MessageName = {
+  PUBLISH: 'RCRTC:PublishResource',
+  UNPUBLISH: 'RCRTC:UnpublishResource',
+  MODIFY: 'RCRTC:ModifyResource',
+  STATE: 'RCRTC:state',
+  ROOM_NOTIFY: 'RCRTC:RoomNtf',
+  USER_NOTIFY: 'RCRTC:UserNtf'
 };
 const Timeout = {
   TIME: 10 * 1000
@@ -19,6 +30,22 @@ const errorHandler = (code, reject) => {
     code
   };
   reject(error);
+};
+const getMsgName = (type) => {
+  switch (type) {
+    case Message.PUBLISH:
+      return MessageName.PUBLISH;
+    case Message.UNPUBLISH:
+      return MessageName.UNPUBLISH;
+    case Message.MODIFY:
+      return MessageName.MODIFY;
+    case Message.STATE:
+      return MessageName.STATE;
+    case Message.ROOM_NOTIFY:
+      return MessageName.ROOM_NOTIFY;
+    case Message.USER_NOTIFY:
+      return MessageName.USER_NOTIFY;
+  }
 };
 export class IM extends EventEmitter {
   constructor(option) {
@@ -188,20 +215,28 @@ export class IM extends EventEmitter {
     };
     let messages = [{
       type: Message.PUBLISH,
-      name: 'RCRTC:PublishResource',
+      name: getMsgName(Message.PUBLISH),
       props: ['uris']
     }, {
       type: Message.UNPUBLISH,
-      name: 'RCRTC:UnpublishResource',
+      name: getMsgName(Message.UNPUBLISH),
       props: ['uris']
     }, {
       type: Message.MODIFY,
-      name: 'RCRTC:ModifyResource',
+      name: getMsgName(Message.MODIFY),
       props: ['uris']
     }, {
       type: Message.STATE,
-      name: 'RCRTC:state',
+      name: getMsgName(Message.STATE),
       props: ['users']
+    }, {
+      type: Message.ROOM_NOTIFY,
+      name: getMsgName(Message.ROOM_NOTIFY),
+      props: ['content']
+    }, {
+      type: Message.USER_NOTIFY,
+      name: getMsgName(Message.USER_NOTIFY),
+      props: ['content']
     }];
     utils.forEach(messages, (message) => {
       register(message);
@@ -320,9 +355,7 @@ export class IM extends EventEmitter {
     let { room: { id }, im } = this;
     return utils.deferred((resolve, reject) => {
       im.getInstance().getRTCUserData(id, keys, isInner, {
-        onSuccess: function (data) {
-          resolve(data);
-        },
+        onSuccess: resolve,
         onError: function (error) {
           reject(error);
         }
@@ -409,6 +442,14 @@ export class IM extends EventEmitter {
         }
       });
     });
+  }
+  getMessage(type, content) {
+    let name = getMsgName(type);
+    content = utils.toJSON(content);
+    return {
+      name,
+      content
+    };
   }
   isReady() {
     let context = this;

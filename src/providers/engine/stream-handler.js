@@ -32,6 +32,12 @@ function StreamHandler(im, option) {
   let subCache = utils.Cache();
   let prosumer = new utils.Prosumer();
   let pc = null;
+  let User = {
+    set: (key, data, isInner, message) => {
+      return im.setUserData(key, data, isInner, message);
+    },
+    SET_USERINFO: 'uris'
+  };
   let SubscribeCache = {
     get: (userId) => {
       return subCache.get(userId);
@@ -90,7 +96,7 @@ function StreamHandler(im, option) {
       token,
       subscribeList: subs
     };
-    if(desc){
+    if (desc) {
       utils.extend(body, {
         sdp: desc
       });
@@ -179,26 +185,13 @@ function StreamHandler(im, option) {
       return utils.isEmpty(tempUris) ? uris : tempUris;
     };
     let sendUris = getTempUris(type);
-    switch (type) {
-      case Message.PUBLISH:
-        im.sendMessage({
-          type,
-          content: {
-            uris: sendUris
-          }
-        });
-        break;
-      case Message.UNPUBLISH:
-        im.sendMessage({
-          type,
-          content: {
-            uris: sendUris
-          }
-        });
-        break;
-    }
-    PubResourceCache.set(user.id, uris);
-    return utils.Defer.resolve();
+    let content = {
+      uris: sendUris
+    };
+    let message = im.getMessage(type, content);
+    let isInner = true;
+    User.set(User.SET_USERINFO, uris, isInner, message);
+    return PubResourceCache.set(user.id, uris);
   };
   eventEmitter.on(CommonEvent.CONSUME, () => {
     let user = im.getUser();
@@ -384,21 +377,13 @@ function StreamHandler(im, option) {
         });
       });
       DataCache.set(DataCacheName.IS_NOTIFY_READY, true);
+    }).catch(() => {
+      DataCache.set(DataCacheName.IS_NOTIFY_READY, true);
     });
   });
   let isCurrentUser = (user) => {
     let { id } = im.getUser();
     return utils.isEqual(user.id, id);
-  };
-  let User = {
-    set: (key, data) => {
-      let { publishList } = data;
-      let uris = getUris(publishList);
-      return im.setUserInfo(key, uris).then(() => {
-        return data;
-      });
-    },
-    SET_USERINFO: 'uris'
   };
   let publishTempStreams = [];
   let publishInvoke = (users) => {
@@ -437,7 +422,8 @@ function StreamHandler(im, option) {
             user,
             response
           });
-          return User.set(User.SET_USERINFO, response);
+          publishTempStreams.length = 0;
+          exchangeHandler(response, user, Message.PUBLISH);
         }, error => {
           Logger.log(LogTag.STREAM_HANDLER, {
             msg: 'publish:response',
@@ -446,9 +432,6 @@ function StreamHandler(im, option) {
             error
           });
           return error;
-        }).then(result => {
-          publishTempStreams.length = 0;
-          return exchangeHandler(result, user, Message.PUBLISH);
         });
       });
     });
@@ -544,7 +527,7 @@ function StreamHandler(im, option) {
             response
           });
           StreamCache.remove(streamId);
-          return User.set(User.SET_USERINFO, response);
+          exchangeHandler(response, user, Message.UNPUBLISH);
         }, error => {
           Logger.log(LogTag.STREAM_HANDLER, {
             msg: 'unpublish:response',
@@ -552,9 +535,7 @@ function StreamHandler(im, option) {
             user,
             error
           });
-        }).then(result => {
-          return exchangeHandler(result, user, Message.UNPUBLISH);
-        });
+        })
       });
     });
   };
@@ -773,26 +754,25 @@ function StreamHandler(im, option) {
     });
     return uris;
   };
-  let sendModify = (user, type, state) => {
+  let saveModify = (user, type, state) => {
     let uris = getFitUris(user, type, state);
     // uris 为空表示没有发布资源，不需要修改
     if (!utils.isEmpty(uris)) {
       let { id } = user;
       let fullUris = PubResourceCache.get(id);
-      im.setUserInfo(User.SET_USERINFO, fullUris);
-      im.sendMessage({
-        type: Message.MODIFY,
-        content: {
-          uris
-        }
-      });
+      let content = {
+        uris
+      };
+      let message = im.getMessage(Message.MODIFY, content);
+      let isInner = true;
+      User.set(User.SET_USERINFO, fullUris, isInner, message);
     }
     return utils.Defer.resolve();
   };
   let modifyTrack = (user, type, state, isEnabled) => {
     trackHandler(user, type, isEnabled);
     if (isCurrentUser(user)) {
-      sendModify(user, type, state);
+      saveModify(user, type, state);
     }
     return utils.Defer.resolve();
   };
