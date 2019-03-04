@@ -251,7 +251,10 @@ export class IM extends EventEmitter {
     });
     return utils.deferred((resolve, reject) => {
       im.getInstance().joinRTCRoom(room, {
-        onSuccess: () => {
+        onSuccess: (users) => {
+          utils.extend(room, {
+            users
+          });
           context.emit(CommonEvent.JOINED, room);
           context.rtcPing(room);
           resolve();

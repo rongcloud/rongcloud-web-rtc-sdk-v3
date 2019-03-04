@@ -331,7 +331,8 @@ function StreamHandler(im, option) {
         });
       }
     });
-    im.getUsers(room).then((users) => {
+    let { users } = room;
+    let usersHandler = () => {
       DataCache.set(DataCacheName.USERS, users);
       if (utils.isEmpty(users)) {
         DataCache.set(DataCacheName.IS_NOTIFY_READY, true);
@@ -377,9 +378,8 @@ function StreamHandler(im, option) {
         });
       });
       DataCache.set(DataCacheName.IS_NOTIFY_READY, true);
-    }).catch(() => {
-      DataCache.set(DataCacheName.IS_NOTIFY_READY, true);
-    });
+    };
+    usersHandler();
   });
   let isCurrentUser = (user) => {
     let { id } = im.getUser();
