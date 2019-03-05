@@ -89,6 +89,12 @@ function StreamHandler(im, option) {
     });
     return subs;
   };
+  let { appkey } = option;
+  let getHeaders = () => {
+    return {
+      'App-Key': appkey
+    }
+  };
   let getBody = (desc) => {
     let token = im.getToken();
     let subs = getSubs();
@@ -127,9 +133,11 @@ function StreamHandler(im, option) {
         roomId,
         body
       });
+      let headers = getHeaders();
       return request.post({
         path: url,
-        body
+        body,
+        headers
       }).then(response => {
         Logger.log(LogTag.STREAM_HANDLER, {
           msg: 'publish:reconnect:response',
@@ -412,9 +420,11 @@ function StreamHandler(im, option) {
           user,
           body
         });
+        let headers = getHeaders();
         return request.post({
           path: url,
-          body
+          body,
+          headers
         }).then(response => {
           Logger.log(LogTag.STREAM_HANDLER, {
             msg: 'publish:response',
@@ -516,9 +526,11 @@ function StreamHandler(im, option) {
           user,
           body
         });
+        let headers = getHeaders();
         return request.post({
           path: url,
-          body
+          body,
+          headers
         }).then((response) => {
           Logger.log(LogTag.STREAM_HANDLER, {
             msg: 'unpublish:response',
@@ -594,9 +606,11 @@ function StreamHandler(im, option) {
             path: url,
             body
           };
+          let headers = getHeaders();
           prosumer.produce({
             sdp,
-            body
+            body,
+            headers
           });
           eventEmitter.emit(CommonEvent.CONSUME);
         });
@@ -626,9 +640,11 @@ function StreamHandler(im, option) {
         user,
         body
       });
+      let headers = getHeaders();
       return request.post({
         path: url,
-        body
+        body,
+        headers
       }).then(response => {
         Logger.log(LogTag.STREAM_HANDLER, {
           msg: 'unsubscribe:response',
@@ -692,9 +708,11 @@ function StreamHandler(im, option) {
         user,
         body
       });
+      let headers = getHeaders();
       return request.post({
         path: url,
-        body
+        body,
+        headers
       }).then(response => {
         Logger.log(LogTag.STREAM_HANDLER, {
           msg: 'resize:response',

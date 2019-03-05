@@ -26,6 +26,11 @@ let getErrors = () => {
     msg: '网络不可用'
   },
   {
+    code: 10005,
+    name: 'APPKEY_ILLEGAL',
+    msg: 'AppKey 不可为空'
+  },
+  {
     code: 20001,
     name: 'STREAM_NOT_EXIST',
     msg: 'stream 不存在，请检查传入参数, id、stream.type、stream.tag 是否正确'

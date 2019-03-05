@@ -5,11 +5,13 @@ import Client from './providers/engine/client';
 import utils from './utils';
 import { DownEvent } from './event-name';
 import Logger from './logger';
+import { ErrorType } from './error';
 
 export default class RongRTC {
   constructor(_option) {
     let context = this;
     let option = {
+      appkey: '',
       url: 'https://msqa.rongcloud.net/',
       debug: false,
       created: () => { },
@@ -42,7 +44,11 @@ export default class RongRTC {
       option,
       client
     });
-    let { created, mounted, unmounted, error } = option;
+    let { appkey, created, mounted, unmounted, error } = option;
+    if (utils.isEmpty(appkey)) {
+      let { Inner } = ErrorType;
+      return error(Inner.APPKEY_ILLEGAL);
+    }
     created();
     Logger.log(LogTag.LIFECYCLE, {
       state: 'created'

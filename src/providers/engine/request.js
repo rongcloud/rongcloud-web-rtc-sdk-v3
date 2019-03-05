@@ -11,12 +11,17 @@ class Request {
       domain,
       path
     });
+    let headers = {
+      'Content-Type': 'application/json'
+    };
+    let { headers: _headers } = option;
+    if (utils.isObject(_headers)) {
+      utils.extend(headers, _headers);
+    }
     return utils.request(url, {
       method: 'POST',
       body: JSON.stringify(body),
-      headers: {
-        'Content-Type': 'application/json'
-      }
+      headers
     });
   }
 }
