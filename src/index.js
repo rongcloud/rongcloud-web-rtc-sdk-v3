@@ -1,11 +1,12 @@
 import Room from './modules/room';
 import Stream from './modules/stream/index';
-import { StreamType, StreamSize, LogTag } from './enum';
+import { StreamType, StreamSize, LogTag, StorageType } from './enum';
 import Client from './providers/engine/client';
 import utils from './utils';
 import { DownEvent } from './event-name';
 import Logger from './logger';
 import { ErrorType } from './error';
+import Storage from './modules/storage';
 
 export default class RongRTC {
   constructor(_option) {
@@ -31,7 +32,7 @@ export default class RongRTC {
       });
     }
     let client = new Client(option);
-    utils.forEach([Room, Stream], (module) => {
+    utils.forEach([Room, Stream, Storage], (module) => {
       module.prototype.getClient = () => {
         return client;
       };
@@ -39,8 +40,10 @@ export default class RongRTC {
     utils.extend(context, {
       Room,
       Stream,
+      Storage,
       StreamType,
       StreamSize,
+      StorageType,
       option,
       client
     });

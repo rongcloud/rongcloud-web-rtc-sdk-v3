@@ -33,7 +33,11 @@ export const UpEvent = {
   VIDEO_ENABLE: 'video_enable',
 
   DEVICE_CHECK: 'device_check',
-  DEVICE_GET_LIST: 'device_get_list'
+  DEVICE_GET_LIST: 'device_get_list',
+
+  STORAGE_SET: 'strorage_set',
+  STORAGE_GET: 'strorage_get',
+  STORAGE_REMOVE: 'strorage_remove'
 };
 
 export const NetworkEvent = {

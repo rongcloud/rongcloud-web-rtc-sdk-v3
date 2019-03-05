@@ -356,6 +356,9 @@ export class IM extends EventEmitter {
   }
   getUserData(keys, isInner) {
     let { room: { id }, im } = this;
+    if (!utils.isArray(keys)) {
+      keys = [keys];
+    }
     return utils.deferred((resolve, reject) => {
       im.getInstance().getRTCUserData(id, keys, isInner, {
         onSuccess: resolve,
@@ -367,6 +370,9 @@ export class IM extends EventEmitter {
   }
   removeUserData(keys, isInner, message) {
     let { room: { id }, im } = this;
+    if (!utils.isArray(keys)) {
+      keys = [keys];
+    }
     return utils.deferred((resolve, reject) => {
       im.getInstance().removeRTCUserData(id, keys, isInner, {
         onSuccess: resolve,
@@ -385,6 +391,9 @@ export class IM extends EventEmitter {
   }
   getRoomData(keys, isInner) {
     let { room: { id }, im } = this;
+    if (!utils.isArray(keys)) {
+      keys = [keys];
+    }
     return utils.deferred((resolve, reject) => {
       im.getInstance().getRTCRoomData(id, keys, isInner, {
         onSuccess: function (data) {
@@ -396,6 +405,9 @@ export class IM extends EventEmitter {
   }
   removeRoomData(keys, isInner, message) {
     let { room: { id }, im } = this;
+    if (!utils.isArray(keys)) {
+      keys = [keys];
+    }
     return utils.deferred((resolve, reject) => {
       im.getInstance().removeRTCRoomData(id, keys, isInner, {
         onSuccess: resolve,

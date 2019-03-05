@@ -30,6 +30,7 @@ export const LogTag = {
   STREAM: 'stream',
   STREAM_HANDLER: 'stream_handler',
   ROOM_HANDLER: 'room_handler',
+  STORAGE_HANDLER: 'storage_handler',
   IM: 'im'
 };
 
@@ -45,3 +46,8 @@ export const EventType = {
   REQUEST: 1,
   RESPONSE: 2
 }
+
+export const StorageType = {
+  ROOM: 1,
+  USER: 2
+};

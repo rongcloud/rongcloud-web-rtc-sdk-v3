@@ -11,6 +11,7 @@ import { DownEvent, UpEvent } from '../../event-name';
 import { CommonEvent } from './events';
 import Logger from '../../logger';
 import { EventType, StreamType, StreamState } from '../../enum';
+import StorageHandler from './storage-handler';
 
 export default class Client extends EventEmitter {
   /* 
@@ -25,7 +26,8 @@ export default class Client extends EventEmitter {
     let im = new IM(option);
     let RequestHandler = {
       room: RoomHandler(im, option),
-      stream: StreamHandler(im, option)
+      stream: StreamHandler(im, option),
+      storage: StorageHandler(im)
     };
     let context = this;
     let { RongIMLib } = option;
