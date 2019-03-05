@@ -32,3 +32,8 @@ export const ErrorEvents = [{
   name: DownEvent.RTC_ERROR,
   type: 'error'
 }];
+
+export const MessageEvents = [{
+  name: DownEvent.MESSAGE_RECEIVED,
+  type: 'received'
+}]

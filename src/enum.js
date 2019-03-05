@@ -31,7 +31,8 @@ export const LogTag = {
   STREAM_HANDLER: 'stream_handler',
   ROOM_HANDLER: 'room_handler',
   STORAGE_HANDLER: 'storage_handler',
-  IM: 'im'
+  IM: 'im',
+  MESSAGE: 'message'
 };
 
 export const LogLevel = {

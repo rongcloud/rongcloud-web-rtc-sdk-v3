@@ -12,6 +12,7 @@ import { CommonEvent } from './events';
 import Logger from '../../logger';
 import { EventType, StreamType, StreamState } from '../../enum';
 import StorageHandler from './storage-handler';
+import MessageHandler from './message-handler';
 
 export default class Client extends EventEmitter {
   /* 
@@ -27,7 +28,8 @@ export default class Client extends EventEmitter {
     let RequestHandler = {
       room: RoomHandler(im, option),
       stream: StreamHandler(im, option),
-      storage: StorageHandler(im)
+      storage: StorageHandler(im),
+      message: MessageHandler(im)
     };
     let context = this;
     let { RongIMLib } = option;
@@ -54,6 +56,9 @@ export default class Client extends EventEmitter {
     });
     im.on(CommonEvent.ERROR, (error, data) => {
       context.emit(DownEvent.RTC_ERROR, data, error);
+    });
+    im.on(DownEvent.MESSAGE_RECEIVED, (error, message) => {
+      context.emit(DownEvent.MESSAGE_RECEIVED, message, error);
     });
     let getMSType = (uris) => {
       let check = (msType) => {

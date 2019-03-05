@@ -7,6 +7,7 @@ import { DownEvent } from './event-name';
 import Logger from './logger';
 import { ErrorType } from './error';
 import Storage from './modules/storage';
+import Message from './modules/message';
 
 export default class RongRTC {
   constructor(_option) {
@@ -32,7 +33,7 @@ export default class RongRTC {
       });
     }
     let client = new Client(option);
-    utils.forEach([Room, Stream, Storage], (module) => {
+    utils.forEach([Room, Stream, Storage, Message], (module) => {
       module.prototype.getClient = () => {
         return client;
       };
@@ -44,6 +45,7 @@ export default class RongRTC {
       StreamType,
       StreamSize,
       StorageType,
+      Message,
       option,
       client
     });

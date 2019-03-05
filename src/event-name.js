@@ -11,7 +11,10 @@ export const DownEvent = {
   
   RTC_ERROR: 'rtc_error',
   RTC_MOUNTED: 'rtc_mounted',
-  RTC_UNMOUNTED: 'rtc_unmounted'
+  RTC_UNMOUNTED: 'rtc_unmounted',
+
+  MESSAGE_RECEIVED: 'message_received'
+
 };
 
 export const UpEvent = {
@@ -37,7 +40,9 @@ export const UpEvent = {
 
   STORAGE_SET: 'strorage_set',
   STORAGE_GET: 'strorage_get',
-  STORAGE_REMOVE: 'strorage_remove'
+  STORAGE_REMOVE: 'strorage_remove',
+
+  MESSAGE_SEND: 'message_send'
 };
 
 export const NetworkEvent = {

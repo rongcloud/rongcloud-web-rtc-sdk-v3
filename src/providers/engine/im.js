@@ -200,7 +200,7 @@ export class IM extends EventEmitter {
           });
           break;
         default:
-          Logger.warn(`MessageWatch: unkown message type ${message.objectName}`);
+          context.emit(DownEvent.MESSAGE_RECEIVED, message);
       }
     });
   }
