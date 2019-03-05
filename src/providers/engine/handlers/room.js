@@ -1,9 +1,9 @@
-import { UpEvent, DownEvent } from '../../event-name';
-import utils from '../../utils';
-import { request } from './request';
-import { Path } from './path';
-import Logger from '../../logger';
-import { LogTag } from '../../enum';
+import { UpEvent, DownEvent } from '../../../event-name';
+import utils from '../../../utils';
+import { request } from '../request';
+import { Path } from '../path';
+import Logger from '../../../logger';
+import { LogTag } from '../../../enum';
 function RoomHandler(im) {
   let join = (room) => {
     Logger.log(LogTag.ROOM_HANDLER, {

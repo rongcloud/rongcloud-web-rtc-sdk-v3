@@ -1,7 +1,9 @@
 import EventEmitter from '../../event-emitter';
 import utils from '../../utils';
-import StreamHandler from './stream-handler';
-import RoomHandler from './room-handler';
+import StreamHandler from './handlers/stream';
+import RoomHandler from './handlers/room';
+import StorageHandler from './handlers/storage';
+import MessageHandler from './handlers/message';
 import { IM } from './im';
 import { request } from './request';
 import RTCAdapter from './3rd/adapter';
@@ -11,8 +13,6 @@ import { DownEvent, UpEvent } from '../../event-name';
 import { CommonEvent } from './events';
 import Logger from '../../logger';
 import { EventType, StreamType, StreamState } from '../../enum';
-import StorageHandler from './storage-handler';
-import MessageHandler from './message-handler';
 
 export default class Client extends EventEmitter {
   /* 

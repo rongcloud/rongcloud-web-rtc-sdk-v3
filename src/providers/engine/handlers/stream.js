@@ -1,15 +1,15 @@
-import { UpEvent, DownEvent } from '../../event-name';
-import utils from '../../utils';
-import { request } from './request';
-import PeerConnection from './peerconnection';
-import { Path } from './path';
-import Message from './im';
-import { CommonEvent, PeerConnectionEvent } from './events';
-import EventEmitter from '../../event-emitter';
-import { StreamType, StreamState, LogTag, StreamSize } from '../../enum';
-import { ErrorType } from '../../error';
-import Logger from '../../logger';
-import Network from '../../network';
+import { UpEvent, DownEvent } from '../../../event-name';
+import utils from '../../../utils';
+import { request } from '../request';
+import PeerConnection from '../peerconnection';
+import { Path } from '../path';
+import Message from '../im';
+import { CommonEvent, PeerConnectionEvent } from '../events';
+import EventEmitter from '../../../event-emitter';
+import { StreamType, StreamState, LogTag, StreamSize } from '../../../enum';
+import { ErrorType } from '../../../error';
+import Logger from '../../../logger';
+import Network from '../../../network';
 
 function StreamHandler(im, option) {
   let DataCache = utils.Cache();

@@ -1,6 +1,6 @@
-import { UpEvent } from '../../event-name';
-import { LogTag } from '../../enum';
-import Logger from '../../logger';
+import { UpEvent } from '../../../event-name';
+import { LogTag } from '../../../enum';
+import Logger from '../../../logger';
 
 function MessageHandler(im) {
   let send = (message) => {

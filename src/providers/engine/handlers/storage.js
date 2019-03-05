@@ -1,7 +1,7 @@
-import { UpEvent } from '../../event-name';
-import { LogTag, StorageType } from '../../enum';
-import utils from '../../utils';
-import Logger from '../../logger';
+import { UpEvent } from '../../../event-name';
+import { LogTag, StorageType } from '../../../enum';
+import utils from '../../../utils';
+import Logger from '../../../logger';
 
 function StorageHandler(im) {
   let isInner = false;
