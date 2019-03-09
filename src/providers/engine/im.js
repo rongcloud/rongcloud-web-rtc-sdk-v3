@@ -166,6 +166,42 @@ export class IM extends EventEmitter {
         }
       });
     };
+    /**
+     * 收到 UnkownMessage 自动转为 ObjectName + "Message" 做为 MessageType
+     * 免去注册自定义消息逻辑
+     */
+    let renameMessage = (message) => {
+      let { messageType } = message;
+      if (!utils.isEqual(im.MessageType.UnknownMessage, messageType)) {
+        return message;
+      }
+      let { objectName } = message;
+      let clear = (msg, content) => {
+        let { objectName: objName } = content;
+        if (utils.isEqual(objName, objectName)) {
+          delete content.objectName;
+        }
+        delete msg.conversationType;
+        delete msg.messageId;
+        delete msg.offLineMessage;
+        delete msg.receivedStatus;
+        delete msg.messageType;
+        delete msg.targetId;
+      };
+      let msg = utils.parse(utils.toJSON(message));
+      let { content: { message: { content } } } = msg;
+      clear(msg, content);
+      utils.extend(msg, {
+        content
+      });
+      msg = utils.rename(msg, {
+        objectName: 'name',
+        messageUId: 'uId',
+        senderUserId: 'senderId',
+        messageDirection: 'direction'
+      })
+      return msg
+    };
     im.messageWatch((message) => {
       let { messageType: type, senderUserId: id, content: { uris, users } } = message;
       let user = { id };
@@ -200,7 +236,7 @@ export class IM extends EventEmitter {
           });
           break;
         default:
-          context.emit(DownEvent.MESSAGE_RECEIVED, message);
+          context.emit(DownEvent.MESSAGE_RECEIVED, renameMessage(message));
       }
     });
   }
