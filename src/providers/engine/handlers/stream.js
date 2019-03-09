@@ -297,6 +297,10 @@ function StreamHandler(im, option) {
       if (!isEmptyAudio && !isEmtpyVideo) {
         type = StreamType.AUDIO_AND_VIDEO;
       }
+      Logger.log(LogTag.ROOM, {
+        msg: 'join successfully',
+        room
+      });
       return {
         id: userId,
         stream: {
@@ -315,6 +319,10 @@ function StreamHandler(im, option) {
       let user = getStreamUser(stream);
       let uid = getSubPromiseUId(user);
       let promise = SubPromiseCache.get(uid);
+      Logger.log(LogTag.STREAM, {
+        msg: 'stream added',
+        user
+      });
       promise.resolve(user);
     });
     pc.on(PeerConnectionEvent.REMOVED, (error, stream) => {
