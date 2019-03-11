@@ -2210,14 +2210,31 @@ function Adapter(){
               this.removeEventListener('track', this._onaddstreampoly);
             }
             this.addEventListener('addstream', this._onaddstream = f);
+            var isExist = function(streams, newStream){
+              var isOk = true;
+              var oldStream = streams.filter(function(stream){
+                return stream.id == newStream.id;
+              })[0];
+              if(oldStream){
+                var oldTracks = oldStream.getTracks();
+                var newTracks = newStream.getTracks();
+                if(newTracks.length > oldTracks.length){
+                  isOk = false;
+                }
+              }else{
+                isOk = false;
+              }
+              return isOk;
+            };
             this.addEventListener('track', this._onaddstreampoly = function (e) {
               e.streams.forEach(function (stream) {
                 if (!_this3._remoteStreams) {
                   _this3._remoteStreams = [];
                 }
-                if (_this3._remoteStreams.includes(stream)) {
-                  return;
-                }
+                
+                // if (isExist(_this3._remoteStreams, stream)) {
+                //   return;
+                // }
                 _this3._remoteStreams.push(stream);
                 var event = new Event('addstream');
                 event.stream = stream;

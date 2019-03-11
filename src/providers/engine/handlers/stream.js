@@ -319,11 +319,20 @@ function StreamHandler(im, option) {
       let user = getStreamUser(stream);
       let uid = getSubPromiseUId(user);
       let promise = SubPromiseCache.get(uid);
+      if (utils.isUndefined(promise)) {
+        return Logger.log(LogTag.STREAM, {
+          msg: 'stream added-part',
+          user,
+          tracks: stream.getTracks()
+        });
+      }
       Logger.log(LogTag.STREAM, {
         msg: 'stream added',
-        user
+        user,
+        tracks: stream.getTracks()
       });
       promise.resolve(user);
+      
     });
     pc.on(PeerConnectionEvent.REMOVED, (error, stream) => {
       if (error) {
@@ -559,12 +568,35 @@ function StreamHandler(im, option) {
       });
     });
   };
+  let isTrackExist = (user, types) => {
+    let { id: userId, stream: { tag } } = user;
+    var isError = false;
+    utils.forEach(types, (type) => {
+      let tUser = {
+        id: userId,
+        stream: {
+          tag,
+          type
+        }
+      };
+      let key = getUId(tUser);
+      let uri = DataCache.get(key);
+      if (utils.isUndefined(uri)) {
+        isError = true;
+      }
+    });
+    return isError;
+  };
   let subscribe = (user) => {
     let { id: userId, stream: { tag, type } } = user;
     let subs = SubscribeCache.get(userId) || [];
     let types = [StreamType.VIDEO, StreamType.AUDIO];
     if (!utils.isEqual(type, StreamType.AUDIO_AND_VIDEO)) {
       types = [type];
+    }
+    if (isTrackExist(user, types)) {
+      let { Inner } = ErrorType;
+      return utils.Defer.reject(Inner.STREAM_TRACK_NOT_EXIST);
     }
     utils.forEach(types, (type) => {
       let tUser = {
@@ -626,7 +658,8 @@ function StreamHandler(im, option) {
       let uid = getSubPromiseUId(user);
       SubPromiseCache.set(uid, {
         resolve,
-        reject
+        reject,
+        type
       });
     });
   };

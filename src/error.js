@@ -36,6 +36,11 @@ let getErrors = () => {
     msg: 'stream 不存在，请检查传入参数, id、stream.type、stream.tag 是否正确'
   },
   {
+    code: 20002,
+    name: 'STREAM_TRACK_NOT_EXIST',
+    msg: 'Track 不存在，请检查传入参数 stream.type 是否正确'
+  },
+  {
     code: 30001,
     name: 'PARAMTER_ILLEGAL',
     msg: '请检查参数，{name} 参数为必传入项'
