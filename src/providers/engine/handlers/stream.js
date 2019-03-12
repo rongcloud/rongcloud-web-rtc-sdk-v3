@@ -169,11 +169,83 @@ function StreamHandler(im, option) {
   };
   let { detect } = option;
   let network = new Network(detect);
+  let getTrackState = (streams) => {
+    if (!utils.isArray(streams)) {
+      streams = [streams];
+    }
+    let result = {};
+    utils.forEach(streams, ({ mediaStream }) => {
+      let { streamId } = mediaStream;
+      let videoTracks = mediaStream.getVideoTracks();
+      let audioTracks = mediaStream.getAudioTracks();
+      let func = (track) => {
+        return utils.isEqual(track.enable, false)
+      }
+      let video = StreamState.ENABLE;
+      if (utils.some(videoTracks, func)) {
+        video = StreamState.DISBALE;
+      }
+      let audio = StreamState.ENABLE;
+      if (utils.some(audioTracks, func)) {
+        audio = StreamState.DISBALE;
+      }
+      result[streamId] = {
+        video,
+        audio
+      };
+    });
+    return result;
+  };
+  let updateTrackState = (user, sendUris, uris) => {
+    let { stream: streams } = user;
+    let states = getTrackState(streams);
+    let update = (_uris) => {
+      utils.forEach(states, ({ audio, video }, streamId) => {
+        utils.map(_uris, (uri) => {
+          let isSameStream = utils.isEqual(uri.msid, streamId);
+          if (isSameStream && utils.isEqual(uri.mediaType, StreamType.VIDEO)) {
+            utils.extend(uri, {
+              state: video
+            });
+          }
+          if (isSameStream && utils.isEqual(uri.mediaType, StreamType.AUDIO)) {
+            utils.extend(uri, {
+              state: audio
+            });
+          }
+          return uri;
+        });
+      });
+    };
+    update(sendUris);
+    update(uris);
+    return {
+      sendUris,
+      uris
+    };
+  };
+  let appendStreamId = (user) => {
+    let { id } = user;
+    let { stream: streams } = user;
+    if (!utils.isArray(streams)) {
+      streams = [streams];
+    }
+    utils.map(streams, (stream) => {
+      let streamId = pc.getStreamId({
+        id,
+        stream
+      });
+      let { mediaStream } = stream;
+      utils.extend(mediaStream, {
+        streamId
+      });
+    });
+  };
   let exchangeHandler = (result, user, type) => {
     let { publishList, sdp } = result;
     pc.setAnwser(sdp);
     let uris = getUris(publishList);
-
+    appendStreamId(user);
     let getTempUris = (type) => {
       let { id: userId } = user;
       let cacheUris = PubResourceCache.get(userId) || [];
@@ -193,6 +265,7 @@ function StreamHandler(im, option) {
       return utils.isEmpty(tempUris) ? uris : tempUris;
     };
     let sendUris = getTempUris(type);
+    updateTrackState(user, sendUris, uris);
     let content = {
       uris: sendUris
     };
@@ -237,8 +310,8 @@ function StreamHandler(im, option) {
   };
   let dispatchStreamEvent = (user, callback) => {
     let { id, stream: { uris } } = user;
-    utils.forEach(uris, (item) => {
-      let { tag, mediaType: type, uri } = item;
+    utils.forEach(uris, (uri) => {
+      let { tag, mediaType: type } = uri;
       let key = getUId({ id, stream: { tag, type } });
       callback(key, uri);
     });
@@ -288,14 +361,35 @@ function StreamHandler(im, option) {
       let audioTrakcks = stream.getAudioTracks();
       let isEmtpyVideo = utils.isEmpty(videoTracks);
       let isEmptyAudio = utils.isEmpty(audioTrakcks)
+      let tpl = '{id}_{type}';
+      let videoTrackId = utils.tplEngine(tpl, {
+        id,
+        type: StreamType.VIDEO
+      });
+      let audioTrackId = utils.tplEngine(tpl, {
+        id,
+        type: StreamType.AUDIO
+      });
+
+      let videoTrack = DataCache.get(videoTrackId);
+      let audioTrack = DataCache.get(audioTrackId);
+
       if (isEmtpyVideo) {
         type = StreamType.AUDIO;
       }
       if (isEmptyAudio) {
         type = StreamType.VIDEO;
       }
+      let disableVideo = false;
+      let disableAudio = false;
+
       if (!isEmptyAudio && !isEmtpyVideo) {
         type = StreamType.AUDIO_AND_VIDEO;
+        if (utils.isEqual(videoTrack.state, StreamState.DISBALE)) {
+          disableVideo = true;
+        } else if (utils.isEqual(audioTrack.state, StreamState.DISBALE)) {
+          disableAudio = true;
+        }
       }
       Logger.log(LogTag.ROOM, {
         msg: 'join successfully',
@@ -306,7 +400,11 @@ function StreamHandler(im, option) {
         stream: {
           tag,
           type,
-          mediaStream: stream
+          mediaStream: stream,
+          disable: {
+            video: disableVideo,
+            audio: disableAudio
+          }
         }
       }
     };
@@ -332,7 +430,7 @@ function StreamHandler(im, option) {
         tracks: stream.getTracks()
       });
       promise.resolve(user);
-      
+
     });
     pc.on(PeerConnectionEvent.REMOVED, (error, stream) => {
       if (error) {
@@ -369,8 +467,8 @@ function StreamHandler(im, option) {
         }
         let { uris } = data;
         uris = JSON.parse(uris);
-        utils.forEach(uris, (item) => {
-          let { mediaType: type, tag, uri } = item;
+        utils.forEach(uris, (uri) => {
+          let { mediaType: type, tag } = uri;
           let key = getUId({
             id,
             stream: {
@@ -580,7 +678,7 @@ function StreamHandler(im, option) {
         }
       };
       let key = getUId(tUser);
-      let uri = DataCache.get(key);
+      let { uri } = DataCache.get(key);
       if (utils.isUndefined(uri)) {
         isError = true;
       }
@@ -607,7 +705,7 @@ function StreamHandler(im, option) {
         }
       };
       let key = getUId(tUser);
-      let uri = DataCache.get(key);
+      let { uri } = DataCache.get(key);
       let isAdd = true;
       utils.forEach(subs, (sub) => {
         let { type: existType, tag: existTag } = sub;

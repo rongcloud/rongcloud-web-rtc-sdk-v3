@@ -293,7 +293,7 @@ export class IM extends EventEmitter {
           });
           context.emit(CommonEvent.JOINED, room);
           context.rtcPing(room);
-          resolve();
+          resolve(users);
         },
         onError: (code) => {
           return errorHandler(code, reject);

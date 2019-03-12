@@ -10,34 +10,16 @@ function RoomHandler(im) {
       msg: 'join:before',
       room
     });
-    return im.joinRoom(room).then(() => {
+    return im.joinRoom(room).then((users) => {
       Logger.log(LogTag.ROOM_HANDLER, {
         msg: 'join:after',
         room
       });
-      Logger.log(LogTag.ROOM_HANDLER, {
-        msg: 'getUsers:before',
-        room
-      });
-      return im.getExistUsers().then(({ users }) => {
-        Logger.log(LogTag.ROOM_HANDLER, {
-          msg: 'getUsers:after',
-          room,
-          users
+      utils.forEach(users, (user) => {
+        let { userId: id } = user;
+        im.emit(DownEvent.ROOM_USER_JOINED, {
+          id
         });
-        utils.forEach(users, (user) => {
-          let { userId: id } = user;
-          im.emit(DownEvent.ROOM_USER_JOINED, {
-            id
-          });
-        });
-      }, error => {
-        Logger.log(LogTag.ROOM_HANDLER, {
-          msg: 'getUsers:after',
-          room,
-          error
-        });
-        return error;
       });
     }, (error) => {
       Logger.log(LogTag.ROOM_HANDLER, {
