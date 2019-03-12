@@ -15,8 +15,11 @@ function RoomHandler(im) {
         msg: 'join:after',
         room
       });
-      utils.forEach(users, (user) => {
-        let { userId: id } = user;
+      utils.forEach(users, (user, id) => {
+        Logger.log(LogTag.ROOM_HANDLER, {
+          msg: 'join:after:existUsers',
+          user
+        });
         im.emit(DownEvent.ROOM_USER_JOINED, {
           id
         });

@@ -380,15 +380,15 @@ function StreamHandler(im, option) {
       if (isEmptyAudio) {
         type = StreamType.VIDEO;
       }
-      let disableVideo = false;
-      let disableAudio = false;
+      let enableVideo = true;
+      let enableAudio = true;
 
       if (!isEmptyAudio && !isEmtpyVideo) {
         type = StreamType.AUDIO_AND_VIDEO;
         if (utils.isEqual(videoTrack.state, StreamState.DISBALE)) {
-          disableVideo = true;
+          enableVideo = false;
         } else if (utils.isEqual(audioTrack.state, StreamState.DISBALE)) {
-          disableAudio = true;
+          enableAudio = false;
         }
       }
       Logger.log(LogTag.ROOM, {
@@ -401,9 +401,9 @@ function StreamHandler(im, option) {
           tag,
           type,
           mediaStream: stream,
-          disable: {
-            video: disableVideo,
-            audio: disableAudio
+          enable: {
+            video: enableVideo,
+            audio: enableAudio
           }
         }
       }
