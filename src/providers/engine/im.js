@@ -383,9 +383,23 @@ export class IM extends EventEmitter {
   setUserData(key, value, isInner, message) {
     let { room: { id }, im } = this;
     value = utils.toJSON(value);
+    Logger.log(LogTag.STREAM_HANDLER, {
+      msg: 'setUserData:before',
+      roomId: id,
+      value,
+      message
+    });
     return utils.deferred((resolve, reject) => {
       im.getInstance().setRTCUserData(id, key, value, isInner, {
-        onSuccess: resolve,
+        onSuccess: function(){
+          Logger.log(LogTag.STREAM_HANDLER, {
+            msg: 'setUserData:after',
+            roomId: id,
+            value,
+            message
+          });
+          resolve();
+        },
         onError: reject
       }, message);
     });
