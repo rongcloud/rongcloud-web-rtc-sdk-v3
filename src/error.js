@@ -41,6 +41,11 @@ let getErrors = () => {
     msg: 'Track 不存在，请检查传入参数 stream.type 是否正确'
   },
   {
+    code: 20003,
+    name: 'ROOM_ID_IS_ILLEGAL',
+    msg: '房间号不合法，只能包含大小写字母、阿拉伯数字、+、=、-、_ 且长度不能超过 64 个字符'
+  },
+  {
     code: 30001,
     name: 'PARAMTER_ILLEGAL',
     msg: '请检查参数，{name} 参数为必传入项'

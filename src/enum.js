@@ -52,3 +52,7 @@ export const StorageType = {
   ROOM: 1,
   USER: 2
 };
+
+export const REGEXP_ROOM_ID = /[A-Za-z0-9+=-_]+$/;
+
+export const LENGTH_ROOM_ID = 64;

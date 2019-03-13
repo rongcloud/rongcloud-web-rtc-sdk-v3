@@ -159,6 +159,10 @@ export class IM extends EventEmitter {
             break;
           case UserState.LEFT:
           case UserState.OFFLINE:
+            Logger.log(LogTag.ROOM, {
+              msg: 'room:member:left',
+              user
+            });
             context.emit(DownEvent.ROOM_USER_LEFT, { id });
             break;
           default:
