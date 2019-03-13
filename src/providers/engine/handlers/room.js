@@ -37,14 +37,17 @@ function RoomHandler(im) {
   };
   let leave = () => {
     let roomId = im.getRoomId();
+    let user = im.getUser();
     Logger.log(LogTag.ROOM_HANDLER, {
       msg: 'leave:before',
-      roomId
+      roomId,
+      user
     });
     return im.leaveRoom().then(() => {
       Logger.log(LogTag.ROOM_HANDLER, {
         msg: 'leave:after',
-        roomId
+        roomId,
+        user
       });
       let token = im.getToken();
       if (utils.isString(token)) {
@@ -62,7 +65,8 @@ function RoomHandler(im) {
       Logger.log(LogTag.ROOM_HANDLER, {
         msg: 'leave:after',
         roomId,
-        error
+        error,
+        user
       });
       return error;
     });
