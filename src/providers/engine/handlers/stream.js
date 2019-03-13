@@ -179,7 +179,7 @@ function StreamHandler(im, option) {
       let videoTracks = mediaStream.getVideoTracks();
       let audioTracks = mediaStream.getAudioTracks();
       let func = (track) => {
-        return utils.isEqual(track.enable, false)
+        return utils.isEqual(track.enabled, false)
       }
       let video = StreamState.ENABLE;
       if (utils.some(videoTracks, func)) {
