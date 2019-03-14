@@ -17,6 +17,12 @@ const isBoolean = (str) => {
 const isUndefined = (str) => {
   return Object.prototype.toString.call(str) === '[object Undefined]';
 };
+const isNull = (str) => {
+  return Object.prototype.toString.call(str) === '[object Null]';
+};
+const isNumber = (str) => {
+  return Object.prototype.toString.call(str) === '[object Number]';
+};
 const stringify = (obj) => {
   return JSON.stringify(obj);
 };
@@ -334,5 +340,7 @@ export default {
   isEqual,
   isEmpty,
   toJSON,
-  isInclude
+  isInclude,
+  isNull,
+  isNumber
 }

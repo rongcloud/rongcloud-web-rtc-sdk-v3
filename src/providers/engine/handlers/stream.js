@@ -353,7 +353,7 @@ function StreamHandler(im, option) {
     if (error) {
       throw error;
     }
-    pc = new PeerConnection();
+    pc = new PeerConnection(option);
     let getStreamUser = (stream) => {
       let { id } = stream, type = StreamType.NODE;
       let [userId, tag] = id.split('_');

@@ -16,6 +16,11 @@ export default class RongRTC {
       appkey: '',
       url: 'https://msqa.rongcloud.net/',
       debug: false,
+      bitrate: {
+        max: 1000,
+        min: 100,
+        start: 300
+      },
       created: () => { },
       mounted: () => { },
       unmounted: () => { },

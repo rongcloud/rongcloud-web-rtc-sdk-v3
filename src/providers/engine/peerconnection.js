@@ -5,7 +5,7 @@ import { StreamSize, LogTag } from '../../enum';
 import Logger from '../../logger';
 
 export default class PeerConnection extends EventEmitter {
-  constructor() {
+  constructor(option) {
     super();
     let context = this;
     let pc = new RTCPeerConnection({
@@ -13,6 +13,9 @@ export default class PeerConnection extends EventEmitter {
       // Chrome 49 Test
       iceServers: []
     });
+    utils.extend(context, {
+      option
+    })
     let events = {
       onaddstream: function (event) {
         let { stream } = event;
@@ -75,10 +78,59 @@ export default class PeerConnection extends EventEmitter {
     return pc.setLocalDescription(desc);
   }
 
-  setAnwser(sdp) {
+  setAnwser(answer) {
     let context = this;
     let { pc } = context;
-    return pc.setRemoteDescription(new RTCSessionDescription(sdp));
+    answer = context.setBitrate(answer);
+    return pc.setRemoteDescription(new RTCSessionDescription(answer));
+  }
+
+  setBitrate(answer) {
+    let context = this;
+    let { option: { bitrate } } = context;
+    let { sdp } = answer;
+    let lineFeed = '\n';
+    sdp = sdp.replace(/a=mid:video\n/g, ['a=mid:video', 'b=AS:' + bitrate.max + lineFeed].join(lineFeed));
+    utils.extend(answer, {
+      sdp
+    });
+    let sdpDetails = sdp.split(lineFeed);
+    let findIndex = (keyword) => {
+      let index = null;
+      for (let i = 0; i < sdpDetails.length; i++) {
+        let item = sdpDetails[i];
+        if (utils.isInclude(item, keyword)) {
+          index = i;
+          break;
+        }
+      }
+      return index;
+    };
+    let mVideo = 'm=video';
+    let mVideoIndex = findIndex(mVideo);
+    if (utils.isNull(mVideoIndex)) {
+      return answer;
+    }
+    let separator = ' ';
+    let videoDesc = sdpDetails[mVideoIndex];
+    // m=video 10 UDP/TLS/RTP/SAVPF
+    let videoDescDetails = videoDesc.split(separator);
+    let firstVideoCodec = videoDescDetails[3];
+    let codecDesc = 'a=rtpmap:' + firstVideoCodec;
+    let codecDescIndex = findIndex(codecDesc);
+    if (utils.isNull(codecDescIndex)) {
+      return answer;
+    }
+    let desc = 'a=fmtp:' + firstVideoCodec + ' x-google-min-bitrate=' + bitrate.min + '; x-google-max-bitrate=' + bitrate.max
+    if (utils.isNumber(bitrate.start)) {
+      desc += '; x-google-start-bitrate=' + bitrate.start;
+    }
+    sdpDetails[codecDescIndex] = [sdpDetails[codecDescIndex], desc].join(lineFeed)
+    sdp = sdpDetails.join(lineFeed);
+    utils.extend(answer, {
+      sdp
+    });
+    return answer;
   }
 
   close() {
