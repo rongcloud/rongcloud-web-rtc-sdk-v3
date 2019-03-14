@@ -46,6 +46,11 @@ let getErrors = () => {
     msg: '房间号不合法，只能包含大小写字母、阿拉伯数字、+、=、-、_ 且长度不能超过 64 个字符'
   },
   {
+    code: 20004,
+    name: 'ROOM_REPEAT_JOIN',
+    msg: '不可重复加入房间'
+  },
+  {
     code: 30001,
     name: 'PARAMTER_ILLEGAL',
     msg: '请检查参数，{name} 参数为必传入项'
