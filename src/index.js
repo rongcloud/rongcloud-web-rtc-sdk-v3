@@ -29,6 +29,7 @@ export default class RongRTC {
     };
     utils.extend(option, _option);
     let { logger, debug } = option;
+    let { Inner, Outer } = ErrorType;
     if (utils.isFunction(logger)) {
       Logger.watch(logger);
     }
@@ -51,12 +52,12 @@ export default class RongRTC {
       StreamSize,
       StorageType,
       Message,
+      ErrorType: Outer,
       option,
       client
     });
     let { appkey, created, mounted, unmounted, error } = option;
     if (utils.isEmpty(appkey)) {
-      let { Inner } = ErrorType;
       return error(Inner.APPKEY_ILLEGAL);
     }
     created();

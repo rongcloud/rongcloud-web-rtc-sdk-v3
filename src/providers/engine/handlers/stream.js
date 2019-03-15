@@ -91,8 +91,14 @@ function StreamHandler(im, option) {
   };
   let { appkey } = option;
   let getHeaders = () => {
+    let roomId = im.getRoomId();
+    let token = im.getToken();
+    let authPath = im.getAuthPath() || 'Fake';
     return {
-      'App-Key': appkey
+      'App-Key': appkey,
+      RoomId: roomId,
+      Token: token,
+      AuthHost: authPath
     }
   };
   let getBody = (desc) => {

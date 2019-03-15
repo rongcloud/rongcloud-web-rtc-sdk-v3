@@ -242,6 +242,10 @@ export class IM extends EventEmitter {
         default:
           context.emit(DownEvent.MESSAGE_RECEIVED, renameMessage(message));
       }
+      Logger.log(LogTag.IM, {
+        msg: 'receive:message',
+        message
+      });
     });
   }
   registerMessage() {
@@ -312,10 +316,10 @@ export class IM extends EventEmitter {
     utils.extend(context, {
       isJoinRoom: false
     });
+    context.emit(CommonEvent.LEFT, room);
     return utils.deferred((resolve, reject) => {
       im.getInstance().quitRTCRoom(room, {
         onSuccess: () => {
-          context.emit(CommonEvent.LEFT, room);
           resolve();
         },
         onError: (code) => {
@@ -353,6 +357,11 @@ export class IM extends EventEmitter {
   getRoomId() {
     let { room: { id } } = this;
     return id;
+  }
+  getAuthPath() {
+    let { im } = this;
+    let navi = im.getInstance().getNavi();
+    return navi.authHost || 'http://navxq.cn.ronghub.com';
   }
   getUser() {
     let { room: { user } } = this;
@@ -395,7 +404,7 @@ export class IM extends EventEmitter {
     });
     return utils.deferred((resolve, reject) => {
       im.getInstance().setRTCUserData(id, key, value, isInner, {
-        onSuccess: function(){
+        onSuccess: function () {
           Logger.log(LogTag.STREAM_HANDLER, {
             msg: 'setUserData:after',
             roomId: id,
