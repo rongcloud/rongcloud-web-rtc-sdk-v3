@@ -8,7 +8,7 @@ export default class Storage {
     var context = this;
     let client = context.getClient();
     let option = {
-      type: StorageType.USER
+      type: StorageType.ROOM
     };
     utils.extend(option, _option);
     utils.extend(context, {
