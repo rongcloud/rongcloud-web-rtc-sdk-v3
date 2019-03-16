@@ -1,29 +1,40 @@
-﻿
-chrome.runtime.onConnect.addListener(function (port) {
-    function onResponse( sourceId ) {
-        if(!sourceId || !sourceId.length) {
-            port.postMessage('PermissionDeniedError');
-        } else {
-            port.postMessage({ sourceId: sourceId,
-            type:'onResponseReqSouId'});
-        }
-    }
+var Keys = {
+  GET: 'rong-share-get',
+  GET_RESPONSE: 'rong-share-get-response'
+};
 
-    function onMessage( msg ) {
+var sendToContentScript = function (msg) {
+  var opt = {
+    active: true,
+    currentWindow: true
+  };
+  chrome.tabs.query(opt, function (tabs) {
+    chrome.tabs.sendMessage(tabs[0].id, msg);
+  });
+};
 
-        if( msg === 'test' ) {
-            port.postMessage({result:'ok',
-            type:'testMessage'});;
-        }
-        if( msg !== 'requestScreenSourceId' ) {
-            return;
-        }
-        chrome.desktopCapture.chooseDesktopMedia(
-            ['screen', 'window'],
-            port.sender.tab,
-            onResponse
-        );
-    }
+var listenContentMsg = function (callback) {
+  chrome.runtime.onMessage.addListener(callback);
+};
 
-    port.onMessage.addListener(onMessage );
+var getScreenShare = function (sender) {
+  var sourceType = ['screen', 'window'];
+  return new Promise(function (resolve, reject) {
+    chrome.desktopCapture.chooseDesktopMedia(sourceType, sender.tab, function (sourceId) {
+      resolve(sourceId);
+    });
+  });
+};
+
+listenContentMsg(function (data, sender) {
+  var type = data.type;
+  if (type === Keys.GET) {
+    getScreenShare(sender).then(function (sourceId) {
+      var content = {
+        type: Keys.GET_RESPONSE,
+        sourceId: sourceId
+      };
+      sendToContentScript(content);
+    });
+  }
 });

@@ -1,14 +1,49 @@
-﻿var port = chrome.runtime.connect();
+var Keys = {
+  CHECK: 'rong-check-share-installed',
+  CHECK_RESPONSE: 'rong-share-installed',
+  GET: 'rong-share-get',
+  GET_RESPONSE: 'rong-share-get-response'
+};
 
-port.onMessage.addListener(function (message) {
-    window.postMessage(message, '*');
+var sendToBackground = function (msg) {
+  chrome.runtime.sendMessage(msg);
+};
+
+var sendToWindow = function (msg) {
+  window.postMessage(msg, '*');
+};
+
+var listenBackgroundMsg = function (callback) {
+  chrome.runtime.onMessage.addListener(callback);
+};
+
+var listenWindowMsg = function (callback) {
+  window.addEventListener('message', callback);
+};
+
+listenBackgroundMsg(function (data) {
+  var type = data.type;
+  if (type === Keys.GET_RESPONSE) {
+    sendToWindow(data);
+  }
 });
 
-window.addEventListener('message', function (event) {
-    console.log(event)
-    if( event.data === 'check-addon-installed' ) {
-        window.postMessage( 'addon-installed', '*' );
-    } else if (event.source === window) {
-        port.postMessage( event.data );
-    }
+listenWindowMsg(function (event) {
+  var data = event.data;
+  var type = data.type;
+  switch(type) {
+    case Keys.CHECK:
+      sendToWindow({
+        type: Keys.CHECK_RESPONSE
+      });
+      break;
+    case Keys.GET:
+      sendToBackground({
+        type: Keys.GET
+      });
+      break;
+    default:
+      break;
+  }
 });
+
