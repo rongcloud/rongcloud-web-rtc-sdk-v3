@@ -1,8 +1,8 @@
 export const Path = {
-  PUBLISH: '/exchange?{roomId}',
-  UNPUBLISH: '/exchange?{roomId}',
-  RESIZE: '/exchange?{roomId}',
-  SUBSCRIBE: '/exchange?{roomId}',
-  UNSUBSCRIBE: '/exchange?{roomId}',
-  EXIT: '/exit?{roomId}'
+  PUBLISH: '/exchange',
+  UNPUBLISH: '/exchange',
+  RESIZE: '/exchange',
+  SUBSCRIBE: '/exchange',
+  UNSUBSCRIBE: '/exchange',
+  EXIT: '/exit'
 };

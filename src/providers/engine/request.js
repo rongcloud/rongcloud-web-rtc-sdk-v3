@@ -12,7 +12,7 @@ class Request {
       path
     });
     let headers = {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json;charset=UTF-8'
     };
     let { headers: _headers } = option;
     if (utils.isObject(_headers)) {
