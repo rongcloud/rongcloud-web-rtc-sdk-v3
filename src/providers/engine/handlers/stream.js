@@ -287,7 +287,7 @@ function StreamHandler(im, option) {
       Logger.log(LogTag.STREAM_HANDLER, {
         msg: 'subscribe:request',
         roomId,
-        body
+        options: body
       });
       pc.setOffer(sdp);
       request.post(body).then(response => {
@@ -746,11 +746,12 @@ function StreamHandler(im, option) {
           let url = utils.tplEngine(Path.SUBSCRIBE, {
             roomId
           });
+          let headers = getHeaders();
           body = {
             path: url,
-            body
+            body,
+            headers
           };
-          let headers = getHeaders();
           prosumer.produce({
             sdp,
             body,
