@@ -32,7 +32,8 @@ export const LogTag = {
   ROOM_HANDLER: 'room_handler',
   STORAGE_HANDLER: 'storage_handler',
   IM: 'im',
-  MESSAGE: 'message'
+  MESSAGE: 'message',
+  DEVICE: 'device'
 };
 
 export const LogLevel = {

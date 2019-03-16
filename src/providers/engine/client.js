@@ -4,6 +4,8 @@ import StreamHandler from './handlers/stream';
 import RoomHandler from './handlers/room';
 import StorageHandler from './handlers/storage';
 import MessageHandler from './handlers/message';
+import DeviceHandler from './handlers/device';
+
 import { IM } from './im';
 import { request } from './request';
 import RTCAdapter from './3rd/adapter';
@@ -29,7 +31,8 @@ export default class Client extends EventEmitter {
       room: RoomHandler(im, option),
       stream: StreamHandler(im, option),
       storage: StorageHandler(im),
-      message: MessageHandler(im)
+      message: MessageHandler(im),
+      device: DeviceHandler(im)
     };
     let context = this;
     let { RongIMLib } = option;
@@ -124,7 +127,8 @@ export default class Client extends EventEmitter {
       return utils.Defer.reject(ErrorType.Inner.IM_NOT_CONNECTED);
     }
     let { type, args, event } = params;
-    if (!utils.isEqual(UpEvent.ROOM_JOIN, event) && !im.isJoined()) {
+    let APIWhitelist = [UpEvent.ROOM_JOIN, UpEvent.DEVICE_GET];
+    if (!utils.isInclude(APIWhitelist, event) && !im.isJoined()) {
       return utils.Defer.reject(ErrorType.Inner.RTC_NOT_JOIN_ROOM);
     }
     let { RequestHandler } = this;
