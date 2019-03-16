@@ -361,7 +361,7 @@ export class IM extends EventEmitter {
   getAuthPath() {
     let { im } = this;
     let navi = im.getInstance().getNavi();
-    return navi.authHost || 'http://navqa.cn.ronghub.com';
+    return navi.rtcAuAddr;
   }
   getUser() {
     let { room: { user } } = this;
