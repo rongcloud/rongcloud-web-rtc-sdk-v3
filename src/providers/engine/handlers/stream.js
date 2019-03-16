@@ -877,10 +877,16 @@ function StreamHandler(im, option) {
     });
   };
   let getUserMedia = (constraints) => {
-    return navigator.mediaDevices.getUserMedia(constraints);
+    return navigator.mediaDevices.getUserMedia(constraints).then((mediaStream) => {
+      return { mediaStream };
+    });
   };
   let getScreen = (constraints) => {
     let { desktopStreamId } = constraints;
+    if (!desktopStreamId) {
+      let { Inner } = ErrorType;
+      return utils.Defer.reject(Inner.STREAM_DESKTOPID_ILLEGAL);
+    }
     constraints = {
       video: {
         mandatory: {

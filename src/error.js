@@ -51,6 +51,11 @@ let getErrors = () => {
     msg: '不可重复加入房间'
   },
   {
+    code: 20005,
+    name: 'STREAM_DESKTOPID_ILLEGAL',
+    msg: '获取屏幕共享流失败，desktopStreamId 非法'
+  },
+  {
     code: 30001,
     name: 'PARAMTER_ILLEGAL',
     msg: '请检查参数，{name} 参数为必传入项'
