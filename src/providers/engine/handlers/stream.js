@@ -6,7 +6,7 @@ import { Path } from '../path';
 import Message from '../im';
 import { CommonEvent, PeerConnectionEvent } from '../events';
 import EventEmitter from '../../../event-emitter';
-import { StreamType, StreamState, LogTag, StreamSize } from '../../../enum';
+import { StreamType, StreamState, LogTag, StreamSize, DEFAULT_MS_PROFILE } from '../../../enum';
 import { ErrorType } from '../../../error';
 import Logger from '../../../logger';
 import Network from '../../../network';
@@ -876,11 +876,44 @@ function StreamHandler(im, option) {
       });
     });
   };
-  let get = (user) => {
-    return utils.deferred(resolve => {
-      let streamId = pc.getStreamId(user);
-      resolve(StreamCache.get(streamId));
+  let getUserMedia = (constraints) => {
+    return navigator.mediaDevices.getUserMedia(constraints);
+  };
+  let getScreen = (constraints) => {
+    let { desktopStreamId } = constraints;
+    constraints = {
+      video: {
+        mandatory: {
+          chromeMediaSource: 'desktop',
+          chromeMediaSourceId: desktopStreamId
+        }
+      }
+    };
+    return getUserMedia(constraints);
+  };
+  let getMS = (constraints) => {
+    if (utils.isEmpty(constraints)) {
+      constraints = {
+        video: true,
+        audio: true
+      };
+    }
+    let { video } = constraints;
+    if (utils.isObject(video)) {
+      video = utils.extend(DEFAULT_MS_PROFILE, video);
+    }
+    if (utils.isBoolean(video) && video) {
+      video = DEFAULT_MS_PROFILE;
+    }
+    utils.extend(constraints, {
+      video
     });
+    return getUserMedia(constraints);
+  };
+  let get = (constraints) => {
+    constraints = constraints || {};
+    let { screen } = constraints;
+    return screen ? getScreen(constraints) : getMS(constraints);
   };
   let trackHandler = (user, type, isEnable) => {
     let streamId = pc.getStreamId(user);

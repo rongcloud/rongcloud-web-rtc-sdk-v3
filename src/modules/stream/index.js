@@ -94,17 +94,12 @@ export default class Stream {
       args: [user]
     });
   }
-  get(user) {
+  get(constraints) {
     let { client } = this;
-    let { isIllegal, name } = check(user, ['id', 'stream.tag']);
-    if (isIllegal) {
-      let error = getError(name);
-      return utils.Defer.reject(error);
-    }
     return client.exec({
       event: UpEvent.STREAM_GET,
       type: 'stream',
-      args: [user]
+      args: [constraints]
     });
   }
 }

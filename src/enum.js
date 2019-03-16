@@ -56,3 +56,9 @@ export const StorageType = {
 export const REGEXP_ROOM_ID = /[A-Za-z0-9+=-_]+$/;
 
 export const LENGTH_ROOM_ID = 64;
+
+export const DEFAULT_MS_PROFILE = {
+  height: 1280,
+  width: 720,
+  frameRate: 15
+};
