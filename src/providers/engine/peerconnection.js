@@ -295,4 +295,17 @@ export default class PeerConnection extends EventEmitter {
       tag
     });
   }
+
+  getTagByStreamId(id) {
+    let details = id.split('_');
+    return details[details.length - 1];
+  }
+
+  getStreamSymbolById(id) {
+    let connector = '_';
+    let details = id.split(connector);
+    let tag = details.pop();
+    let userId = details.join(connector);
+    return [userId, tag];
+  }
 }

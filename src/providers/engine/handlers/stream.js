@@ -165,7 +165,7 @@ function StreamHandler(im, option) {
   let getUris = (publishList) => {
     return utils.map(publishList, (stream) => {
       let { msid } = stream;
-      let [, tag] = msid.split('_');
+      let tag = pc.getTagByStreamId(msid);
       utils.extend(stream, {
         tag,
         state: StreamState.ENABLE
@@ -362,7 +362,7 @@ function StreamHandler(im, option) {
     pc = new PeerConnection(option);
     let getStreamUser = (stream) => {
       let { id } = stream, type = StreamType.NODE;
-      let [userId, tag] = id.split('_');
+      let [userId, tag] = pc.getStreamSymbolById(id);
       let videoTracks = stream.getVideoTracks();
       let audioTrakcks = stream.getAudioTracks();
       let isEmtpyVideo = utils.isEmpty(videoTracks);
