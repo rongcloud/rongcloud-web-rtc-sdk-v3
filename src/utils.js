@@ -261,8 +261,11 @@ const clone = (source) => {
 };
 function Observer() {
   let observers = [];
-  this.add = (observer) => {
+  this.add = (observer, force) => {
     if (isFunction(observer)) {
+      if (force) {
+        return observers = [observer];
+      }
       observers.push(observer);
     }
   };

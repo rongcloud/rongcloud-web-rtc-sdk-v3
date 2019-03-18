@@ -32,7 +32,7 @@ export default class RongRTC {
     let { logger, debug } = option;
     let { Inner, Outer } = ErrorType;
     if (utils.isFunction(logger)) {
-      Logger.watch(logger);
+      Logger.watch(logger, true);
     }
     if (debug) {
       Logger.watch(log => {

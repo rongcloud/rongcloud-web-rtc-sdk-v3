@@ -26,8 +26,8 @@ function Logger() {
   let log = (tag, meta) => {
     return write(LogLevel.VERBOSE, tag, meta);
   };
-  let watch = (watcher) => {
-    observer.add(watcher);
+  let watch = (watcher, force) => {
+    observer.add(watcher, force);
   };
   return {
     warn,
