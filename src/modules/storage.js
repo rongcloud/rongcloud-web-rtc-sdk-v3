@@ -5,6 +5,7 @@ import { UpEvent } from '../event-name';
 
 export default class Storage {
   constructor(_option) {
+    _option = _option || {};
     var context = this;
     let client = context.getClient();
     let option = {
