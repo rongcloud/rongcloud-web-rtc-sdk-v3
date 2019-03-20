@@ -567,10 +567,10 @@ export class IM extends EventEmitter {
         count += 1;
       }
     };
+    let { Inner } = ErrorType;
     timer.resume(() => {
       if (count > PingCount) {
         timer.pause();
-        let { Inner } = ErrorType;
         utils.extend(context, {
           isJoinRoom: false
         });
@@ -587,7 +587,7 @@ export class IM extends EventEmitter {
           Status.reset();
         },
         onError: (code) => {
-          let error = ErrorType[code];
+          let error = Inner[code];
           if (error) {
             context.emit(CommonEvent.ERROR, error);
             timer.pause();
