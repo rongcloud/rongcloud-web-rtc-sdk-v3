@@ -1,6 +1,6 @@
 import { UpEvent, DownEvent } from '../../../event-name';
 import utils from '../../../utils';
-import { request } from '../request';
+import request from '../request';
 import PeerConnection from '../peerconnection';
 import { Path } from '../path';
 import Message from '../im';

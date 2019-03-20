@@ -7,7 +7,7 @@ import MessageHandler from './handlers/message';
 import DeviceHandler from './handlers/device';
 
 import { IM } from './im';
-import { request } from './request';
+import request from './request';
 import RTCAdapter from './3rd/adapter';
 import { ErrorType } from '../../error';
 import { RoomEvents } from '../../modules/events';

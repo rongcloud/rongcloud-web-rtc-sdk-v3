@@ -1,10 +1,16 @@
 import utils from '../../utils';
-class Request {
-  setOption(option) {
-    utils.extend(this, option);
-  }
-  post(option) {
-    let { url: domain } = this;
+import EventEmitter from '../../event-emitter';
+import { CommonEvent } from './events';
+
+function request() {
+  let config = {};
+  let prosumer = new utils.Prosumer();
+  let eventEmitter = new EventEmitter();
+  let setOption = (_config) => {
+    utils.extend(config, _config);
+  };
+  let postProcess = (option) => {
+    let { url: domain } = config;
     let { path, body } = option;
     let tpl = '{domain}{path}';
     let url = utils.tplEngine(tpl, {
@@ -23,6 +29,21 @@ class Request {
       body: JSON.stringify(body),
       headers
     });
+  };
+  eventEmitter.on(CommonEvent.REQUEST_CONSUME, () => {
+    prosumer.consume(({ option, resolve, reject }, next) => {
+      postProcess(option).then(resolve, reject).finally(next);
+    });
+  });
+  let post = (option) => {
+    return utils.deferred((resolve, reject) => {
+      prosumer.produce({ option, resolve, reject });
+      eventEmitter.emit(CommonEvent.REQUEST_CONSUME);
+    });
+  };
+  return {
+    setOption,
+    post
   }
 }
-export const request = new Request();
+export default request();
