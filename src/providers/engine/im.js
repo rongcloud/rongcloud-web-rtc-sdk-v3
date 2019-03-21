@@ -538,6 +538,11 @@ export class IM extends EventEmitter {
     let { RongIMLib: { ConnectionStatus: { CONNECTED } } } = context;
     return context.connectState === CONNECTED;
   }
+  getAppInfo(){
+    let context = this;
+    let { im } = context;
+    return im.getInstance().getAppInfo();
+  }
   isJoined() {
     let context = this;
     return context.isJoinRoom;

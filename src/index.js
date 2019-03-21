@@ -14,7 +14,6 @@ export default class RongRTC {
   constructor(_option) {
     let context = this;
     let option = {
-      appkey: '',
       url: 'https://msqa.rongcloud.net',
       debug: false,
       bitrate: {
