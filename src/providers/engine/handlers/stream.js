@@ -95,7 +95,7 @@ function StreamHandler(im, option) {
   };
   let getHeaders = () => {
     let roomId = im.getRoomId();
-    let token = im.getToken();
+    let token = im.getRTCToken();
     let authPath = im.getAuthPath() || 'Fake';
     let { appKey } = im.getAppInfo();
     return {
@@ -106,7 +106,6 @@ function StreamHandler(im, option) {
     }
   };
   let getBody = (desc) => {
-    let token = im.getToken();
     let subs = getSubs();
     let streams = [];
     let streamIds = PublishStreamCache.getKeys();
@@ -119,7 +118,6 @@ function StreamHandler(im, option) {
     });
     let resolutionInfo = pc.getStreamRatio(streams);
     let body = {
-      token,
       subscribeList: subs,
       resolutionInfo
     };

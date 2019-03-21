@@ -296,12 +296,22 @@ export class IM extends EventEmitter {
     return utils.deferred((resolve, reject) => {
       im.getInstance().joinRTCRoom(room, {
         onSuccess: (users) => {
+          context.rtcPing(room);
           utils.extend(room, {
             users
           });
-          context.emit(CommonEvent.JOINED, room);
-          context.rtcPing(room);
           resolve(users);
+          im.getInstance().getRTCToken(room, {
+            onSuccess: ({ rtcToken }) => {
+              utils.extend(room, {
+                rtcToken
+              });
+              context.emit(CommonEvent.JOINED, room);
+            },
+            onError: (code) => {
+              return errorHandler(code, reject);
+            }
+          });
         },
         onError: (code) => {
           return errorHandler(code, reject);
@@ -350,9 +360,9 @@ export class IM extends EventEmitter {
       });
     });
   }
-  getToken() {
-    let { room: { user: { token } } } = this;
-    return token;
+  getRTCToken() {
+    let { room: { rtcToken } } = this;
+    return rtcToken;
   }
   getRoomId() {
     let { room: { id } } = this;
@@ -538,7 +548,7 @@ export class IM extends EventEmitter {
     let { RongIMLib: { ConnectionStatus: { CONNECTED } } } = context;
     return context.connectState === CONNECTED;
   }
-  getAppInfo(){
+  getAppInfo() {
     let context = this;
     let { im } = context;
     return im.getInstance().getAppInfo();
