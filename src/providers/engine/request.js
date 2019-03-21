@@ -32,7 +32,13 @@ function request() {
   };
   eventEmitter.on(CommonEvent.REQUEST_CONSUME, () => {
     prosumer.consume(({ option, resolve, reject }, next) => {
-      postProcess(option).then(resolve, reject).finally(next);
+      postProcess(option).then((result) => {
+        resolve(result);
+        next();
+      }, (error) => {
+        reject(error);
+        next();
+      });
     });
   });
   let post = (option) => {

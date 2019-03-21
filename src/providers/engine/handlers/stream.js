@@ -315,6 +315,14 @@ function StreamHandler(im, option) {
           response
         });
         next();
+      }, (error) => {
+        Logger.log(LogTag.STREAM_HANDLER, {
+          msg: 'subscribe:response',
+          roomId,
+          user,
+          error
+        });
+        next();
       });
     }, () => {
       eventEmitter.emit(CommonEvent.CONSUME_FINISHED);
