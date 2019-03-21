@@ -301,14 +301,27 @@ export class IM extends EventEmitter {
             users
           });
           resolve(users);
+          Logger.log(LogTag.STREAM_HANDLER, {
+            msg: 'getRTCToken:before',
+            roomId: room.id
+          });
           im.getInstance().getRTCToken(room, {
             onSuccess: ({ rtcToken }) => {
+              Logger.log(LogTag.STREAM_HANDLER, {
+                msg: 'getRTCToken:after:success',
+                roomId: room.id
+              });
               utils.extend(room, {
                 rtcToken
               });
               context.emit(CommonEvent.JOINED, room);
             },
             onError: (code) => {
+              Logger.log(LogTag.STREAM_HANDLER, {
+                msg: 'getRTCToken:after:error',
+                roomId: room.id,
+                error: code
+              });
               return errorHandler(code, reject);
             }
           });
