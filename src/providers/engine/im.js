@@ -615,7 +615,10 @@ export class IM extends EventEmitter {
           Status.reset();
         },
         onError: (code) => {
-          let error = Inner[code];
+          Logger.error(LogTag.IM, {
+            msg: 'RTC Ping Error' + code
+          });
+          let error = ErrorType[code];
           if (error) {
             context.emit(CommonEvent.ERROR, error);
             timer.pause();
