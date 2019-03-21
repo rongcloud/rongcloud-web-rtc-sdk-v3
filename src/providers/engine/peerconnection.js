@@ -1,7 +1,7 @@
 import utils from '../../utils';
 import EventEmitter from '../../event-emitter';
 import { PeerConnectionEvent, ICEEvent } from './events';
-import { StreamSize, LogTag } from '../../enum';
+import { StreamSize, LogTag, DEFAULT_MS_PROFILE, MIN_STREAM_SUFFIX } from '../../enum';
 import Logger from '../../logger';
 
 export default class PeerConnection extends EventEmitter {
@@ -279,7 +279,39 @@ export default class PeerConnection extends EventEmitter {
     });
     return offer;
   }
-
+  /* 
+    let ratio = {
+      msid: {
+        // 1大流    2小流 
+        simulcast: 1,
+        resolution: "0x0"
+      }
+    }
+  */
+  getStreamRatio(streams) {
+    let ratio = {}, tpl = '{width}x{height}';
+    utils.forEach(streams, ({id, mediaStream}) => {
+      let videoTrack = mediaStream.getVideoTracks()[0];
+      let simulcast = StreamSize.MAX;
+      if (!utils.isUndefined(videoTrack)) {
+        let { height, width } = videoTrack.getConstraints();
+        height = height || DEFAULT_MS_PROFILE.height;
+        width = width || DEFAULT_MS_PROFILE.width;
+        if (utils.isInclude(id, MIN_STREAM_SUFFIX)) {
+          simulcast = StreamSize.MIN;
+        }
+        let resolution = utils.tplEngine(tpl, {
+          height,
+          width
+        });
+        ratio[id] = {
+          simulcast,
+          resolution
+        }
+      }
+    });
+    return ratio;
+  }
   getStreamId(user, size) {
     let tpl = '{userId}_{tag}';
     let { id: userId, stream } = user;
@@ -288,11 +320,12 @@ export default class PeerConnection extends EventEmitter {
     }
     let [{ tag }] = stream;
     if (utils.isEqual(size, StreamSize.MIN)) {
-      tpl = '{userId}_{tag}_tiny';
+      tpl = '{userId}_{tag}_{suffix}';
     }
     return utils.tplEngine(tpl, {
       userId,
-      tag
+      tag,
+      suffix: MIN_STREAM_SUFFIX
     });
   }
 

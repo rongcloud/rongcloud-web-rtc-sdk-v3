@@ -20,9 +20,12 @@ function StreamHandler(im, option) {
   };
   let SubPromiseCache = utils.Cache();
   let PubResourceCache = utils.Cache();
+  // 缓存自己发布的视频流
+  let PublishStreamCache = utils.Cache();
   /* 
     缓存已订阅 MediaStream
     userId_type: mediaStream
+    方便视频流操作
   */
   let StreamCache = utils.Cache();
   /* 
@@ -67,6 +70,7 @@ function StreamHandler(im, option) {
     PubResourceCache.clear();
     StreamCache.clear();
     SubscribeCache.clear();
+    PublishStreamCache.clear();
   };
   let eventEmitter = new EventEmitter();
   let getSubPromiseUId = (user) => {
@@ -104,9 +108,20 @@ function StreamHandler(im, option) {
   let getBody = (desc) => {
     let token = im.getToken();
     let subs = getSubs();
+    let streams = [];
+    let streamIds = PublishStreamCache.getKeys();
+    streams = utils.map(streamIds, (id) => {
+      let mediaStream = PublishStreamCache.get(id);
+      return {
+        id,
+        mediaStream
+      }
+    });
+    let resolutionInfo = pc.getStreamRatio(streams);
     let body = {
       token,
-      subscribeList: subs
+      subscribeList: subs,
+      resolutionInfo
     };
     if (desc) {
       utils.extend(body, {
@@ -585,6 +600,7 @@ function StreamHandler(im, option) {
         stream
       }, size);
       StreamCache.set(streamId, mediaStream);
+      PublishStreamCache.set(streamId, mediaStream);
     });
 
     if (prosumer.isExeuting()) {
@@ -634,6 +650,8 @@ function StreamHandler(im, option) {
       utils.forEach(tracks, (track) => {
         track.stop();
       });
+      let { id: streamId } = mediaStream;
+      PublishStreamCache.remove(streamId);
     });
     return pc.removeStream(user).then(desc => {
       pc.setOffer(desc);
