@@ -294,7 +294,7 @@ function StreamHandler(im, option) {
   eventEmitter.on(CommonEvent.CONSUME, () => {
     let user = im.getUser();
     let roomId = im.getRoomId();
-    prosumer.consume(({ sdp, body }, next) => {
+    prosumer.consume(({ sdp, body, user: inputUser }, next) => {
       Logger.log(LogTag.STREAM_HANDLER, {
         msg: 'subscribe:request',
         roomId,
@@ -318,7 +318,7 @@ function StreamHandler(im, option) {
           user,
           error
         });
-        let uid = getSubPromiseUId(user);
+        let uid = getSubPromiseUId(inputUser);
         let promise = SubPromiseCache.get(uid);
         if (!utils.isUndefined(promise)) {
           promise.reject(error);
@@ -784,7 +784,8 @@ function StreamHandler(im, option) {
           prosumer.produce({
             sdp,
             body,
-            headers
+            headers,
+            user
           });
           eventEmitter.emit(CommonEvent.CONSUME);
         });

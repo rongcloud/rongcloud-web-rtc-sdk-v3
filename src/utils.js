@@ -173,9 +173,10 @@ const request = (url, option) => {
           resolve(result);
         } else {
           let { status } = xhr;
-          reject({
+          extend(result, {
             status
-          });
+          })
+          reject(result);
         }
       }
     };

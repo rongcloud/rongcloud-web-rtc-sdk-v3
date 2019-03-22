@@ -150,6 +150,9 @@ export default class Client extends EventEmitter {
         type: EventType.RESPONSE,
         error
       });
+      error = utils.rename(error, {
+        resultCode: 'code'
+      })
       throw error;
     })
   }
