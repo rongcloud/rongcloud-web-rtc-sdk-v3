@@ -96,13 +96,11 @@ function StreamHandler(im, option) {
   let getHeaders = () => {
     let roomId = im.getRoomId();
     let token = im.getRTCToken();
-    let authPath = im.getAuthPath() || 'Fake';
     let { appKey } = im.getAppInfo();
     return {
       'App-Key': appKey,
       RoomId: roomId,
-      Token: token,
-      AuthHost: authPath
+      Token: token
     }
   };
   let getBody = (desc) => {

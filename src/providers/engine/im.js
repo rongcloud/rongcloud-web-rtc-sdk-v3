@@ -381,15 +381,15 @@ export class IM extends EventEmitter {
     let { room: { id } } = this;
     return id;
   }
-  getAuthPath() {
-    let { im } = this;
-    let navi = im.getInstance().getNavi();
-    let { voipCallInfo: rtcInfo } = navi;
-    rtcInfo = rtcInfo || '{"callEngine": [{}]}'
-    rtcInfo = utils.parse(rtcInfo);
-    let engine = rtcInfo.callEngine[0];
-    return engine.rtcAuAddr;
-  }
+  // getAuthPath() {
+  //   let { im } = this;
+  //   let navi = im.getInstance().getNavi();
+  //   let { voipCallInfo: rtcInfo } = navi;
+  //   rtcInfo = rtcInfo || '{"callEngine": [{}]}'
+  //   rtcInfo = utils.parse(rtcInfo);
+  //   let engine = rtcInfo.callEngine[0];
+  //   return engine.rtcAuAddr;
+  // }
   getUser() {
     let { room: { user } } = this;
     return user;
