@@ -290,7 +290,8 @@ export default class PeerConnection extends EventEmitter {
   */
   getStreamRatio(streams) {
     let ratio = {}, tpl = '{width}x{height}';
-    utils.forEach(streams, ({id, mediaStream}) => {
+    utils.forEach(streams, ({ id, mediaStream }) => {
+      let resolutions = ratio[id] || [];
       let videoTrack = mediaStream.getVideoTracks()[0];
       let simulcast = StreamSize.MAX;
       if (!utils.isUndefined(videoTrack)) {
@@ -304,10 +305,11 @@ export default class PeerConnection extends EventEmitter {
           height,
           width
         });
-        ratio[id] = {
+        resolutions.push({
           simulcast,
           resolution
-        }
+        });
+        ratio[id] = resolutions;
       }
     });
     return ratio;

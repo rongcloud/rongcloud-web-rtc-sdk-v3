@@ -145,13 +145,13 @@ export default class Client extends EventEmitter {
       });
       return result;
     }, (error) => {
-      Logger.log(type, {
+      Logger.error(type, {
         func: event,
         type: EventType.RESPONSE,
         error
       });
       throw error;
-    });
+    })
   }
   isDestroyed() {
     return this.destroyed;

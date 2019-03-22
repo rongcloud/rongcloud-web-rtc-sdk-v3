@@ -300,7 +300,6 @@ export class IM extends EventEmitter {
           utils.extend(room, {
             users
           });
-          resolve(users);
           Logger.log(LogTag.STREAM_HANDLER, {
             msg: 'getRTCToken:before',
             roomId: room.id
@@ -315,6 +314,7 @@ export class IM extends EventEmitter {
                 rtcToken
               });
               context.emit(CommonEvent.JOINED, room);
+              resolve(users);
             },
             onError: (code) => {
               Logger.log(LogTag.STREAM_HANDLER, {
