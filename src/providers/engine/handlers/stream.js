@@ -320,6 +320,11 @@ function StreamHandler(im, option) {
           user,
           error
         });
+        let uid = getSubPromiseUId(user);
+        let promise = SubPromiseCache.get(uid);
+        if (!utils.isUndefined(promise)) {
+          promise.reject(error);
+        }
         next();
       });
     }, () => {
@@ -457,7 +462,6 @@ function StreamHandler(im, option) {
         tracks: stream.getTracks()
       });
       promise.resolve(user);
-
     });
     pc.on(PeerConnectionEvent.REMOVED, (error, stream) => {
       if (error) {
@@ -550,40 +554,43 @@ function StreamHandler(im, option) {
       roomId,
       user
     });
-    return pc.createOffer(user).then(desc => {
-      pc.setOffer(desc);
-      return getBody(desc).then(body => {
-        let url = utils.tplEngine(Path.SUBSCRIBE, {
-          roomId
-        });
-        Logger.log(LogTag.STREAM_HANDLER, {
-          msg: 'publish:request',
-          roomId,
-          user,
-          body
-        });
-        let headers = getHeaders();
-        return request.post({
-          path: url,
-          body,
-          headers
-        }).then(response => {
+    return utils.deferred((resolve, reject) => {
+      pc.createOffer(user).then(desc => {
+        pc.setOffer(desc);
+        return getBody(desc).then(body => {
+          let url = utils.tplEngine(Path.SUBSCRIBE, {
+            roomId
+          });
           Logger.log(LogTag.STREAM_HANDLER, {
-            msg: 'publish:response',
+            msg: 'publish:request',
             roomId,
             user,
-            response
+            body
           });
-          publishTempStreams.length = 0;
-          exchangeHandler(response, user, Message.PUBLISH);
-        }, error => {
-          Logger.log(LogTag.STREAM_HANDLER, {
-            msg: 'publish:response',
-            roomId,
-            user,
-            error
+          let headers = getHeaders();
+          return request.post({
+            path: url,
+            body,
+            headers
+          }).then(response => {
+            Logger.log(LogTag.STREAM_HANDLER, {
+              msg: 'publish:response',
+              roomId,
+              user,
+              response
+            });
+            publishTempStreams.length = 0;
+            exchangeHandler(response, user, Message.PUBLISH);
+            resolve();
+          }, error => {
+            Logger.log(LogTag.STREAM_HANDLER, {
+              msg: 'publish:response:error',
+              roomId,
+              user,
+              error
+            });
+            reject(error);
           });
-          return error;
         });
       });
     });

@@ -206,6 +206,13 @@ const some = (arrs, callback) => {
 const toJSON = (value) => {
   return JSON.stringify(value);
 }
+const toArray = (obj) => {
+  let arrs = [];
+  forEach(obj, (v, k) => {
+    arrs.push([k, v]);
+  });
+  return arrs;
+};
 function Timer(_option) {
   _option = _option || {};
   let option = {
@@ -345,5 +352,6 @@ export default {
   toJSON,
   isInclude,
   isNull,
-  isNumber
+  isNumber,
+  toArray
 }

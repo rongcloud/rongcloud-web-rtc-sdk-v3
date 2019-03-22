@@ -41,7 +41,16 @@ function RoomHandler(im) {
       });
       return error;
     }).then(() => {
-      return room;
+      let { users } = room;
+      users = utils.toArray(users);
+      users = utils.map(users, (user) => {
+        return {
+          id: user[0]
+        };
+      });
+      return {
+        users
+      };
     });
   };
   let leave = () => {
