@@ -52,6 +52,12 @@ export default class Client extends EventEmitter {
     };
     utils.forEach(RoomEvents, bindEvent);
     im.on(CommonEvent.JOINED, () => {
+      let url = im.getMSUrl();
+      let { url: customUrl } = option;
+      url = customUrl || url;
+      request.setOption({
+        url
+      });
       context.emit(DownEvent.RTC_MOUNTED);
     });
     im.on(CommonEvent.LEFT, () => {
@@ -115,7 +121,6 @@ export default class Client extends EventEmitter {
     im.on(DownEvent.STREAM_UNMUTED, (error, user) => {
       eventHandler(DownEvent.STREAM_UNMUTED, user, error);
     });
-    request.setOption(option);
   }
   exec(params) {
     let context = this;

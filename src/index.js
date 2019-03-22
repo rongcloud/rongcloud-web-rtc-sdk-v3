@@ -14,7 +14,7 @@ export default class RongRTC {
   constructor(_option) {
     let context = this;
     let option = {
-      url: 'https://msqa.rongcloud.net',
+      url: '',
       debug: false,
       bitrate: {
         max: 1000,

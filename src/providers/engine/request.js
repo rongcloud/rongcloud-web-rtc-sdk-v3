@@ -3,7 +3,9 @@ import EventEmitter from '../../event-emitter';
 import { CommonEvent } from './events';
 
 function request() {
-  let config = {};
+  let config = {
+    url: ''
+  };
   let prosumer = new utils.Prosumer();
   let eventEmitter = new EventEmitter();
   let setOption = (_config) => {
