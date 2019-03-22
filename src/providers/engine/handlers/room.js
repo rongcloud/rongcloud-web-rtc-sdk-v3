@@ -1,4 +1,4 @@
-import { UpEvent, DownEvent } from '../../../event-name';
+import { UpEvent } from '../../../event-name';
 import utils from '../../../utils';
 import request from '../request';
 import { Path } from '../path';
@@ -22,17 +22,17 @@ function RoomHandler(im) {
     return im.joinRoom(room).then((users) => {
       Logger.log(LogTag.ROOM_HANDLER, {
         msg: 'join:after',
-        room
+        users
       });
-      utils.forEach(users, (user, id) => {
-        Logger.log(LogTag.ROOM_HANDLER, {
-          msg: 'join:after:existUsers',
-          user
-        });
-        im.emit(DownEvent.ROOM_USER_JOINED, {
-          id
-        });
-      });
+      // utils.forEach(users, (user, id) => {
+      //   Logger.log(LogTag.ROOM_HANDLER, {
+      //     msg: 'join:after:existUsers',
+      //     user
+      //   });
+      //   im.emit(DownEvent.ROOM_USER_JOINED, {
+      //     id
+      //   });
+      // });
     }, (error) => {
       Logger.log(LogTag.ROOM_HANDLER, {
         msg: 'join:after',
