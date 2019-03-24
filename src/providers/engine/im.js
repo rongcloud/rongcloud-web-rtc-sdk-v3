@@ -176,15 +176,10 @@ export class IM extends EventEmitter {
      */
     let renameMessage = (message) => {
       let { messageType } = message;
-      if (!utils.isEqual(im.MessageType.UnknownMessage, messageType)) {
-        return message;
-      }
-      let { objectName } = message;
+      let isCustom = utils.isEqual(im.MessageType.UnknownMessage, messageType);
       let clear = (msg, content) => {
-        let { objectName: objName } = content;
-        if (utils.isEqual(objName, objectName)) {
-          delete content.objectName;
-        }
+        delete content.objectName;
+        delete content.messageName;
         delete msg.conversationType;
         delete msg.messageId;
         delete msg.offLineMessage;
@@ -193,7 +188,13 @@ export class IM extends EventEmitter {
         delete msg.targetId;
       };
       let msg = utils.parse(utils.toJSON(message));
-      let { content: { message: { content } } } = msg;
+      let content = {};
+      if (isCustom) {
+        let customMsg = msg.content;
+        content = customMsg.content;
+      } else {
+        content = msg.content
+      }
       clear(msg, content);
       utils.extend(msg, {
         content
