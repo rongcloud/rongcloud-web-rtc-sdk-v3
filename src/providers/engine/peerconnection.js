@@ -137,6 +137,8 @@ export default class PeerConnection extends EventEmitter {
     let context = this;
     let { pc } = context;
     pc.close();
+    context.pc = null;
+    delete context.pc;
   }
 
   getOption() {
