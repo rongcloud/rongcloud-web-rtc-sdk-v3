@@ -164,6 +164,10 @@ export default class Client extends EventEmitter {
   isDestroyed() {
     return this.destroyed;
   }
+  extendOption(_option) {
+    let context = this;
+    utils.extend(context.option, _option);
+  }
   destroy() {
     let context = this;
     utils.extend(context, {

@@ -22,6 +22,7 @@ export default class Stream {
         });
       });
     });
+    client.extendOption(option);
     utils.extend(context, {
       option,
       client,
