@@ -518,12 +518,15 @@ function StreamHandler(im, option) {
         });
         utils.forEach(streams, (stream) => {
           let { tag } = stream;
+          let msUris = utils.filter(uris, ({ msid }) => {
+            return utils.isInclude(msid, tag)
+          });
           setTimeout(() => {
             im.emit(DownEvent.STREAM_PUBLISHED, {
               id,
               stream: {
                 tag,
-                uris
+                uris: msUris
               }
             });
           });
@@ -713,7 +716,7 @@ function StreamHandler(im, option) {
         }
       };
       let key = getUId(tUser);
-      let { uri } = DataCache.get(key);
+      let { uri } = DataCache.get(key) || {};
       if (utils.isUndefined(uri)) {
         isError = true;
       }
