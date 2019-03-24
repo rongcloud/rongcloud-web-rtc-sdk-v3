@@ -36,7 +36,7 @@ export default class Room {
     });
   }
   join(user) {
-    let { isIllegal, name } = check(user, ['id', 'token']);
+    let { isIllegal, name } = check(user, ['id']);
     if (isIllegal) {
       let error = getError(name);
       return utils.Defer.reject(error);
