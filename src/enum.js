@@ -21,7 +21,7 @@ export const UserState = {
   OFFLINE: 2
 };
 
-export const PingCount = 3;
+export const PingCount = 4;
 
 export const LogTag = {
   ICE: 'ice',
