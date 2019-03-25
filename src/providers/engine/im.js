@@ -3,7 +3,8 @@ import EventEmitter from '../../event-emitter';
 import { DownEvent } from '../../event-name';
 import { ErrorType } from '../../error';
 import { CommonEvent } from './events';
-import { StreamType, StreamState, UserState, PingCount, LogTag } from '../../enum';
+import { UserState, PingCount, LogTag } from '../../enum';
+import * as common from '../../common';
 import Logger from '../../logger';
 const Message = {
   PUBLISH: 'RTCPublishResourceMessage',
@@ -95,61 +96,6 @@ export class IM extends EventEmitter {
         connectState: status
       });
     });
-    let dispatchStreamEvent = (user, callback) => {
-      let { id, uris } = user;
-      if (utils.isString(uris)) {
-        uris = JSON.parse(uris);
-      }
-      let streams = [user];
-      if (uris) {
-        streams = utils.uniq(uris, (target) => {
-          let { streamId, tag, mediaType, state } = target;
-          return {
-            key: [streamId, tag].join('_'),
-            value: {
-              tag,
-              uris,
-              mediaType,
-              state
-            }
-          }
-        });
-      }
-      utils.forEach(streams, (stream) => {
-        callback({
-          id,
-          stream
-        });
-      });
-    };
-    let getModifyEvents = () => {
-      let events = {}, tpl = '{type}_{state}';
-      // 禁用视频
-      let name = utils.tplEngine(tpl, {
-        type: StreamType.VIDEO,
-        state: StreamState.DISBALE
-      });
-      events[name] = DownEvent.STREAM_DISABLED;
-      // 启用视频
-      name = utils.tplEngine(tpl, {
-        type: StreamType.VIDEO,
-        state: StreamState.ENABLE
-      });
-      events[name] = DownEvent.STREAM_ENABLED;
-      // 音频静音
-      name = utils.tplEngine(tpl, {
-        type: StreamType.AUDIO,
-        state: StreamState.DISBALE
-      });
-      events[name] = DownEvent.STREAM_MUTED;
-      // 音频取消静音
-      name = utils.tplEngine(tpl, {
-        type: StreamType.AUDIO,
-        state: StreamState.ENABLE
-      });
-      events[name] = DownEvent.STREAM_UNMUTED;
-      return events;
-    };
     let roomEventHandler = (users) => {
       utils.forEach(users, (user) => {
         let { userId: id, state } = user;
@@ -216,28 +162,22 @@ export class IM extends EventEmitter {
           break;
         case Message.PUBLISH:
           user = { id, uris };
-          dispatchStreamEvent(user, (user) => {
+          common.dispatchStreamEvent(user, (user) => {
             context.emit(DownEvent.STREAM_PUBLISHED, user);
           });
           break;
         case Message.UNPUBLISH:
           user = { id, uris };
-          dispatchStreamEvent(user, (user) => {
+          common.dispatchStreamEvent(user, (user) => {
             context.emit(DownEvent.STREAM_UNPUBLISHED, user);
           });
           break;
         case Message.MODIFY:
           user = { id, uris };
-          dispatchStreamEvent(user, (user) => {
-            let { stream: { mediaType: type, state } } = user;
-            let tpl = '{type}_{state}';
-            let name = utils.tplEngine(tpl, {
-              type,
-              state
+          common.dispatchStreamEvent(user, (user) => {
+            common.dispatchOperationEvent(user, (event, user) => {
+              context.emit(event, user);
             });
-            let events = getModifyEvents();
-            let event = events[name];
-            context.emit(event, user);
           });
           break;
         default:
@@ -298,8 +238,12 @@ export class IM extends EventEmitter {
       im.getInstance().joinRTCRoom(room, {
         onSuccess: (users) => {
           context.rtcPing(room);
-          utils.extend(room, {
-            users
+          utils.forEach(users, (user) => {
+            let {uris} = user;
+            uris = utils.parse(uris);
+            utils.extend(user, {
+              uris
+            });
           });
           Logger.log(LogTag.STREAM_HANDLER, {
             msg: 'getRTCToken:before',
@@ -312,7 +256,8 @@ export class IM extends EventEmitter {
                 roomId: room.id
               });
               utils.extend(room, {
-                rtcToken
+                rtcToken,
+                users
               });
               context.emit(CommonEvent.JOINED, room);
               resolve(users);

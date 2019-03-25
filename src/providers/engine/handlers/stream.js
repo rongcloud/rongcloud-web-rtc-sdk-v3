@@ -10,6 +10,7 @@ import { StreamType, StreamState, LogTag, StreamSize, DEFAULT_MS_PROFILE } from 
 import { ErrorType } from '../../../error';
 import Logger from '../../../logger';
 import Network from '../../../network';
+import * as common from '../../../common';
 
 function StreamHandler(im, option) {
   let DataCache = utils.Cache();
@@ -138,8 +139,95 @@ function StreamHandler(im, option) {
       let { sdp } = response;
       pc.setAnwser(sdp);
     });
-  }
-  let republish = () => {
+  };
+  /* 
+  人员比较:
+    1、clone 本地数据
+    2、遍历服务端数据，在本地获取，本地没有认为是新增，本地有认为人员无变化
+    3、本地有同时删掉 clone 数据，最终剩下的数据认为已离开房间
+  资源比较:
+    1、本地数据、远端数据转换为 {msid: [uri1, uri2]}
+  最后更新本地数据
+  */
+  let compare = () => {
+    let format = (users) => {
+      let streams = {};
+      utils.forEach(users, ({ uris }) => {
+        utils.forEach(uris, (uri) => {
+          let { msid } = uri;
+          let resources = streams[msid] || [];
+          resources.push(uri);
+          streams[msid] = resources;
+        });
+      });
+      return streams;
+    };
+    let dispatch = (event, id, uris, callback) => {
+      common.dispatchStreamEvent({ id, uris }, (user) => {
+        if (utils.isFunction(callback)) {
+          return callback(user)
+        }
+        im.emit(event, user);
+      });
+    };
+    // 发布、取消发布、视频操作、音频操作
+    let compareStreams = (localUsers, remoteUsers) => {
+      localUsers = format(localUsers);
+      remoteUsers = format(remoteUsers);
+      let tempLocalUsers = utils.clone(localUsers);
+      utils.forEach(remoteUsers, (remoteUris, remoteMSId) => {
+        /** 
+         * 包含本地资源说明流没有变化，删除 tempLocalUsers，且需比对 track 变化，state 有差异，以 remoteUsers 为准
+         * 未包含说明是新发布资源，触发 published 事件 
+         * 遍历后 tempLocalUsers 还有数据认为是取消发布
+         */
+        let isInclude = remoteMSId in localUsers;
+        let [userId] = pc.getStreamSymbolById(remoteMSId);
+        if (isInclude) {
+          delete tempLocalUsers[remoteMSId];
+          let tempRemote = utils.toJSON(remoteUris);
+          let localUris = localUsers[remoteMSId];
+          let tempLocal = utils.toJSON(localUris);
+          if (!utils.isEqual(tempRemote, tempLocal)) {
+            dispatch('', userId, remoteUris, (user) => {
+              common.dispatchOperationEvent(user, (event, user) => {
+                im.emit(event, user);
+              });
+            });
+          }
+        } else {
+          dispatch(DownEvent.STREAM_PUBLISHED, userId, remoteUris);
+        }
+      });
+      utils.forEach(tempLocalUsers, (localUris, localMSId) => {
+        let [userId] = pc.getStreamSymbolById(localMSId);
+        dispatch(DownEvent.STREAM_UNPUBLISHED, userId, localUris);
+      });
+    };
+    // 成员加入、退出
+    let compareUser = (localUsers, remoteUsers) => {
+      let tempLocalUsers = utils.clone(localUsers);
+      let tempRemoteUsers = utils.toArray(remoteUsers);
+      utils.forEach(tempRemoteUsers, ([remoteUserId]) => {
+        let isInclude = remoteUserId in localUsers;
+        if (isInclude) {
+          delete tempLocalUsers[remoteUserId];
+        } else {
+          im.emit(DownEvent.ROOM_USER_JOINED, { id: remoteUserId });
+        }
+      });
+      tempLocalUsers = utils.toArray(tempLocalUsers);
+      utils.forEach(tempLocalUsers, ([id]) => {
+        im.emit(DownEvent.ROOM_USER_LEFT, { id });
+      });
+    };
+    im.getExistUsers().then(remoteUsers => {
+      let localUsers = DataCache.get(DataCacheName.USERS);
+      compareUser(localUsers, remoteUsers);
+      compareStreams(localUsers, remoteUsers);
+    });
+  };
+  let reconnect = () => {
     let roomId = im.getRoomId();
     getBody().then(body => {
       let url = utils.tplEngine(Path.SUBSCRIBE, {
@@ -161,8 +249,8 @@ function StreamHandler(im, option) {
           roomId,
           response
         });
-        //TODO: 重新设置数据
         negotiate(response);
+        compare();
       }, error => {
         Logger.log(LogTag.STREAM_HANDLER, {
           msg: 'publish:reconnect:response',
@@ -475,7 +563,7 @@ function StreamHandler(im, option) {
       if (pc.isNegotiate()) {
         network.detect((isOnline) => {
           if (isOnline) {
-            republish();
+            reconnect();
           } else {
             let { Inner } = ErrorType;
             im.emit(CommonEvent.ERROR, Inner.NETWORK_UNAVAILABLE)
@@ -495,7 +583,6 @@ function StreamHandler(im, option) {
           return;
         }
         let { uris } = data;
-        uris = JSON.parse(uris);
         utils.forEach(uris, (uri) => {
           let { mediaType: type, tag } = uri;
           let key = getUId({

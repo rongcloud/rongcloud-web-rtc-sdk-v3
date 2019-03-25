@@ -1,6 +1,7 @@
 import utils from './utils';
 import { ErrorType } from './error';
-
+import { StreamType, StreamState } from './enum';
+import { DownEvent } from './event-name';
 /* 
   data： 任意对象
   rules: 校验规则，数组
@@ -68,4 +69,72 @@ export const getError = (name) => {
   return utils.extend(error, {
     msg
   });
+};
+
+export const dispatchStreamEvent = (user, callback) => {
+  let { id, uris } = user;
+  if (utils.isString(uris)) {
+    uris = utils.parse(uris);
+  }
+  let streams = [user];
+  if (uris) {
+    streams = utils.uniq(uris, (target) => {
+      let { streamId, tag, mediaType, state } = target;
+      return {
+        key: [streamId, tag].join('_'),
+        value: {
+          tag,
+          uris,
+          mediaType,
+          state
+        }
+      }
+    });
+  }
+  utils.forEach(streams, (stream) => {
+    callback({
+      id,
+      stream
+    });
+  });
+};
+
+export const dispatchOperationEvent = (user, callback) => {
+  let getModifyEvents = () => {
+    let events = {}, tpl = '{type}_{state}';
+    // 禁用视频
+    let name = utils.tplEngine(tpl, {
+      type: StreamType.VIDEO,
+      state: StreamState.DISBALE
+    });
+    events[name] = DownEvent.STREAM_DISABLED;
+    // 启用视频
+    name = utils.tplEngine(tpl, {
+      type: StreamType.VIDEO,
+      state: StreamState.ENABLE
+    });
+    events[name] = DownEvent.STREAM_ENABLED;
+    // 音频静音
+    name = utils.tplEngine(tpl, {
+      type: StreamType.AUDIO,
+      state: StreamState.DISBALE
+    });
+    events[name] = DownEvent.STREAM_MUTED;
+    // 音频取消静音
+    name = utils.tplEngine(tpl, {
+      type: StreamType.AUDIO,
+      state: StreamState.ENABLE
+    });
+    events[name] = DownEvent.STREAM_UNMUTED;
+    return events;
+  };
+  let { stream: { mediaType: type, state } } = user;
+  let tpl = '{type}_{state}';
+  let name = utils.tplEngine(tpl, {
+    type,
+    state
+  });
+  let events = getModifyEvents();
+  let event = events[name];
+  return callback(event, user);
 };
