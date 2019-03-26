@@ -241,7 +241,11 @@ export class IM extends EventEmitter {
       im.getInstance().joinRTCRoom(room, {
         onSuccess: (users) => {
           context.rtcPing(room);
-          utils.forEach(users, (user) => {
+          utils.forEach(users, (user, userId) => {
+            // 过滤自己和为空的用户
+            if (utils.isEmpty(user)) {
+              delete users[userId];
+            }
             let { uris } = user;
             if (!utils.isUndefined(uris)) {
               uris = utils.parse(uris);
