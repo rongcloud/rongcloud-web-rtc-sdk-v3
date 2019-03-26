@@ -90,6 +90,7 @@ export class IM extends EventEmitter {
       switch (status) {
         case CONNECTED:
           init();
+          context.emit(CommonEvent.CONNECTED);
           break;
       }
       utils.extend(context, {

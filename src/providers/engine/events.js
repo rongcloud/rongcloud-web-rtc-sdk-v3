@@ -16,7 +16,8 @@ export const CommonEvent = {
   ERROR: 'common_error',
   CONSUME: 'common_consume',
   CONSUME_FINISHED: 'common_consume_finished',
-  REQUEST_CONSUME: 'common_request_consume'
+  REQUEST_CONSUME: 'common_request_consume',
+  CONNECTED: 'common_connected'
 };
 
 export const CommandEvent = {

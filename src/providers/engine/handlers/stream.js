@@ -198,7 +198,7 @@ function StreamHandler(im, option) {
             });
           }
         } else {
-          if(!isCurrent){
+          if (!isCurrent) {
             dispatch(DownEvent.STREAM_PUBLISHED, userId, remoteUris);
           }
         }
@@ -219,7 +219,7 @@ function StreamHandler(im, option) {
         if (isInclude) {
           delete tempLocalUsers[remoteUserId];
         } else {
-          if(!isCurrent){
+          if (!isCurrent) {
             im.emit(DownEvent.ROOM_USER_JOINED, { id: remoteUserId });
           }
         }
@@ -243,6 +243,12 @@ function StreamHandler(im, option) {
       DataCache.set(DataCacheName.USERS, remoteUsers);
     });
   };
+  im.on(CommonEvent.CONNECTED, () => {
+    let users = DataCache.get(DataCacheName.USERS);
+    if (users) {
+      compare();
+    }
+  });
   let reconnect = () => {
     let roomId = im.getRoomId();
     getBody().then(body => {
@@ -266,9 +272,6 @@ function StreamHandler(im, option) {
           response
         });
         negotiate(response);
-        if(!im.isIMReady()){
-          compare();
-        }
       }, error => {
         Logger.log(LogTag.STREAM_HANDLER, {
           msg: 'publish:reconnect:response',
