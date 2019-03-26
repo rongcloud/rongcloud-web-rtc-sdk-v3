@@ -241,10 +241,12 @@ export class IM extends EventEmitter {
           context.rtcPing(room);
           utils.forEach(users, (user) => {
             let {uris} = user;
-            uris = utils.parse(uris);
-            utils.extend(user, {
-              uris
-            });
+            if(!utils.isUndefined(uris)){
+              uris = utils.parse(uris);
+              utils.extend(user, {
+                uris
+              });
+            }
           });
           Logger.log(LogTag.STREAM_HANDLER, {
             msg: 'getRTCToken:before',
