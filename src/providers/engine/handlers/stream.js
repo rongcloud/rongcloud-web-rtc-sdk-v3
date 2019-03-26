@@ -682,6 +682,15 @@ function StreamHandler(im, option) {
       let { id: currentUserId } = im.getUser();
       utils.forEach(users, (data, id) => {
         let { uris } = data;
+        if(utils.isUndefined(uris)){
+          Logger.log(LogTag.STREAM_HANDLER, {
+            msg: 'user exist, uris is empty',
+            user: {
+              id
+            }
+          });
+          return;
+        }
         if (utils.isEqual(currentUserId, id)) {
           let [{ mediaType: type, tag }] = uris;
           type = utils.isEqual(uris.length, 1) ? type : StreamType.AUDIO_AND_VIDEO;
