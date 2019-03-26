@@ -31,6 +31,11 @@ let getErrors = () => {
     msg: 'AppKey 不可为空'
   },
   {
+    code: 10006,
+    name: 'IM_SDK_VER_NOT_MATCH',
+    msg: 'IM SDK 版本过低，最低版本 2.4.0，详细请参考: https://www.rongcloud.cn/docs/web_rtclib.html'
+  },
+  {
     code: 20001,
     name: 'STREAM_NOT_EXIST',
     msg: 'stream 不存在，请检查传入参数, id、stream.type、stream.tag 是否正确'

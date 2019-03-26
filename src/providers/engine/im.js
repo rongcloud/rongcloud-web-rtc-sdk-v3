@@ -86,6 +86,7 @@ export class IM extends EventEmitter {
     if (utils.isEqual(connectState, CONNECTED)) {
       init();
     }
+    im.statusWatch = im.statusWatch || utils.noop;
     im.statusWatch((status) => {
       switch (status) {
         case CONNECTED:
@@ -154,6 +155,7 @@ export class IM extends EventEmitter {
       })
       return msg
     };
+    im.messageWatch = im.messageWatch || utils.noop;
     im.messageWatch((message) => {
       let { messageType: type, senderUserId: id, content: { uris, users } } = message;
       let user = { id };
@@ -240,8 +242,8 @@ export class IM extends EventEmitter {
         onSuccess: (users) => {
           context.rtcPing(room);
           utils.forEach(users, (user) => {
-            let {uris} = user;
-            if(!utils.isUndefined(uris)){
+            let { uris } = user;
+            if (!utils.isUndefined(uris)) {
               uris = utils.parse(uris);
               utils.extend(user, {
                 uris
@@ -518,6 +520,15 @@ export class IM extends EventEmitter {
   isJoined() {
     let context = this;
     return context.isJoinRoom;
+  }
+  isSupportRTC() {
+    let context = this;
+    let { im } = context;
+    let isSupport = false;
+    if (utils.isFunction(im.getInstance().RTCPing)) {
+      isSupport = true;
+    }
+    return isSupport;
   }
   rePing() {
     let context = this;
