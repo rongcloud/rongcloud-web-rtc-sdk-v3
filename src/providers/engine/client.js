@@ -128,7 +128,7 @@ export default class Client extends EventEmitter {
     if (context.isDestroyed()) {
       return utils.Defer.reject(ErrorType.Inner.INSTANCE_IS_DESTROYED);
     }
-    if (!im.isReady()) {
+    if (!im.isIMReady()) {
       return utils.Defer.reject(ErrorType.Inner.IM_NOT_CONNECTED);
     }
     let { type, args, event } = params;

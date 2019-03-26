@@ -502,7 +502,7 @@ export class IM extends EventEmitter {
       content
     };
   }
-  isReady() {
+  isIMReady() {
     let context = this;
     let { RongIMLib: { ConnectionStatus: { CONNECTED } } } = context;
     return context.connectState === CONNECTED;

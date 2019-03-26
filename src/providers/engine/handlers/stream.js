@@ -183,6 +183,8 @@ function StreamHandler(im, option) {
          */
         let isInclude = remoteMSId in localUsers;
         let [userId] = pc.getStreamSymbolById(remoteMSId);
+        let { id: currentUserId } = im.getUser();
+        let isCurrent = utils.isEqual(currentUserId, userId);
         if (isInclude) {
           delete tempLocalUsers[remoteMSId];
           let tempRemote = utils.toJSON(remoteUris);
@@ -196,7 +198,9 @@ function StreamHandler(im, option) {
             });
           }
         } else {
-          dispatch(DownEvent.STREAM_PUBLISHED, userId, remoteUris);
+          if(!isCurrent){
+            dispatch(DownEvent.STREAM_PUBLISHED, userId, remoteUris);
+          }
         }
       });
       utils.forEach(tempLocalUsers, (localUris, localMSId) => {
@@ -208,12 +212,16 @@ function StreamHandler(im, option) {
     let compareUser = (localUsers, remoteUsers) => {
       let tempLocalUsers = utils.clone(localUsers);
       let tempRemoteUsers = utils.toArray(remoteUsers);
+      let { id: currentUserId } = im.getUser();
       utils.forEach(tempRemoteUsers, ([remoteUserId]) => {
         let isInclude = remoteUserId in localUsers;
+        let isCurrent = utils.isEqual(currentUserId, remoteUserId);
         if (isInclude) {
           delete tempLocalUsers[remoteUserId];
         } else {
-          im.emit(DownEvent.ROOM_USER_JOINED, { id: remoteUserId });
+          if(!isCurrent){
+            im.emit(DownEvent.ROOM_USER_JOINED, { id: remoteUserId });
+          }
         }
       });
       tempLocalUsers = utils.toArray(tempLocalUsers);
@@ -221,10 +229,18 @@ function StreamHandler(im, option) {
         im.emit(DownEvent.ROOM_USER_LEFT, { id });
       });
     };
-    im.getExistUsers().then(remoteUsers => {
+    im.getUsers().then(remoteUsers => {
+      utils.forEach(remoteUsers, (user) => {
+        let { uris } = user;
+        uris = utils.parse(uris);
+        utils.extend(user, {
+          uris
+        });
+      });
       let localUsers = DataCache.get(DataCacheName.USERS);
       compareUser(localUsers, remoteUsers);
       compareStreams(localUsers, remoteUsers);
+      DataCache.set(DataCacheName.USERS, remoteUsers);
     });
   };
   let reconnect = () => {
@@ -250,7 +266,9 @@ function StreamHandler(im, option) {
           response
         });
         negotiate(response);
-        compare();
+        if(!im.isIMReady()){
+          compare();
+        }
       }, error => {
         Logger.log(LogTag.STREAM_HANDLER, {
           msg: 'publish:reconnect:response',
