@@ -29,7 +29,7 @@ export default class RongRTC {
     };
     utils.extend(option, _option);
     let { logger, debug } = option;
-    let { Inner, Outer } = ErrorType;
+    let { Outer } = ErrorType;
     if (utils.isFunction(logger)) {
       Logger.watch(logger, true);
     }
@@ -57,10 +57,7 @@ export default class RongRTC {
       option,
       client
     });
-    let { appkey, created, mounted, unmounted, error } = option;
-    if (utils.isEmpty(appkey)) {
-      return error(Inner.APPKEY_ILLEGAL);
-    }
+    let { created, mounted, unmounted, error } = option;
     created();
     Logger.log(LogTag.LIFECYCLE, {
       state: 'created'
