@@ -56,14 +56,14 @@ let getErrors = () => {
     msg: '发布资源个数已经到达上限'
   },
   {
-    code: 50030,
-    name: 'SUBSCRIBE_STREAM_NOT_EXIST',
-    msg: '订阅不存在的资源'
+    code: 50024,
+    name: 'STREAM_NOT_EXIST',
+    msg: 'stream 不存在，请检查传入参数, id、stream.type、stream.tag 是否正确'
   },
   {
     code: 50030,
-    name: 'STREAM_NOT_EXIST',
-    msg: 'stream 不存在，请检查传入参数, id、stream.type、stream.tag 是否正确'
+    name: 'SUBSCRIBE_STREAM_NOT_EXIST',
+    msg: '订阅不存在的资源'
   },
   {
     code: 50030,

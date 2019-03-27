@@ -19,38 +19,29 @@ function RoomHandler(im) {
       });
       return utils.Defer.reject(Inner.ROOM_REPEAT_JOIN);
     }
-    return im.joinRoom(room).then((users) => {
-      Logger.log(LogTag.ROOM_HANDLER, {
-        msg: 'join:after',
-        users
+    return utils.deferred((resolve, reject) => {
+      im.joinRoom(room).then((users) => {
+        Logger.log(LogTag.ROOM_HANDLER, {
+          msg: 'join:after',
+          users
+        });
+        users = utils.toArray(users);
+        users = utils.map(users, (user) => {
+          return {
+            id: user[0]
+          };
+        });
+        resolve({
+          users
+        });
+      }).catch((error) => {
+        Logger.log(LogTag.ROOM_HANDLER, {
+          msg: 'join:after:error',
+          room,
+          error
+        });
+        reject(error);
       });
-      // utils.forEach(users, (user, id) => {
-      //   Logger.log(LogTag.ROOM_HANDLER, {
-      //     msg: 'join:after:existUsers',
-      //     user
-      //   });
-      //   im.emit(DownEvent.ROOM_USER_JOINED, {
-      //     id
-      //   });
-      // });
-    }, (error) => {
-      Logger.log(LogTag.ROOM_HANDLER, {
-        msg: 'join:after',
-        room,
-        error
-      });
-      return error;
-    }).then(() => {
-      let { users } = room;
-      users = utils.toArray(users);
-      users = utils.map(users, (user) => {
-        return {
-          id: user[0]
-        };
-      });
-      return {
-        users
-      };
     });
   };
   let leave = () => {

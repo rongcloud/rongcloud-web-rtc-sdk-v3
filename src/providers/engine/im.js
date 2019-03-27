@@ -26,11 +26,11 @@ const MessageName = {
 const Timeout = {
   TIME: 10 * 1000
 };
-const errorHandler = (code, reject) => {
+const errorHandler = (code) => {
   let error = ErrorType[code] || {
     code
   };
-  reject(error);
+  return error;
 };
 const getMsgName = (type) => {
   switch (type) {
@@ -239,9 +239,10 @@ export class IM extends EventEmitter {
     });
     return utils.deferred((resolve, reject) => {
       im.getInstance().joinRTCRoom(room, {
-        onSuccess: (users) => {
+        onSuccess: ({ users, token }) => {
           context.rtcPing(room);
           utils.forEach(users, (user, userId) => {
+            user = user || {};
             // 过滤自己和为空的用户
             if (utils.isEmpty(user)) {
               delete users[userId];
@@ -254,35 +255,15 @@ export class IM extends EventEmitter {
               });
             }
           });
-          Logger.log(LogTag.STREAM_HANDLER, {
-            msg: 'getRTCToken:before',
-            roomId: room.id
+          utils.extend(room, {
+            rtcToken: token,
+            users
           });
-          im.getInstance().getRTCToken(room, {
-            onSuccess: ({ rtcToken }) => {
-              Logger.log(LogTag.STREAM_HANDLER, {
-                msg: 'getRTCToken:after:success',
-                roomId: room.id
-              });
-              utils.extend(room, {
-                rtcToken,
-                users
-              });
-              context.emit(CommonEvent.JOINED, room);
-              resolve(users);
-            },
-            onError: (code) => {
-              Logger.log(LogTag.STREAM_HANDLER, {
-                msg: 'getRTCToken:after:error',
-                roomId: room.id,
-                error: code
-              });
-              return errorHandler(code, reject);
-            }
-          });
+          context.emit(CommonEvent.JOINED, room);
+          resolve(users);
         },
         onError: (code) => {
-          return errorHandler(code, reject);
+          return reject(errorHandler(code));
         }
       });
     });
@@ -301,7 +282,7 @@ export class IM extends EventEmitter {
           resolve();
         },
         onError: (code) => {
-          return errorHandler(code, reject);
+          return reject(errorHandler(code));
         }
       });
     });
@@ -312,7 +293,7 @@ export class IM extends EventEmitter {
       im.getInstance().getRTCRoomInfo(room, {
         onSuccess: resolve,
         reject: (code) => {
-          return errorHandler(code, reject);
+          return reject(errorHandler(code));
         }
       });
     });
@@ -323,7 +304,7 @@ export class IM extends EventEmitter {
       im.getInstance().getRTCUserInfoList(room, {
         onSuccess: resolve,
         onError: (code) => {
-          return errorHandler(code, reject);
+          return reject(errorHandler(code));
         }
       });
     });
@@ -466,7 +447,7 @@ export class IM extends EventEmitter {
       im.getInstance().getRTCUserList(room, {
         onSuccess: resolve,
         onError: (code) => {
-          return errorHandler(code, reject);
+          return reject(errorHandler(code));
         }
       });
     });
