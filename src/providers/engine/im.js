@@ -134,12 +134,13 @@ export class IM extends EventEmitter {
         delete msg.receivedStatus;
         delete msg.messageType;
         delete msg.targetId;
+        delete msg.messageDirection;
       };
       let msg = utils.parse(utils.toJSON(message));
       let content = {};
       if (isCustom) {
         let customMsg = msg.content;
-        content = customMsg.content;
+        content = customMsg.message.content;
       } else {
         content = msg.content
       }
@@ -150,8 +151,7 @@ export class IM extends EventEmitter {
       msg = utils.rename(msg, {
         objectName: 'name',
         messageUId: 'uId',
-        senderUserId: 'senderId',
-        messageDirection: 'direction'
+        senderUserId: 'senderId'
       })
       return msg
     };
@@ -456,13 +456,24 @@ export class IM extends EventEmitter {
     });
   }
   sendMessage(message) {
-    let { im, room } = this;
+    let { im, room, RongIMLib } = this;
     return utils.deferred((resolve, reject) => {
       let conversationType = 12,
         targetId = room.id;
+      let register = (name) => {
+        let isCounted = false;
+        let isPersited = false;
+        let tag = new RongIMLib.MessageTag(isCounted, isPersited);
+        let { content } = message;
+        let props = utils.map(utils.toArray(content), (columns) => { return columns[0]; })
+        im.registerMessageType(name, name, tag, props);
+      };
       let create = () => {
-        let { type, content } = message;
-        return new im.RegisterMessage[type](content);
+        let { name, content } = message;
+        if (utils.isUndefined(im.RegisterMessage[name])) {
+          register(name);
+        }
+        return new im.RegisterMessage[name](content);
       };
       let msg = create();
       Logger.log(LogTag.IM, {
@@ -513,7 +524,7 @@ export class IM extends EventEmitter {
     let context = this;
     let { im } = context;
     let isSupport = false;
-    if (utils.isFunction(im.getInstance().RTCPing)) {
+    if (utils.isFunction(im.prototype.RTCPing)) {
       isSupport = true;
     }
     return isSupport;

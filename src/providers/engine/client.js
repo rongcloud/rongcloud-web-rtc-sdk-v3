@@ -136,12 +136,15 @@ export default class Client extends EventEmitter {
     if (!im.isSupportRTC()) {
       return utils.Defer.reject(ErrorType.Inner.IM_SDK_VER_NOT_MATCH);
     }
-    if (!im.isIMReady()) {
+    let { type, args, event } = params;
+    let APIWhitelist = [UpEvent.ROOM_JOIN, UpEvent.DEVICE_GET, UpEvent.STREAM_GET];
+    let isInclude = utils.isInclude(APIWhitelist, event);
+    
+    if (!im.isIMReady() && !isInclude) {
       return utils.Defer.reject(ErrorType.Inner.IM_NOT_CONNECTED);
     }
-    let { type, args, event } = params;
-    let APIWhitelist = [UpEvent.ROOM_JOIN, UpEvent.DEVICE_GET];
-    if (!utils.isInclude(APIWhitelist, event) && !im.isJoined()) {
+
+    if (!isInclude && !im.isJoined()) {
       return utils.Defer.reject(ErrorType.Inner.RTC_NOT_JOIN_ROOM);
     }
     let { RequestHandler } = this;
