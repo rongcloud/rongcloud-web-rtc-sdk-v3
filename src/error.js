@@ -109,6 +109,11 @@ let getErrors = () => {
     code: 50055,
     name: 'PARAMTER_ILLEGAL',
     msg: '请检查参数，{name} 参数为必传入项'
+  },
+  {
+    code: 50056,
+    name: 'ENGINE_ERROR',
+    msg: '音视频引擎不正确'
   }, {
     code: 40001,
     name: 'NOT_IN_ROOM',

@@ -323,7 +323,10 @@ export class IM extends EventEmitter {
     let { voipCallInfo: rtcInfo } = navi;
     rtcInfo = rtcInfo || '{"callEngine": [{}]}'
     rtcInfo = utils.parse(rtcInfo);
-    let engine = rtcInfo.callEngine[0];
+    let engines = rtcInfo.callEngine[0];
+    let engine = utils.filter(engines, (e) => {
+      return e.engineType === 4;
+    })[0] || {};
     return engine.mediaServer;
   }
   getUser() {

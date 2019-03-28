@@ -53,6 +53,11 @@ export default class Client extends EventEmitter {
     utils.forEach(RoomEvents, bindEvent);
     im.on(CommonEvent.JOINED, () => {
       let url = im.getMSUrl();
+      if (utils.isUndefined(url)) {
+        let { Inner } = ErrorType;
+        let error = Inner.ENGINE_ERROR;
+        return context.emit(DownEvent.RTC_ERROR, error);
+      }
       let { url: customUrl } = option;
       url = customUrl || url;
       request.setOption({
@@ -128,7 +133,7 @@ export default class Client extends EventEmitter {
     if (context.isDestroyed()) {
       return utils.Defer.reject(ErrorType.Inner.INSTANCE_IS_DESTROYED);
     }
-    if(!im.isSupportRTC()){
+    if (!im.isSupportRTC()) {
       return utils.Defer.reject(ErrorType.Inner.IM_SDK_VER_NOT_MATCH);
     }
     if (!im.isIMReady()) {
