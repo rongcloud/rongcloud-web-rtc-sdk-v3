@@ -492,7 +492,7 @@ function StreamHandler(im, option) {
     let streamId = pc.getStreamId(user);
     let mediaStream = StreamCache.get(streamId);
     if (!mediaStream) {
-      return utils.Defer.reject(ErrorType.Inner.STREAM_NOT_EXIST);
+      mediaStream = new MediaStream();
     }
     let streams = [];
     let { stream } = user;
