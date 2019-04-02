@@ -13,7 +13,6 @@
 ```
 ├── dist
 ├── release 发版记录
-├── scripts 打包脚本
 ├── src 
   ├── 3rd
     └── adapter.js
@@ -21,9 +20,7 @@
   └── providers
   └── enum.js
   └── event-emitter.js
-  └── observer.js
   └── utils.js
-├── test 单元测试
 ├── README.md
 ├── package.json
 ```
