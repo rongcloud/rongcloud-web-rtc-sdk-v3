@@ -367,9 +367,13 @@ function StreamHandler(im, option) {
       });
     });
   };
-  let exchangeHandler = (result, user, type) => {
+  let exchangeHandler = (result, user, type, offer) => {
     let { publishList, sdp } = result;
+    pc.setOffer(offer);
     pc.setAnwser(sdp);
+    Logger.log(LogTag.STREAM_HANDLER, {
+      msg: 'exchangeHandler set sdp'
+    });
     let uris = getUris(publishList);
     appendStreamId(user);
     let getTempUris = (type) => {
@@ -403,16 +407,19 @@ function StreamHandler(im, option) {
   eventEmitter.on(CommonEvent.CONSUME, () => {
     let user = im.getUser();
     let roomId = im.getRoomId();
-    prosumer.consume(({ sdp, body, user: inputUser }, next) => {
+    prosumer.consume(({ sdp: offer, body, user: inputUser }, next) => {
       Logger.log(LogTag.STREAM_HANDLER, {
         msg: 'subscribe:request',
         roomId,
         options: body
       });
-      pc.setOffer(sdp);
       request.post(body).then(response => {
+        pc.setOffer(offer);
         let { sdp } = response;
         pc.setAnwser(sdp);
+        Logger.log(LogTag.STREAM_HANDLER, {
+          msg: 'CONSUME set sdp'
+        });
         Logger.log(LogTag.STREAM_HANDLER, {
           msg: 'subscribe:response',
           roomId,
@@ -532,7 +539,6 @@ function StreamHandler(im, option) {
       PublishStreamCache.remove(streamId);
     });
     return pc.removeStream(user).then(desc => {
-      pc.setOffer(desc);
       return getBody().then(body => {
         let url = utils.tplEngine(Path.UNPUBLISH, {
           roomId
@@ -556,7 +562,7 @@ function StreamHandler(im, option) {
             response
           });
           StreamCache.remove(streamId);
-          exchangeHandler(response, user, Message.UNPUBLISH);
+          exchangeHandler(response, user, Message.UNPUBLISH, desc);
         }, error => {
           Logger.log(LogTag.STREAM_HANDLER, {
             msg: 'unpublish:response',
@@ -767,9 +773,8 @@ function StreamHandler(im, option) {
     });
     return utils.deferred((resolve, reject) => {
       pc.createOffer(user).then(desc => {
-        pc.setOffer(desc);
         return getBody(desc).then(body => {
-          let url = utils.tplEngine(Path.SUBSCRIBE, {
+          let url = utils.tplEngine(Path.PUBLISH, {
             roomId
           });
           Logger.log(LogTag.STREAM_HANDLER, {
@@ -791,7 +796,7 @@ function StreamHandler(im, option) {
               response
             });
             publishTempStreams.length = 0;
-            exchangeHandler(response, user, Message.PUBLISH);
+            exchangeHandler(response, user, Message.PUBLISH, desc);
             resolve();
           }, error => {
             Logger.log(LogTag.STREAM_HANDLER, {
@@ -902,6 +907,11 @@ function StreamHandler(im, option) {
     return utils.deferred((resolve, reject) => {
       let isNotifyReady = DataCache.get(DataCacheName.IS_NOTIFY_READY);
       // 首次加入分发未完成，只添加缓存，最后，一次性处理
+      Logger.log(LogTag.STREAM_HANDLER, {
+        msg: 'isNotifyReady: ' + isNotifyReady,
+        userId: user.id,
+        roomId
+      });
       if (isNotifyReady) {
         getBody().then(body => {
           let { sdp } = body;

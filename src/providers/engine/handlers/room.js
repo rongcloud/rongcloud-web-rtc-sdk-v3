@@ -6,6 +6,16 @@ import Logger from '../../../logger';
 import { LogTag } from '../../../enum';
 import { ErrorType } from '../../../error';
 function RoomHandler(im) {
+  let getHeaders = () => {
+    let roomId = im.getRoomId();
+    let token = im.getRTCToken();
+    let { appKey } = im.getAppInfo();
+    return {
+      'App-Key': appKey,
+      RoomId: roomId,
+      Token: token
+    }
+  };
   let join = (room) => {
     Logger.log(LogTag.ROOM_HANDLER, {
       msg: 'join:before',
@@ -58,18 +68,18 @@ function RoomHandler(im) {
         roomId,
         user
       });
-      let token = im.getToken();
-      if (utils.isString(token)) {
-        let url = utils.tplEngine(Path.EXIT, {
-          roomId
-        });
-        request.post({
-          path: url,
-          body: {
-            token
-          }
-        });
-      }
+      let token = im.getRTCToken();
+      let url = utils.tplEngine(Path.EXIT, {
+        roomId
+      });
+      let headers = getHeaders();
+      return request.post({
+        path: url,
+        headers,
+        body: {
+          token
+        }
+      });
     }, error => {
       Logger.log(LogTag.ROOM_HANDLER, {
         msg: 'leave:after',
