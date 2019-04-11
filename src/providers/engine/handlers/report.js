@@ -2,6 +2,7 @@ import { UpEvent, DownEvent } from '../../../event-name';
 import { CommonEvent } from '../events';
 import utils from '../../../utils';
 import { AUDIO_LEVEL, REPORT_FREQUENCY } from '../../../enum';
+import { isSafari } from '../../../common';
 function ReportHandler(im) {
   let pc = null, reportTimer = 0;
 
@@ -76,8 +77,11 @@ function ReportHandler(im) {
     let option = {
       frequency: REPORT_FREQUENCY
     };
-    if(utils.isObject(_option)){
+    if (utils.isObject(_option)) {
       utils.extend(option, _option)
+    }
+    if (isSafari()) {
+      return;
     }
     if (reportTimer) {
       clear();
