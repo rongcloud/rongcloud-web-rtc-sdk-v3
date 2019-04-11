@@ -15,6 +15,7 @@ import { DownEvent, UpEvent } from '../../event-name';
 import { CommonEvent } from './events';
 import Logger from '../../logger';
 import { EventType, StreamType } from '../../enum';
+import ReportHandler from './handlers/report';
 
 export default class Client extends EventEmitter {
   /* 
@@ -32,7 +33,8 @@ export default class Client extends EventEmitter {
       stream: StreamHandler(im, option),
       storage: StorageHandler(im),
       message: MessageHandler(im),
-      device: DeviceHandler(im)
+      device: DeviceHandler(im),
+      report: ReportHandler(im)
     };
     let context = this;
     let { RongIMLib } = option;
@@ -73,6 +75,9 @@ export default class Client extends EventEmitter {
     });
     im.on(DownEvent.MESSAGE_RECEIVED, (error, message) => {
       context.emit(DownEvent.MESSAGE_RECEIVED, message, error);
+    });
+    im.on(DownEvent.REPORT_SPOKE, (error, user) => {
+      context.emit(DownEvent.REPORT_SPOKE, user, error);
     });
     let getMSType = (uris) => {
       let check = (msType) => {
@@ -139,7 +144,7 @@ export default class Client extends EventEmitter {
     let { type, args, event } = params;
     let APIWhitelist = [UpEvent.ROOM_JOIN, UpEvent.DEVICE_GET, UpEvent.STREAM_GET];
     let isInclude = utils.isInclude(APIWhitelist, event);
-    
+
     if (!im.isIMReady() && !isInclude) {
       return utils.Defer.reject(ErrorType.Inner.IM_NOT_CONNECTED);
     }

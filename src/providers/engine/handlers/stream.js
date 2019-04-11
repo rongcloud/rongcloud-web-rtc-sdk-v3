@@ -471,15 +471,14 @@ function StreamHandler(im, option) {
       DataCache.set(key, uri);
     });
   });
-
-  im.on(DownEvent.STREAM_CHANGED, (error, user) => {
-    if (error) {
-      throw error;
-    }
-    dispatchStreamEvent(user, (key, uri) => {
-      DataCache.set(key, uri);
-    });
-  });
+  // im.on(DownEvent.STREAM_CHANGED, (error, user) => {
+  //   if (error) {
+  //     throw error;
+  //   }
+  //   dispatchStreamEvent(user, (key, uri) => {
+  //     DataCache.set(key, uri);
+  //   });
+  // });
   im.on(CommonEvent.LEFT, () => {
     let streamIds = StreamCache.getKeys();
     utils.forEach(streamIds, (streamId) => {
@@ -580,6 +579,7 @@ function StreamHandler(im, option) {
       throw error;
     }
     pc = new PeerConnection(option);
+    im.emit(CommonEvent.PEERCONN_CREATED, pc);
     let getStreamUser = (stream) => {
       let { id } = stream, type = StreamType.NODE;
       let [userId, tag] = pc.getStreamSymbolById(id);
@@ -641,6 +641,10 @@ function StreamHandler(im, option) {
       let { id } = stream;
       StreamCache.set(id, stream);
       let user = getStreamUser(stream);
+      im.emit(CommonEvent.PUBLISHED_STREAM, {
+        mediaStream: stream,
+        user
+      });
       let uid = getSubPromiseUId(user);
       let promise = SubPromiseCache.get(uid);
       if (utils.isUndefined(promise)) {
@@ -763,6 +767,13 @@ function StreamHandler(im, option) {
     }
     utils.forEach(users, (user) => {
       pc.addStream(user);
+      let { stream: { mediaStream } } = user;
+      if (!utils.isUndefined(mediaStream)) {
+        im.emit(CommonEvent.PUBLISHED_STREAM, {
+          mediaStream,
+          user
+        });
+      }
     });
     let [user] = users
     let roomId = im.getRoomId();

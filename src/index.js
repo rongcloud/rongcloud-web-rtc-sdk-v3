@@ -9,6 +9,7 @@ import { ErrorType } from './error';
 import Storage from './modules/storage';
 import Message from './modules/message';
 import Device from './modules/device';
+import Report from './modules/report';
 
 export default class RongRTC {
   constructor(_option) {
@@ -39,7 +40,7 @@ export default class RongRTC {
       });
     }
     let client = new Client(option);
-    utils.forEach([Room, Stream, Storage, Message, Device], (module) => {
+    utils.forEach([Room, Stream, Storage, Message, Device, Report], (module) => {
       module.prototype.getClient = () => {
         return client;
       };
@@ -53,6 +54,7 @@ export default class RongRTC {
       StorageType,
       Message,
       Device,
+      Report,
       ErrorType: Outer,
       option,
       client

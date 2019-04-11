@@ -36,4 +36,9 @@ export const ErrorEvents = [{
 export const MessageEvents = [{
   name: DownEvent.MESSAGE_RECEIVED,
   type: 'received'
+}];
+
+export const ReportEvents = [{
+  name: DownEvent.REPORT_SPOKE,
+  type: 'spoke'
 }]
