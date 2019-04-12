@@ -15,7 +15,6 @@ export const CommonEvent = {
   LEFT: 'common_left',
   ERROR: 'common_error',
   CONSUME: 'common_consume',
-  CONSUME_FINISHED: 'common_consume_finished',
   REQUEST_CONSUME: 'common_request_consume',
   CONNECTED: 'common_connected',
   PEERCONN_CREATED: 'common_peerconn_created',
