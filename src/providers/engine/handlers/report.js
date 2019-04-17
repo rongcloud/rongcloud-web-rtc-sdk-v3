@@ -35,11 +35,13 @@ function ReportHandler(im) {
       let latestLevel = TrackStateCache.get(trackId);
       if (!utils.isEqual(latestLevel, audioLevel)) {
         let user = TrackCache.get(trackId);
-        utils.extend(user.stream, {
-          audioLevel
-        });
-        TrackStateCache.set(trackId, audioLevel);
-        im.emit(DownEvent.REPORT_SPOKE, user);
+        if(utils.isObject(user)){
+          utils.extend(user.stream, {
+            audioLevel
+          });
+          TrackStateCache.set(trackId, audioLevel);
+          im.emit(DownEvent.REPORT_SPOKE, user);
+        }
       }
     }
   };

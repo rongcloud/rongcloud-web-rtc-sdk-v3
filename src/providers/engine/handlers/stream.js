@@ -133,12 +133,10 @@ function StreamHandler(im, option) {
       return body;
     });
   };
-  let negotiate = (response) => {
-    pc.getOffer().then(offer => {
-      pc.setOffer(offer);
-      let { sdp } = response;
-      pc.setAnwser(sdp);
-    });
+  let negotiate = (offer, response) => {
+    pc.setOffer(offer);
+    let { sdp } = response;
+    pc.setAnwser(sdp);
   };
   /* 
   人员比较:
@@ -216,6 +214,13 @@ function StreamHandler(im, option) {
       utils.forEach(tempRemoteUsers, ([remoteUserId]) => {
         let isInclude = remoteUserId in localUsers;
         let isCurrent = utils.isEqual(currentUserId, remoteUserId);
+        Logger.log(LogTag.STREAM_HANDLER, {
+          msg: 'stream:compareuser',
+          currentUserId,
+          remoteUserId,
+          isInclude,
+          localUsers
+        });
         if (isInclude) {
           delete tempLocalUsers[remoteUserId];
         } else {
@@ -261,6 +266,7 @@ function StreamHandler(im, option) {
         body
       });
       let headers = getHeaders();
+      let { sdp: offer } = body;
       return request.post({
         path: url,
         body,
@@ -271,7 +277,7 @@ function StreamHandler(im, option) {
           roomId,
           response
         });
-        negotiate(response);
+        negotiate(offer, response);
       }, error => {
         Logger.log(LogTag.STREAM_HANDLER, {
           msg: 'publish:reconnect:response',
@@ -906,6 +912,7 @@ function StreamHandler(im, option) {
         body
       });
       let headers = getHeaders();
+      let { sdp: offer } = body;
       return request.post({
         path: url,
         body,
@@ -917,10 +924,17 @@ function StreamHandler(im, option) {
           user,
           response
         });
-        negotiate(response);
+        negotiate(offer, response);
       }, error => {
-        Logger.log(LogTag.STREAM_HANDLER, {
-          msg: 'unsubscribe:response',
+        Logger.error(LogTag.STREAM_HANDLER, {
+          msg: 'unsubscribe:response:error',
+          roomId,
+          user,
+          error
+        });
+      }).catch((error) => {
+        Logger.error(LogTag.STREAM_HANDLER, {
+          msg: 'unsubscribe:response:error',
           roomId,
           user,
           error
