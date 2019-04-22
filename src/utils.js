@@ -160,14 +160,14 @@ const request = (url, option) => {
     let isSuccess = () => {
       return /^(200|202)$/.test(xhr.status);
     };
+    let timeout = option.timeout;
+    if (timeout) {
+      xhr.timeout = timeout;
+    }
     xhr.onreadystatechange = function () {
       if (isEqual(xhr.readyState, 4)) {
         let { responseText } = xhr;
-        if (isEmpty(responseText)) {
-          return reject({
-            status: xhr
-          });
-        }
+        responseText = responseText || '{}';
         let result = JSON.parse(responseText);
         if (isSuccess()) {
           resolve(result);
@@ -175,14 +175,16 @@ const request = (url, option) => {
           let { status } = xhr;
           extend(result, {
             status
-          })
+          });
           reject(result);
         }
       }
     };
+    xhr.onerror = (error) => {
+      reject(error);
+    }
     xhr.send(body);
   });
-  // return fetch(url, option);
 };
 const map = (arrs, callback) => {
   return arrs.map(callback);
@@ -267,6 +269,18 @@ const isInclude = (str, match) => {
 const clone = (source) => {
   return JSON.parse(JSON.stringify(source));
 };
+function Index() {
+  let index = 0;
+  this.add = () => {
+    index += 1;
+  };
+  this.get = () => {
+    return index;
+  }
+  this.reset = () => {
+    index = 0;
+  };
+}
 function Observer() {
   let observers = [];
   this.add = (observer, force) => {
@@ -354,5 +368,6 @@ export default {
   isInclude,
   isNull,
   isNumber,
-  toArray
+  toArray,
+  Index
 }

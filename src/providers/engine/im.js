@@ -325,10 +325,13 @@ export class IM extends EventEmitter {
     rtcInfo = rtcInfo || '{"callEngine": [{}]}'
     rtcInfo = utils.parse(rtcInfo);
     let engines = rtcInfo.callEngine;
-    let engine = utils.filter(engines, (e) => {
+    engines = utils.filter(engines, (e) => {
       return e.engineType === 4;
-    })[0] || {};
-    return engine.mediaServer;
+    });
+    let urls = utils.map(engines, (engine) => {
+      return engine.mediaServer;
+    });
+    return urls;
   }
   getUser() {
     let { room: { user } } = this;
