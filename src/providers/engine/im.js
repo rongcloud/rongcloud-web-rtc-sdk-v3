@@ -325,12 +325,14 @@ export class IM extends EventEmitter {
     rtcInfo = rtcInfo || '{"callEngine": [{}]}'
     rtcInfo = utils.parse(rtcInfo);
     let engines = rtcInfo.callEngine;
-    engines = utils.filter(engines, (e) => {
+    let engine = utils.filter(engines, (e) => {
       return e.engineType === 4;
-    });
-    let urls = utils.map(engines, (engine) => {
-      return engine.mediaServer;
-    });
+    })[0];
+    let { backupMediaServer: urls, mediaServer } = engine;
+    if (utils.isUndefined(urls)) {
+      urls = [];
+    }
+    urls.unshift(mediaServer);
     return urls;
   }
   getUser() {
