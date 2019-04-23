@@ -138,3 +138,7 @@ export const dispatchOperationEvent = (user, callback) => {
   let event = events[name];
   return callback(event, user);
 };
+
+export const isSafari = () => {
+  return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+};

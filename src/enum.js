@@ -64,3 +64,11 @@ export const DEFAULT_MS_PROFILE = {
   frameRate: 15
 };
 export const MIN_STREAM_SUFFIX = 'tiny';
+
+export const AUDIO_LEVEL = [0, 1, 2, 3, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9];
+
+export const REPORT_FREQUENCY = 1 * 1000;
+
+export const REQUEST_TIMEOUT = 5 * 1000;
+
+export const MEDIASERVER_SUCCESS = 10000;

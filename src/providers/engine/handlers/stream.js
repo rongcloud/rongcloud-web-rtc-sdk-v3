@@ -133,12 +133,10 @@ function StreamHandler(im, option) {
       return body;
     });
   };
-  let negotiate = (response) => {
-    pc.getOffer().then(offer => {
-      pc.setOffer(offer);
-      let { sdp } = response;
-      pc.setAnwser(sdp);
-    });
+  let negotiate = (offer, response) => {
+    pc.setOffer(offer);
+    let { sdp } = response;
+    pc.setAnwser(sdp);
   };
   /* 
   人员比较:
@@ -216,6 +214,13 @@ function StreamHandler(im, option) {
       utils.forEach(tempRemoteUsers, ([remoteUserId]) => {
         let isInclude = remoteUserId in localUsers;
         let isCurrent = utils.isEqual(currentUserId, remoteUserId);
+        Logger.log(LogTag.STREAM_HANDLER, {
+          msg: 'stream:compareuser',
+          currentUserId,
+          remoteUserId,
+          isInclude,
+          localUsers
+        });
         if (isInclude) {
           delete tempLocalUsers[remoteUserId];
         } else {
@@ -261,6 +266,7 @@ function StreamHandler(im, option) {
         body
       });
       let headers = getHeaders();
+      let { sdp: offer } = body;
       return request.post({
         path: url,
         body,
@@ -271,7 +277,7 @@ function StreamHandler(im, option) {
           roomId,
           response
         });
-        negotiate(response);
+        negotiate(offer, response);
       }, error => {
         Logger.log(LogTag.STREAM_HANDLER, {
           msg: 'publish:reconnect:response',
@@ -367,9 +373,13 @@ function StreamHandler(im, option) {
       });
     });
   };
-  let exchangeHandler = (result, user, type) => {
+  let exchangeHandler = (result, user, type, offer) => {
     let { publishList, sdp } = result;
+    pc.setOffer(offer);
     pc.setAnwser(sdp);
+    Logger.log(LogTag.STREAM_HANDLER, {
+      msg: 'exchangeHandler set sdp'
+    });
     let uris = getUris(publishList);
     appendStreamId(user);
     let getTempUris = (type) => {
@@ -400,44 +410,6 @@ function StreamHandler(im, option) {
     User.set(User.SET_USERINFO, uris, isInner, message);
     return PubResourceCache.set(user.id, uris);
   };
-  eventEmitter.on(CommonEvent.CONSUME, () => {
-    let user = im.getUser();
-    let roomId = im.getRoomId();
-    prosumer.consume(({ sdp, body, user: inputUser }, next) => {
-      Logger.log(LogTag.STREAM_HANDLER, {
-        msg: 'subscribe:request',
-        roomId,
-        options: body
-      });
-      pc.setOffer(sdp);
-      request.post(body).then(response => {
-        let { sdp } = response;
-        pc.setAnwser(sdp);
-        Logger.log(LogTag.STREAM_HANDLER, {
-          msg: 'subscribe:response',
-          roomId,
-          user,
-          response
-        });
-        next();
-      }, (error) => {
-        Logger.log(LogTag.STREAM_HANDLER, {
-          msg: 'subscribe:response',
-          roomId,
-          user,
-          error
-        });
-        let uid = getSubPromiseUId(inputUser);
-        let promise = SubPromiseCache.get(uid);
-        if (!utils.isUndefined(promise)) {
-          promise.reject(error);
-        }
-        next();
-      });
-    }, () => {
-      eventEmitter.emit(CommonEvent.CONSUME_FINISHED);
-    });
-  });
   let getUId = (user, tpl) => {
     tpl = tpl || '{userId}_{tag}_{type}';
     let { id: userId, stream: { tag, type } } = user
@@ -464,15 +436,14 @@ function StreamHandler(im, option) {
       DataCache.set(key, uri);
     });
   });
-
-  im.on(DownEvent.STREAM_CHANGED, (error, user) => {
-    if (error) {
-      throw error;
-    }
-    dispatchStreamEvent(user, (key, uri) => {
-      DataCache.set(key, uri);
-    });
-  });
+  // im.on(DownEvent.STREAM_CHANGED, (error, user) => {
+  //   if (error) {
+  //     throw error;
+  //   }
+  //   dispatchStreamEvent(user, (key, uri) => {
+  //     DataCache.set(key, uri);
+  //   });
+  // });
   im.on(CommonEvent.LEFT, () => {
     let streamIds = StreamCache.getKeys();
     utils.forEach(streamIds, (streamId) => {
@@ -532,7 +503,6 @@ function StreamHandler(im, option) {
       PublishStreamCache.remove(streamId);
     });
     return pc.removeStream(user).then(desc => {
-      pc.setOffer(desc);
       return getBody().then(body => {
         let url = utils.tplEngine(Path.UNPUBLISH, {
           roomId
@@ -556,7 +526,7 @@ function StreamHandler(im, option) {
             response
           });
           StreamCache.remove(streamId);
-          exchangeHandler(response, user, Message.UNPUBLISH);
+          exchangeHandler(response, user, Message.UNPUBLISH, desc);
         }, error => {
           Logger.log(LogTag.STREAM_HANDLER, {
             msg: 'unpublish:response',
@@ -574,6 +544,7 @@ function StreamHandler(im, option) {
       throw error;
     }
     pc = new PeerConnection(option);
+    im.emit(CommonEvent.PEERCONN_CREATED, pc);
     let getStreamUser = (stream) => {
       let { id } = stream, type = StreamType.NODE;
       let [userId, tag] = pc.getStreamSymbolById(id);
@@ -635,6 +606,10 @@ function StreamHandler(im, option) {
       let { id } = stream;
       StreamCache.set(id, stream);
       let user = getStreamUser(stream);
+      im.emit(CommonEvent.PUBLISHED_STREAM, {
+        mediaStream: stream,
+        user
+      });
       let uid = getSubPromiseUId(user);
       let promise = SubPromiseCache.get(uid);
       if (utils.isUndefined(promise)) {
@@ -676,9 +651,6 @@ function StreamHandler(im, option) {
     let { users } = room;
     let usersHandler = () => {
       DataCache.set(DataCacheName.USERS, users);
-      if (utils.isEmpty(users)) {
-        DataCache.set(DataCacheName.IS_NOTIFY_READY, true);
-      }
       let { id: currentUserId } = im.getUser();
       utils.forEach(users, (data, id) => {
         let { uris } = data;
@@ -742,7 +714,6 @@ function StreamHandler(im, option) {
           });
         });
       });
-      DataCache.set(DataCacheName.IS_NOTIFY_READY, true);
     };
     usersHandler();
   });
@@ -750,26 +721,33 @@ function StreamHandler(im, option) {
     let { id } = im.getUser();
     return utils.isEqual(user.id, id);
   };
-  let publishTempStreams = [];
-  let publishInvoke = (users) => {
-    if (!utils.isArray(users)) {
-      users = [users];
+  let publish = (user) => {
+    let { stream: streams } = user;
+    if (!utils.isArray(streams)) {
+      streams = [streams];
     }
-    utils.forEach(users, (user) => {
-      pc.addStream(user);
+    let { id } = user;
+    utils.forEach(streams, (stream) => {
+      let { mediaStream, size } = stream;
+      let streamId = pc.getStreamId({
+        id,
+        stream
+      }, size);
+      StreamCache.set(streamId, mediaStream);
+      PublishStreamCache.set(streamId, mediaStream);
+      if (!utils.isUndefined(mediaStream)) {
+        im.emit(CommonEvent.PUBLISHED_STREAM, {
+          mediaStream,
+          user
+        });
+      }
     });
-    let [user] = users
+    pc.addStream(user);
     let roomId = im.getRoomId();
-    Logger.log(LogTag.STREAM_HANDLER, {
-      msg: 'publish:start',
-      roomId,
-      user
-    });
     return utils.deferred((resolve, reject) => {
       pc.createOffer(user).then(desc => {
-        pc.setOffer(desc);
         return getBody(desc).then(body => {
-          let url = utils.tplEngine(Path.SUBSCRIBE, {
+          let url = utils.tplEngine(Path.PUBLISH, {
             roomId
           });
           Logger.log(LogTag.STREAM_HANDLER, {
@@ -790,8 +768,7 @@ function StreamHandler(im, option) {
               user,
               response
             });
-            publishTempStreams.length = 0;
-            exchangeHandler(response, user, Message.PUBLISH);
+            exchangeHandler(response, user, Message.PUBLISH, desc);
             resolve();
           }, error => {
             Logger.log(LogTag.STREAM_HANDLER, {
@@ -805,33 +782,6 @@ function StreamHandler(im, option) {
         });
       });
     });
-  };
-  eventEmitter.on(CommonEvent.CONSUME_FINISHED, () => {
-    if (!utils.isEmpty(publishTempStreams)) {
-      publishInvoke(publishTempStreams)
-    }
-  });
-  let publish = (user) => {
-    let { stream: streams } = user;
-    if (!utils.isArray(streams)) {
-      streams = [streams];
-    }
-    let { id } = user;
-    utils.forEach(streams, (stream) => {
-      let { mediaStream, size } = stream;
-      let streamId = pc.getStreamId({
-        id,
-        stream
-      }, size);
-      StreamCache.set(streamId, mediaStream);
-      PublishStreamCache.set(streamId, mediaStream);
-    });
-
-    if (prosumer.isExeuting()) {
-      publishTempStreams.push(user);
-      return utils.Defer.resolve();
-    }
-    return publishInvoke(user);
   };
 
   let isTrackExist = (user, types) => {
@@ -894,40 +844,52 @@ function StreamHandler(im, option) {
     });
     SubscribeCache.set(userId, subs);
     let roomId = im.getRoomId();
-    Logger.log(LogTag.STREAM_HANDLER, {
-      msg: 'subscribe:start',
-      roomId,
-      user
-    });
     return utils.deferred((resolve, reject) => {
-      let isNotifyReady = DataCache.get(DataCacheName.IS_NOTIFY_READY);
-      // 首次加入分发未完成，只添加缓存，最后，一次性处理
-      if (isNotifyReady) {
-        getBody().then(body => {
-          let { sdp } = body;
-          let url = utils.tplEngine(Path.SUBSCRIBE, {
-            roomId
-          });
-          let headers = getHeaders();
-          body = {
-            path: url,
-            body,
-            headers
-          };
-          prosumer.produce({
-            sdp,
-            body,
-            headers,
-            user
-          });
-          eventEmitter.emit(CommonEvent.CONSUME);
-        });
-      }
       let uid = getSubPromiseUId(user);
       SubPromiseCache.set(uid, {
         resolve,
         reject,
         type
+      });
+      getBody().then(body => {
+        let { sdp: offer } = body;
+        let url = utils.tplEngine(Path.SUBSCRIBE, {
+          roomId
+        });
+        let headers = getHeaders();
+        let option = {
+          path: url,
+          body,
+          headers
+        };
+        Logger.log(LogTag.STREAM_HANDLER, {
+          msg: 'subscribe:request',
+          roomId,
+          option
+        });
+        request.post(option).then(response => {
+          pc.setOffer(offer);
+          let { sdp: answer } = response;
+          pc.setAnwser(answer);
+          Logger.log(LogTag.STREAM_HANDLER, {
+            msg: 'subscribe:response',
+            roomId,
+            user,
+            response
+          });
+        }, (error) => {
+          Logger.log(LogTag.STREAM_HANDLER, {
+            msg: 'subscribe:response:error',
+            roomId,
+            user,
+            error
+          });
+          let uid = getSubPromiseUId(user);
+          let promise = SubPromiseCache.get(uid);
+          if (!utils.isUndefined(promise)) {
+            promise.reject(error);
+          }
+        });
       });
     });
   };
@@ -950,6 +912,7 @@ function StreamHandler(im, option) {
         body
       });
       let headers = getHeaders();
+      let { sdp: offer } = body;
       return request.post({
         path: url,
         body,
@@ -961,10 +924,17 @@ function StreamHandler(im, option) {
           user,
           response
         });
-        negotiate(response);
+        negotiate(offer, response);
       }, error => {
-        Logger.log(LogTag.STREAM_HANDLER, {
-          msg: 'unsubscribe:response',
+        Logger.error(LogTag.STREAM_HANDLER, {
+          msg: 'unsubscribe:response:error',
+          roomId,
+          user,
+          error
+        });
+      }).catch((error) => {
+        Logger.error(LogTag.STREAM_HANDLER, {
+          msg: 'unsubscribe:response:error',
           roomId,
           user,
           error
@@ -1201,34 +1171,102 @@ function StreamHandler(im, option) {
     });
     unsubscribe(user);
   });
+  eventEmitter.on(CommonEvent.CONSUME, () => {
+    prosumer.consume(({ event, args, resolve, reject }, next) => {
+      switch (event) {
+        case UpEvent.STREAM_PUBLISH:
+          return publish(...args).then((result) => {
+            next();
+            resolve(result);
+          }).catch((error) => {
+            next();
+            reject(error);
+          });
+        case UpEvent.STREAM_UNPUBLISH:
+          return unpublish(...args).then((result) => {
+            next();
+            resolve(result);
+          }).catch((error) => {
+            next();
+            reject(error);
+          });
+        case UpEvent.STREAM_SUBSCRIBE:
+          return subscribe(...args).then((result) => {
+            next();
+            resolve(result);
+          }).catch((error) => {
+            next();
+            reject(error);
+          });
+        case UpEvent.STREAM_UNSUBSCRIBE:
+          return unsubscribe(...args).then((result) => {
+            next();
+            resolve(result);
+          }).catch((error) => {
+            next();
+            reject(error);
+          });
+        case UpEvent.STREAM_RESIZE:
+          return resize(...args).then((result) => {
+            next();
+            resolve(result);
+          }).catch((error) => {
+            next();
+            reject(error);
+          });
+        case UpEvent.STREAM_GET:
+          return get(...args).then((result) => {
+            next();
+            resolve(result);
+          }).catch((error) => {
+            next();
+            reject(error);
+          });
+        case UpEvent.AUDIO_MUTE:
+          return mute(...args).then((result) => {
+            next();
+            resolve(result);
+          }).catch((error) => {
+            next();
+            reject(error);
+          });
+        case UpEvent.AUDIO_UNMUTE:
+          return unmute(...args).then((result) => {
+            next();
+            resolve(result);
+          }).catch((error) => {
+            next();
+            reject(error);
+          });
+        case UpEvent.VIDEO_DISABLE:
+          return disable(...args).then((result) => {
+            next();
+            resolve(result);
+          }).catch((error) => {
+            next();
+            reject(error);
+          });
+        case UpEvent.VIDEO_ENABLE:
+          return enable(...args).then((result) => {
+            next();
+            resolve(result);
+          }).catch((error) => {
+            next();
+            reject(error);
+          });
+        default:
+          Logger.warn(LogTag.STREAM_HANDLER, {
+            event,
+            msg: 'unkown event'
+          });
+      }
+    });
+  });
   let dispatch = (event, args) => {
-    switch (event) {
-      case UpEvent.STREAM_PUBLISH:
-        return publish(...args);
-      case UpEvent.STREAM_UNPUBLISH:
-        return unpublish(...args);
-      case UpEvent.STREAM_SUBSCRIBE:
-        return subscribe(...args);
-      case UpEvent.STREAM_UNSUBSCRIBE:
-        return unsubscribe(...args);
-      case UpEvent.STREAM_RESIZE:
-        return resize(...args);
-      case UpEvent.STREAM_GET:
-        return get(...args);
-      case UpEvent.AUDIO_MUTE:
-        return mute(...args);
-      case UpEvent.AUDIO_UNMUTE:
-        return unmute(...args);
-      case UpEvent.VIDEO_DISABLE:
-        return disable(...args);
-      case UpEvent.VIDEO_ENABLE:
-        return enable(...args);
-      default:
-        Logger.warn(LogTag.STREAM_HANDLER, {
-          event,
-          msg: 'unkown event'
-        });
-    }
+    return utils.deferred((resolve, reject) => {
+      prosumer.produce({ event, args, resolve, reject });
+      eventEmitter.emit(CommonEvent.CONSUME);
+    });
   };
   return {
     dispatch

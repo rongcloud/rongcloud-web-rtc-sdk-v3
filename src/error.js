@@ -114,6 +114,16 @@ let getErrors = () => {
     code: 50056,
     name: 'ENGINE_ERROR',
     msg: '音视频引擎不正确'
+  },
+  {
+    code: 50057,
+    name: 'MEDIA_SERVER_ERROR',
+    msg: '当前网络异常，或 Media Server 不可用'
+  },
+  {
+    code: 50058,
+    name: 'MEDIA_SERVER_RESPONSE_EMPTY',
+    msg: 'Media Server Response Body 为空'
   }, {
     code: 40001,
     name: 'NOT_IN_ROOM',

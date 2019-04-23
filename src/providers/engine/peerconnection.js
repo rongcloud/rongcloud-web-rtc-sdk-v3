@@ -345,4 +345,21 @@ export default class PeerConnection extends EventEmitter {
     let userId = details.join(connector);
     return [userId, tag];
   }
+
+  getStats(callback) {
+    let context = this;
+    let { pc } = context;
+    return pc.getStats((resports) => {
+      let stats = [];
+      resports.result().forEach((res) => {
+        let report = {};
+        res.names().forEach((name) => {
+          report[name] = res.stat(name);
+        });
+        utils.extend(report, res);
+        stats.push(report);
+      });
+      callback(stats);
+    });
+  }
 }

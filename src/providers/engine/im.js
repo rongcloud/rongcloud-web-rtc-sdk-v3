@@ -241,10 +241,11 @@ export class IM extends EventEmitter {
       im.getInstance().joinRTCRoom(room, {
         onSuccess: ({ users, token }) => {
           context.rtcPing(room);
+          let { id: currentUserId } = context.getUser();
           utils.forEach(users, (user, userId) => {
             user = user || {};
             // 过滤自己和为空的用户
-            if (utils.isEmpty(user)) {
+            if (utils.isEmpty(user) || utils.isEqual(currentUserId, user.id)) {
               delete users[userId];
             }
             let { uris } = user;
@@ -326,8 +327,13 @@ export class IM extends EventEmitter {
     let engines = rtcInfo.callEngine;
     let engine = utils.filter(engines, (e) => {
       return e.engineType === 4;
-    })[0] || {};
-    return engine.mediaServer;
+    })[0];
+    let { backupMediaServer: urls, mediaServer } = engine;
+    if (utils.isUndefined(urls)) {
+      urls = [];
+    }
+    urls.unshift(mediaServer);
+    return urls;
   }
   getUser() {
     let { room: { user } } = this;

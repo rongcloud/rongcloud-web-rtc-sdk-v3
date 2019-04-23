@@ -8,13 +8,14 @@ export const DownEvent = {
   STREAM_ENABLED: 'stream_enabled',
   STREAM_MUTED: 'stream_muted',
   STREAM_UNMUTED: 'stream_unmuted',
-  
+
   RTC_ERROR: 'rtc_error',
   RTC_MOUNTED: 'rtc_mounted',
   RTC_UNMOUNTED: 'rtc_unmounted',
 
-  MESSAGE_RECEIVED: 'message_received'
+  MESSAGE_RECEIVED: 'message_received',
 
+  REPORT_SPOKE: 'report_spoke'
 };
 
 export const UpEvent = {
@@ -41,7 +42,10 @@ export const UpEvent = {
 
   MESSAGE_SEND: 'message_send',
 
-  DEVICE_GET: 'device_get'
+  DEVICE_GET: 'device_get',
+
+  REPORT_START: 'report_start',
+  REPORT_STOP: 'report_stop'
 };
 
 export const NetworkEvent = {
