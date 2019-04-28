@@ -62,27 +62,36 @@ function RoomHandler(im) {
       roomId,
       user
     });
-    return im.leaveRoom().then(() => {
+    let token = im.getRTCToken();
+    let url = utils.tplEngine(Path.EXIT, {
+      roomId
+    });
+    let headers = getHeaders();
+    return request.post({
+      path: url,
+      headers,
+      body: {
+        token
+      }
+    }).then(() => {
+      im.leaveRoom().then(() => {
+        Logger.log(LogTag.ROOM_HANDLER, {
+          msg: 'leave:after',
+          roomId,
+          user
+        });
+      }, error => {
+        Logger.log(LogTag.ROOM_HANDLER, {
+          msg: 'leave:im:error',
+          roomId,
+          error,
+          user
+        });
+        return error;
+      });
+    }, (error) => {
       Logger.log(LogTag.ROOM_HANDLER, {
-        msg: 'leave:after',
-        roomId,
-        user
-      });
-      let token = im.getRTCToken();
-      let url = utils.tplEngine(Path.EXIT, {
-        roomId
-      });
-      let headers = getHeaders();
-      return request.post({
-        path: url,
-        headers,
-        body: {
-          token
-        }
-      });
-    }, error => {
-      Logger.log(LogTag.ROOM_HANDLER, {
-        msg: 'leave:after',
+        msg: 'leave:ms:error',
         roomId,
         error,
         user
