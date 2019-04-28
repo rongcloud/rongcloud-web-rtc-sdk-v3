@@ -242,18 +242,25 @@ export class IM extends EventEmitter {
         onSuccess: ({ users, token }) => {
           context.rtcPing(room);
           let { id: currentUserId } = context.getUser();
-          utils.forEach(users, (user, userId) => {
-            user = user || {};
+          let tempUsers = utils.clone(users);
+          Logger.log(LogTag.IM, {
+            msg: 'join:room:inner:success',
+            users: tempUsers
+          });
+          utils.forEach(tempUsers, (tUser, userId) => {
+            tUser = tUser || {};
             // 过滤自己和为空的用户
-            if (utils.isEmpty(user) || utils.isEqual(currentUserId, user.id)) {
+            if (utils.isEmpty(tUser) || utils.isEqual(currentUserId, tUser.id)) {
               delete users[userId];
-            }
-            let { uris } = user;
-            if (!utils.isUndefined(uris)) {
-              uris = utils.parse(uris);
-              utils.extend(user, {
-                uris
-              });
+            } else {
+              let user = users[userId];
+              let { uris } = user;
+              if (!utils.isUndefined(uris)) {
+                uris = utils.parse(uris);
+                utils.extend(user, {
+                  uris
+                });
+              }
             }
           });
           utils.extend(room, {
