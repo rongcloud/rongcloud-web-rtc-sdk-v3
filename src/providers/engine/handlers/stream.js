@@ -803,7 +803,11 @@ function StreamHandler(im, option) {
     });
     return isError;
   };
-  let subscribe = (user) => {
+  /* 
+    subscribe 增加 callback: 订阅需要等流来，等待过程中会阻塞后续请求，所以增加 callback，与 
+    MediaServer 交互成功后即消费后续请求
+  */
+  let subscribe = (user, callback) => {
     let { id: userId, stream: { tag, type } } = user;
     let subs = SubscribeCache.get(userId) || [];
     let types = [StreamType.VIDEO, StreamType.AUDIO];
@@ -872,11 +876,12 @@ function StreamHandler(im, option) {
           let { sdp: answer } = response;
           pc.setAnwser(answer);
           Logger.log(LogTag.STREAM_HANDLER, {
-            msg: 'subscribe:response',
+            msg: 'subscribe:response:stream:not:arrive',
             roomId,
             user,
             response
           });
+          callback();
         }, (error) => {
           Logger.log(LogTag.STREAM_HANDLER, {
             msg: 'subscribe:response:error',
@@ -1191,8 +1196,9 @@ function StreamHandler(im, option) {
             reject(error);
           });
         case UpEvent.STREAM_SUBSCRIBE:
-          return subscribe(...args).then((result) => {
+          return subscribe(...args, () => {
             next();
+          }).then((result) => {
             resolve(result);
           }).catch((error) => {
             next();
