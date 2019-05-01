@@ -67,36 +67,39 @@ function RoomHandler(im) {
       roomId
     });
     let headers = getHeaders();
-    return request.post({
-      path: url,
-      headers,
-      body: {
-        token
-      }
-    }).then(() => {
-      im.leaveRoom().then(() => {
-        Logger.log(LogTag.ROOM_HANDLER, {
-          msg: 'leave:after',
-          roomId,
-          user
+    return utils.deferred((resolve, reject) => {
+      request.post({
+        path: url,
+        headers,
+        body: {
+          token
+        }
+      }).then(() => {
+        im.leaveRoom().then(() => {
+          Logger.log(LogTag.ROOM_HANDLER, {
+            msg: 'leave:after',
+            roomId,
+            user
+          });
+          resolve();
+        }, error => {
+          Logger.log(LogTag.ROOM_HANDLER, {
+            msg: 'leave:im:error',
+            roomId,
+            error,
+            user
+          });
+          reject(error);
         });
-      }, error => {
+      }, (error) => {
         Logger.log(LogTag.ROOM_HANDLER, {
-          msg: 'leave:im:error',
+          msg: 'leave:ms:error',
           roomId,
           error,
           user
         });
-        return error;
+        reject(error);
       });
-    }, (error) => {
-      Logger.log(LogTag.ROOM_HANDLER, {
-        msg: 'leave:ms:error',
-        roomId,
-        error,
-        user
-      });
-      return error;
     });
   };
   let get = () => {
