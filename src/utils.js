@@ -334,6 +334,22 @@ function Prosumer() {
  });
 */
 const Log = console;
+const getBrowser = () => {
+  let userAgent = navigator.userAgent;
+  let name = '', version = '';
+  if (/(Msie|Firefox|Opera|Chrome|Netscape)\D+(\d[\d.]*)/.test(userAgent)) {
+    name = RegExp.$1;
+    version = RegExp.$2;
+  }
+  if (/Version\D+(\d[\d.]*).*Safari/.test(userAgent)) {
+    name = 'Safari';
+    version = RegExp.$1;
+  }
+  return {
+    name,
+    version
+  };
+};
 export default {
   Prosumer,
   Log,
@@ -369,5 +385,6 @@ export default {
   isNull,
   isNumber,
   toArray,
-  Index
+  Index,
+  getBrowser
 }
