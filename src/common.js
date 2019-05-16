@@ -71,6 +71,22 @@ export const getError = (name) => {
   });
 };
 
+export const getHeaders = (im) => {
+  let roomId = im.getRoomId();
+  let token = im.getRTCToken();
+  let { appKey } = im.getAppInfo();
+  let browser = utils.getBrowser();
+  let tpl = 'web|{name}|{version}';
+  let type = utils.tplEngine(tpl, browser);
+  return {
+    'App-Key': appKey,
+    RoomId: roomId,
+    Token: token,
+    ClientType: type,
+    ClientVersion: 1
+  }
+};
+
 export const dispatchStreamEvent = (user, callback) => {
   let { id, uris } = user;
   if (utils.isString(uris)) {

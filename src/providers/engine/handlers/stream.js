@@ -94,21 +94,6 @@ function StreamHandler(im, option) {
     });
     return subs;
   };
-  let getHeaders = () => {
-    let roomId = im.getRoomId();
-    let token = im.getRTCToken();
-    let { appKey } = im.getAppInfo();
-    let browser = utils.getBrowser();
-    let tpl = 'web|{name}|{version}';
-    let type = utils.tplEngine(tpl, browser);
-    return {
-      'App-Key': appKey,
-      RoomId: roomId,
-      Token: token,
-      ClientType: type,
-      ClientVersion: 1
-    }
-  };
   let getBody = (desc) => {
     let subs = getSubs();
     let streams = [];
@@ -270,7 +255,7 @@ function StreamHandler(im, option) {
         roomId,
         body
       });
-      let headers = getHeaders();
+      let headers = common.getHeaders(im);
       let { sdp: offer } = body;
       return request.post({
         path: url,
@@ -518,7 +503,7 @@ function StreamHandler(im, option) {
           user,
           body
         });
-        let headers = getHeaders();
+        let headers = common.getHeaders(im);
         return request.post({
           path: url,
           body,
@@ -761,7 +746,7 @@ function StreamHandler(im, option) {
             user,
             body
           });
-          let headers = getHeaders();
+          let headers = common.getHeaders(im);
           return request.post({
             path: url,
             body,
@@ -865,7 +850,7 @@ function StreamHandler(im, option) {
         let url = utils.tplEngine(Path.SUBSCRIBE, {
           roomId
         });
-        let headers = getHeaders();
+        let headers = common.getHeaders(im);
         let option = {
           path: url,
           body,
@@ -921,7 +906,7 @@ function StreamHandler(im, option) {
         user,
         body
       });
-      let headers = getHeaders();
+      let headers = common.getHeaders(im);
       let { sdp: offer } = body;
       return request.post({
         path: url,
@@ -997,7 +982,7 @@ function StreamHandler(im, option) {
         user,
         body
       });
-      let headers = getHeaders();
+      let headers = common.getHeaders(im);
       return request.post({
         path: url,
         body,

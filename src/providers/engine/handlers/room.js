@@ -5,17 +5,9 @@ import { Path } from '../path';
 import Logger from '../../../logger';
 import { LogTag } from '../../../enum';
 import { ErrorType } from '../../../error';
+import * as common from '../../../common';
+
 function RoomHandler(im) {
-  let getHeaders = () => {
-    let roomId = im.getRoomId();
-    let token = im.getRTCToken();
-    let { appKey } = im.getAppInfo();
-    return {
-      'App-Key': appKey,
-      RoomId: roomId,
-      Token: token
-    }
-  };
   let join = (room) => {
     Logger.log(LogTag.ROOM_HANDLER, {
       msg: 'join:before',
@@ -66,7 +58,7 @@ function RoomHandler(im) {
     let url = utils.tplEngine(Path.EXIT, {
       roomId
     });
-    let headers = getHeaders();
+    let headers = common.getHeaders(im);
     return utils.deferred((resolve, reject) => {
       request.post({
         path: url,
