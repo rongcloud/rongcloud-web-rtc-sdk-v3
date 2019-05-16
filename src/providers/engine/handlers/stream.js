@@ -642,7 +642,7 @@ function StreamHandler(im, option) {
       if (error) {
         throw error;
       }
-      if (pc.isNegotiate()) {
+      if (pc.isNegotiate() && im.isJoined()) {
         network.detect((isOnline) => {
           if (isOnline) {
             reconnect();
