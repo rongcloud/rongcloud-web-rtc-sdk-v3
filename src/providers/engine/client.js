@@ -55,14 +55,14 @@ export default class Client extends EventEmitter {
     utils.forEach(RoomEvents, bindEvent);
     im.on(CommonEvent.JOINED, () => {
       let urls = im.getMSUrl();
+      let { url: customUrl } = option;
+      if (!utils.isEmpty(customUrl)) {
+        urls = [customUrl];
+      }
       if (utils.isEmpty(urls)) {
         let { Inner } = ErrorType;
         let error = Inner.ENGINE_ERROR;
         return context.emit(DownEvent.RTC_ERROR, error);
-      }
-      let { url: customUrl } = option;
-      if (!utils.isEmpty(customUrl)) {
-        urls = [customUrl];
       }
       request.setOption({
         urls

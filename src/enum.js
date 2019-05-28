@@ -72,3 +72,8 @@ export const REPORT_FREQUENCY = 1 * 1000;
 export const REQUEST_TIMEOUT = 5 * 1000;
 
 export const MEDIASERVER_SUCCESS = 10000;
+
+export const RTC_MODE = {
+  RTC: 0,
+  LIVE: 1
+};

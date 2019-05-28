@@ -1,6 +1,6 @@
 import Room from './modules/room';
 import Stream from './modules/stream/index';
-import { StreamType, StreamSize, LogTag, StorageType } from './enum';
+import { StreamType, StreamSize, LogTag, StorageType, RTC_MODE } from './enum';
 import Client from './providers/engine/client';
 import utils from './utils';
 import { DownEvent } from './event-name';
@@ -22,6 +22,7 @@ export default class RongRTC {
         min: 100,
         start: 300
       },
+      mode: RTC_MODE.RTC,
       created: () => { },
       mounted: () => { },
       unmounted: () => { },
@@ -52,6 +53,7 @@ export default class RongRTC {
       StreamType,
       StreamSize,
       StorageType,
+      Mode: RTC_MODE,
       Message,
       Device,
       Report,
@@ -92,3 +94,9 @@ export default class RongRTC {
     });
   }
 }
+utils.extend(RongRTC, {
+  StreamType,
+  StreamSize,
+  StorageType,
+  Mode: RTC_MODE,
+});

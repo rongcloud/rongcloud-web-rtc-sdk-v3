@@ -7,7 +7,7 @@ import { LogTag } from '../../../enum';
 import { ErrorType } from '../../../error';
 import * as common from '../../../common';
 
-function RoomHandler(im) {
+function RoomHandler(im, option) {
   let join = (room) => {
     Logger.log(LogTag.ROOM_HANDLER, {
       msg: 'join:before',
@@ -22,6 +22,10 @@ function RoomHandler(im) {
       return utils.Defer.reject(Inner.ROOM_REPEAT_JOIN);
     }
     return utils.deferred((resolve, reject) => {
+      let { mode } = option;
+      utils.extend(room, {
+        mode
+      })
       im.joinRoom(room).then((users) => {
         Logger.log(LogTag.ROOM_HANDLER, {
           msg: 'join:after',

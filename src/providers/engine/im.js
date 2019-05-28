@@ -334,12 +334,14 @@ export class IM extends EventEmitter {
     let engines = rtcInfo.callEngine;
     let engine = utils.filter(engines, (e) => {
       return e.engineType === 4;
-    })[0];
+    })[0] || {};
     let { backupMediaServer: urls, mediaServer } = engine;
     if (utils.isUndefined(urls)) {
       urls = [];
     }
-    urls.unshift(mediaServer);
+    if(!utils.isUndefined(mediaServer)){
+      urls.unshift(mediaServer);
+    }
     return urls;
   }
   getUser() {
