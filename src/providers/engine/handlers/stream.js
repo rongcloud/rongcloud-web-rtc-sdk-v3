@@ -596,6 +596,18 @@ function StreamHandler(im, option) {
       let { id } = stream;
       StreamCache.set(id, stream);
       let user = getStreamUser(stream);
+      let uris = SubscribeCache.get(user.id) || [];
+      utils.forEach(uris, (uri) => {
+        let {state, type} = uri;
+        let isVideo = utils.isEqual(StreamType.VIDEO, type);
+        let isDisabled = utils.isEqual(state, StreamState.DISBALE);
+        if(isVideo && isDisabled){
+          let videoTracks = stream.getVideoTracks();
+          utils.forEach(videoTracks, (track) => {
+            track.enabled = false;
+          });
+        }
+      });
       im.emit(CommonEvent.PUBLISHED_STREAM, {
         mediaStream: stream,
         user
@@ -817,7 +829,7 @@ function StreamHandler(im, option) {
         }
       };
       let key = getUId(tUser);
-      let { uri } = DataCache.get(key);
+      let uri = DataCache.get(key);
       let isAdd = true;
       utils.forEach(subs, (sub) => {
         let { type: existType, tag: existTag } = sub;
@@ -826,14 +838,12 @@ function StreamHandler(im, option) {
           isAdd = false;
         }
       });
-      let msid = pc.getStreamId(user);
       if (isAdd && !utils.isUndefined(uri)) {
-        subs.push({
-          msid,
-          uri,
-          type,
-          tag
+        uri = utils.clone(uri);
+        uri = utils.rename(uri, {
+          mediaType: 'type'
         });
+        subs.push(uri);
       }
     });
     SubscribeCache.set(userId, subs);
