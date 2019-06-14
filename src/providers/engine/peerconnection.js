@@ -1,8 +1,9 @@
 import utils from '../../utils';
 import EventEmitter from '../../event-emitter';
 import { PeerConnectionEvent, ICEEvent } from './events';
-import { StreamSize, LogTag, DEFAULT_MS_PROFILE, MIN_STREAM_SUFFIX } from '../../enum';
+import { StreamSize, LogTag, DEFAULT_MS_PROFILE, MIN_STREAM_SUFFIX, TAG_V2 } from '../../enum';
 import Logger from '../../logger';
+import * as common from '../../common';
 
 export default class PeerConnection extends EventEmitter {
   constructor(option) {
@@ -326,6 +327,9 @@ export default class PeerConnection extends EventEmitter {
     if (utils.isEqual(size, StreamSize.MIN)) {
       tpl = '{userId}_{tag}_{suffix}';
     }
+    if(common.isV2Tag(tag)){
+      return userId;
+    }
     return utils.tplEngine(tpl, {
       userId,
       tag,
@@ -341,6 +345,10 @@ export default class PeerConnection extends EventEmitter {
   getStreamSymbolById(id) {
     let connector = '_';
     let details = id.split(connector);
+    if (utils.isEqual(details.length, 1)) {
+      details.push(TAG_V2);
+      return details;
+    }
     let tag = details.pop();
     let userId = details.join(connector);
     return [userId, tag];

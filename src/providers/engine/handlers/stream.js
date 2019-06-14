@@ -6,7 +6,7 @@ import { Path } from '../path';
 import Message from '../im';
 import { CommonEvent, PeerConnectionEvent } from '../events';
 import EventEmitter from '../../../event-emitter';
-import { StreamType, StreamState, LogTag, StreamSize, DEFAULT_MS_PROFILE } from '../../../enum';
+import { StreamType, StreamState, LogTag, StreamSize, DEFAULT_MS_PROFILE, TAG_V2 } from '../../../enum';
 import { ErrorType } from '../../../error';
 import Logger from '../../../logger';
 import Network from '../../../network';
@@ -403,6 +403,9 @@ function StreamHandler(im, option) {
   let getUId = (user, tpl) => {
     tpl = tpl || '{userId}_{tag}_{type}';
     let { id: userId, stream: { tag, type } } = user
+    if (utils.isEmpty(tag)) {
+      tpl = '{userId}_{type}'
+    }
     return utils.tplEngine(tpl, {
       userId,
       tag,
@@ -538,6 +541,9 @@ function StreamHandler(im, option) {
     let getStreamUser = (stream) => {
       let { id } = stream, type = StreamType.NODE;
       let [userId, tag] = pc.getStreamSymbolById(id);
+      if (common.isV2Tag(tag)) {
+        tag = TAG_V2;
+      }
       let videoTracks = stream.getVideoTracks();
       let audioTrakcks = stream.getAudioTracks();
       let isEmtpyVideo = utils.isEmpty(videoTracks);
@@ -598,10 +604,10 @@ function StreamHandler(im, option) {
       let user = getStreamUser(stream);
       let uris = SubscribeCache.get(user.id) || [];
       utils.forEach(uris, (uri) => {
-        let {state, type} = uri;
+        let { state, type } = uri;
         let isVideo = utils.isEqual(StreamType.VIDEO, type);
         let isDisabled = utils.isEqual(state, StreamState.DISBALE);
-        if(isVideo && isDisabled){
+        if (isVideo && isDisabled) {
           let videoTracks = stream.getVideoTracks();
           utils.forEach(videoTracks, (track) => {
             track.enabled = false;
@@ -693,6 +699,9 @@ function StreamHandler(im, option) {
         });
         let streams = utils.uniq(uris, (target) => {
           let { streamId, tag } = target;
+          if (common.isV2Tag(tag)) {
+            tag = TAG_V2;
+          }
           return {
             key: [streamId, tag].join('_'),
             value: {
@@ -833,6 +842,9 @@ function StreamHandler(im, option) {
       let isAdd = true;
       utils.forEach(subs, (sub) => {
         let { type: existType, tag: existTag } = sub;
+        if(common.isV2Tag(existTag)){
+          tag = TAG_V2;
+        }
         let isExist = utils.isEqual(type, existType) && utils.isEqual(tag, existTag);
         if (isExist) {
           isAdd = false;

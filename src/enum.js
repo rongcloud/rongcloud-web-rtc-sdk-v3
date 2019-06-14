@@ -77,3 +77,5 @@ export const RTC_MODE = {
   RTC: 0,
   LIVE: 1
 };
+
+export const TAG_V2 = '';

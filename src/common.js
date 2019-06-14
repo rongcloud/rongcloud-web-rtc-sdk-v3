@@ -158,3 +158,7 @@ export const dispatchOperationEvent = (user, callback) => {
 export const isSafari = () => {
   return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 };
+
+export const isV2Tag = (tag) => {
+  return utils.isUndefined(tag) || utils.isEmpty(tag);
+};

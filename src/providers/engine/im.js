@@ -3,7 +3,7 @@ import EventEmitter from '../../event-emitter';
 import { DownEvent } from '../../event-name';
 import { ErrorType } from '../../error';
 import { CommonEvent } from './events';
-import { UserState, PingCount, LogTag } from '../../enum';
+import { UserState, PingCount, LogTag, TAG_V2 } from '../../enum';
 import * as common from '../../common';
 import Logger from '../../logger';
 const Message = {
@@ -159,6 +159,17 @@ export class IM extends EventEmitter {
     im.messageWatch((message) => {
       let { messageType: type, senderUserId: id, content: { uris, users } } = message;
       let user = { id };
+      if (utils.isArray(uris)) {
+        uris = utils.map(uris, (uri) => {
+          let { tag } = uri;
+          if (common.isV2Tag(tag)) {
+            utils.extend(uri, {
+              tag: TAG_V2
+            });
+          }
+          return uri
+        });
+      }
       switch (type) {
         case Message.STATE:
           roomEventHandler(users);
@@ -339,7 +350,7 @@ export class IM extends EventEmitter {
     if (utils.isUndefined(urls)) {
       urls = [];
     }
-    if(!utils.isUndefined(mediaServer)){
+    if (!utils.isUndefined(mediaServer)) {
       urls.unshift(mediaServer);
     }
     return urls;
