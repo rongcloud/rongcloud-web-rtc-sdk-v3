@@ -79,3 +79,23 @@ export const RTC_MODE = {
 };
 
 export const TAG_V2 = '';
+
+export const STAT_FREQUENCY = 2 * 1000;
+
+export const STAT_TPL = {
+  R1: 'R1\t{rtcVersion}\t{imVersion}\t{platform}\t{pcName}\t{chromeVersion}',
+ 
+  R2: 'R2\t{type}\t{status}\r{trackIds}',
+ 
+  R3_ITEM: '{googTrackId}\t{googCodecName}\t{audioLevel}\t{samplingRate}\t{transferRate}\t{packetsLost}\t{frameRate}\t{resolution}\t{googRenderDelayMs}\t{googJitterReceived}\t{googNacksReceived}\t{googPlisReceived}\t{googRtt}\t{googFirsReceived}\t{codecImplementationName}',
+  R3: 'R3\t{totalRate}\r{tracks}',
+
+  R4_ITEM: '{googTrackId}\t{googCodecName}\t{audioLevel}\t{samplingRate}\t{transferRate}\t{packetsLost}\t{frameRate}\t{resolution}\t{googRenderDelayMs}\t{googJitterReceived}\t{googNacksReceived}\t{googPlisReceived}\t{googRtt}\t{googFirsReceived}\t{codecImplementationName}',
+  R4: 'R4\t{totalRate}\r{tracks}',
+
+  R5: 'R5\t-1\t-1\t-1\t{networkType}\t{rtt}\t{localAddress}\t{receiveBand}\t{sendBand}\t{packetsLost}'
+};
+
+export const STAT_NONE = '-1';
+
+export const STAT_SEPARATOR = '\n';
