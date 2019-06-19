@@ -607,6 +607,12 @@ export class IM extends EventEmitter {
       });
     }, true);
   }
+  getIMVersion() {
+    let context = this;
+    let { im } = context;
+    let info = im.getInstance().getSDKInfo();
+    return info.version || '';
+  }
 }
 
 export default Message;

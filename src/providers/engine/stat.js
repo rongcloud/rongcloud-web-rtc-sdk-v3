@@ -1,6 +1,8 @@
 import { CommonEvent } from './events';
 import utils from '../../utils';
-import { STAT_FREQUENCY, STAT_TPL, STAT_NONE, STAT_SEPARATOR } from '../../enum';
+import { STAT_FREQUENCY, STAT_TPL, STAT_NONE, STAT_SEPARATOR, STAT_NAME } from '../../enum';
+import * as common from '../../common';
+import { UpEvent } from '../../event-name';
 
 function Stat(im, option) {
   let statTimer = 0;
@@ -24,12 +26,12 @@ function Stat(im, option) {
   */
   let send = () => {
   };
-  // let getR1 = (content) => {
-  //   return utils.tplEngine(STAT_TPL.R1, content);
-  // };
-  // let getR2 = (content) => {
-  //   return utils.tplEngine(STAT_TPL.R2, content);
-  // };
+  let getR1 = (content) => {
+    return utils.tplEngine(STAT_TPL.R1, content);
+  };
+  let getR2 = (content) => {
+    return utils.tplEngine(STAT_TPL.R2, content);
+  };
   let getR3Item = (content) => {
     return utils.tplEngine(STAT_TPL.R3_ITEM, content);
   };
@@ -189,15 +191,22 @@ function Stat(im, option) {
         receiveTracks.push(track);
       }
     });
-    let R3 = getR3({
-      totalRate: totalSend,
-      tracks: sendTracks.join(STAT_SEPARATOR)
-    });
-    let R4 = getR4({
-      totalRate: totalReceive,
-      tracks: receiveTracks.join(STAT_SEPARATOR)
-    });
-    let R5 = getR5(R5Data);
+    let R3, R4, R5;
+    if (!utils.isEmpty(sendTracks)) {
+      R3 = getR3({
+        totalRate: totalSend,
+        tracks: sendTracks.join(STAT_SEPARATOR)
+      });
+    }
+    if (!utils.isEmpty(receiveTracks)) {
+      R4 = getR4({
+        totalRate: totalReceive,
+        tracks: receiveTracks.join(STAT_SEPARATOR)
+      });
+    }
+    if (!utils.isEmpty(sendTracks) || !utils.isEmpty(receiveTracks)) {
+      R5 = getR5(R5Data);
+    }
     return {
       R3,
       R4,
@@ -205,13 +214,20 @@ function Stat(im, option) {
     }
   };
   /* 根据条件调用 Send 方法 */
-  let sendReport = () => {
+  let sendReport = (reports) => {
+    utils.forEach(reports, (report) => {
+      if (report) {
+        send({
+          report
+        });
+      }
+    });
   };
   let take = (pc) => {
     statTimer = setInterval(() => {
       pc.getStats((stats) => {
-        let report = format(stats);
-        sendReport(report);
+        let reports = format(stats);
+        sendReport(reports);
       });
     }, frequency);
   };
@@ -224,9 +240,74 @@ function Stat(im, option) {
     }
     take(pc);
   });
+  let getType = (name) => {
+    let type = '', state = '';
+    switch (name) {
+      case UpEvent.STREAM_PUBLISH:
+        type = 'publish';
+        state = 'start';
+        break;
+      case UpEvent.STREAM_UNPUBLISH:
+        type = 'publish';
+        state = 'end';
+        break;
+      case UpEvent.STREAM_SUBSCRIBE:
+        type = 'subscribe';
+        state = 'start';
+        break;
+      case UpEvent.STREAM_UNSUBSCRIBE:
+        type = 'subscribe';
+        state = 'end';
+        break;
+    }
+    return {
+      type,
+      state
+    }
+  }
   im.on(CommonEvent.SEND_REPORT, (error, data) => {
     if (!utils.isUndefined(error)) {
-      send(data);
+      let { type, name, content: { streams } } = data;
+      let report = '';
+      let borwser = utils.getBrowser();
+      switch (type) {
+        case STAT_NAME.R1:
+          report = getR1({
+            rtcVersion: common.getVersion(),
+            imVersion: im.getIMVersion(),
+            platform: 'Web',
+            pcName: navigator.platform,
+            pcVersion: STAT_NONE,
+            browserVersion: borwser.version
+          });
+          break;
+        case STAT_NAME.R2:
+          if (!utils.isArray(streams)) {
+            streams = [streams];
+          }
+          {
+            let trackIds = [];
+            utils.forEach(streams, (stream) => {
+              let tracks = stream.getTracks();
+              tracks.forEach(tracks, (track) => {
+                trackIds.push(track.id);
+              });
+            });
+            trackIds = trackIds.join('\t');
+            let { type, state } = getType(name);
+            report = getR2({
+              type,
+              state,
+              trackIds
+            });
+          }
+          break;
+      }
+      if (!utils.isEmpty(report)) {
+        send({
+          report
+        });
+      }
     }
   });
 }

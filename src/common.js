@@ -1,6 +1,6 @@
 import utils from './utils';
 import { ErrorType } from './error';
-import { StreamType, StreamState } from './enum';
+import { StreamType, StreamState, SDK_VERSION } from './enum';
 import { DownEvent } from './event-name';
 /* 
   data： 任意对象
@@ -161,4 +161,8 @@ export const isSafari = () => {
 
 export const isV2Tag = (tag) => {
   return utils.isUndefined(tag) || utils.isEmpty(tag);
+};
+
+export const getVersion = () => {
+  return SDK_VERSION;
 };
