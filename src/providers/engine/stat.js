@@ -24,8 +24,8 @@ function Stat(im, option) {
       content: ''
     }]
   */
-  let send = () => {
-    // console.log(report)
+  let send = (report) => {
+    im.setRTCState(report);
   };
   let getR1 = (content) => {
     return utils.tplEngine(STAT_TPL.R1, content);
@@ -290,7 +290,7 @@ function Stat(im, option) {
           {
             let trackIds = [];
             utils.forEach(streams, (stream) => {
-              if(utils.isUndefined(stream)){
+              if (utils.isUndefined(stream)) {
                 return trackIds.push(STAT_NONE);
               }
               let tracks = stream.getTracks();

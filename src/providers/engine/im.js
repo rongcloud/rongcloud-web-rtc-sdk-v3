@@ -613,6 +613,14 @@ export class IM extends EventEmitter {
     let info = im.getInstance().getSDKInfo();
     return info.version || '';
   }
+  setRTCState(content) {
+    let context = this;
+    let { im, room } = context;
+    return im.getInstance().setRTCState(room, content, {
+      onSuccess: () => { },
+      onError: () => { }
+    });
+  }
 }
 
 export default Message;
