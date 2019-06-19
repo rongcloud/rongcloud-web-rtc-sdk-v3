@@ -25,6 +25,7 @@ function Stat(im, option) {
     }]
   */
   let send = () => {
+    // console.log(report)
   };
   let getR1 = (content) => {
     return utils.tplEngine(STAT_TPL.R1, content);
@@ -124,6 +125,7 @@ function Stat(im, option) {
       };
     };
     let getPair = (pair) => {
+      pair = pair || {};
       let { bytesReceived, bytesSent, googLocalAddress } = pair;
       let latestRate = getLatestRate();
       // 发送、接收总码率为空，直接返回，下次有合法值再行计算
@@ -266,7 +268,7 @@ function Stat(im, option) {
     }
   }
   im.on(CommonEvent.SEND_REPORT, (error, data) => {
-    if (!utils.isUndefined(error)) {
+    if (utils.isUndefined(error)) {
       let { type, name, content: { streams } } = data;
       let report = '';
       let borwser = utils.getBrowser();
@@ -288,8 +290,11 @@ function Stat(im, option) {
           {
             let trackIds = [];
             utils.forEach(streams, (stream) => {
+              if(utils.isUndefined(stream)){
+                return trackIds.push(STAT_NONE);
+              }
               let tracks = stream.getTracks();
-              tracks.forEach(tracks, (track) => {
+              utils.forEach(tracks, (track) => {
                 trackIds.push(track.id);
               });
             });

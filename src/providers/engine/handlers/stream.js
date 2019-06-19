@@ -6,7 +6,7 @@ import { Path } from '../path';
 import Message from '../im';
 import { CommonEvent, PeerConnectionEvent } from '../events';
 import EventEmitter from '../../../event-emitter';
-import { StreamType, StreamState, LogTag, StreamSize, DEFAULT_MS_PROFILE, TAG_V2 } from '../../../enum';
+import { StreamType, StreamState, LogTag, StreamSize, DEFAULT_MS_PROFILE, TAG_V2, STAT_NAME } from '../../../enum';
 import { ErrorType } from '../../../error';
 import Logger from '../../../logger';
 import Network from '../../../network';
@@ -487,13 +487,22 @@ function StreamHandler(im, option) {
       roomId,
       user
     });
+    let mediaStreams = [];
     utils.forEach(streams, ({ mediaStream }) => {
+      mediaStreams.push(mediaStream);
       let tracks = mediaStream.getTracks();
       utils.forEach(tracks, (track) => {
         track.stop();
       });
       let { id: streamId } = mediaStream;
       PublishStreamCache.remove(streamId);
+    });
+    im.emit(CommonEvent.SEND_REPORT, {
+      type: STAT_NAME.R2,
+      name: UpEvent.STREAM_UNPUBLISH,
+      content: {
+        streams: mediaStreams
+      }
     });
     return pc.removeStream(user).then(desc => {
       return getBody().then(body => {
@@ -737,7 +746,7 @@ function StreamHandler(im, option) {
     if (!utils.isArray(streams)) {
       streams = [streams];
     }
-    let { id } = user;
+    let { id } = user, mediaStreams = [];
     utils.forEach(streams, (stream) => {
       let { mediaStream, size } = stream;
       let streamId = pc.getStreamId({
@@ -751,6 +760,14 @@ function StreamHandler(im, option) {
           mediaStream,
           user
         });
+      }
+      mediaStreams.push(mediaStream);
+    });
+    im.emit(CommonEvent.SEND_REPORT, {
+      type: STAT_NAME.R2,
+      name: UpEvent.STREAM_PUBLISH,
+      content: {
+        streams: mediaStreams
       }
     });
     pc.addStream(user);
@@ -842,7 +859,7 @@ function StreamHandler(im, option) {
       let isAdd = true;
       utils.forEach(subs, (sub) => {
         let { type: existType, tag: existTag } = sub;
-        if(common.isV2Tag(existTag)){
+        if (common.isV2Tag(existTag)) {
           tag = TAG_V2;
         }
         let isExist = utils.isEqual(type, existType) && utils.isEqual(tag, existTag);
@@ -859,6 +876,17 @@ function StreamHandler(im, option) {
       }
     });
     SubscribeCache.set(userId, subs);
+
+    let streamId = pc.getStreamId(user);
+    let mediaStream = StreamCache.get(streamId);
+    im.emit(CommonEvent.SEND_REPORT, {
+      type: STAT_NAME.R2,
+      name: UpEvent.STREAM_SUBSCRIBE,
+      content: {
+        streams: [mediaStream]
+      }
+    });
+
     let roomId = im.getRoomId();
     return utils.deferred((resolve, reject) => {
       let uid = getSubPromiseUId(user);
@@ -918,6 +946,16 @@ function StreamHandler(im, option) {
       roomId,
       user
     });
+    let streamId = pc.getStreamId(user);
+    let mediaStream = StreamCache.get(streamId);
+    im.emit(CommonEvent.SEND_REPORT, {
+      type: STAT_NAME.R2,
+      name: UpEvent.STREAM_UNSUBSCRIBE,
+      content: {
+        streams: [mediaStream]
+      }
+    });
+
     return getBody().then(body => {
       let url = utils.tplEngine(Path.UNSUBSCRIBE, {
         roomId
