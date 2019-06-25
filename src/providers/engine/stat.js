@@ -1,8 +1,9 @@
 import { CommonEvent } from './events';
 import utils from '../../utils';
-import { STAT_FREQUENCY, STAT_TPL, STAT_NONE, STAT_SEPARATOR, STAT_NAME } from '../../enum';
+import { LogTag, STAT_FREQUENCY, STAT_TPL, STAT_NONE, STAT_SEPARATOR, STAT_NAME } from '../../enum';
 import * as common from '../../common';
 import { UpEvent } from '../../event-name';
+import Logger from '../../logger';
 
 function Stat(im, option) {
   let statTimer = 0;
@@ -26,6 +27,7 @@ function Stat(im, option) {
   */
   let send = (report) => {
     im.setRTCState(report);
+    Logger.log(LogTag.STAT, report);
   };
   let getR1 = (content) => {
     return utils.tplEngine(STAT_TPL.R1, content);

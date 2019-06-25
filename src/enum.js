@@ -33,7 +33,8 @@ export const LogTag = {
   STORAGE_HANDLER: 'storage_handler',
   IM: 'im',
   MESSAGE: 'message',
-  DEVICE: 'device'
+  DEVICE: 'device',
+  STAT: 'stat'
 };
 
 export const LogLevel = {
@@ -92,7 +93,7 @@ export const STAT_TPL = {
 
   R4_ITEM: '{googTrackId}\t{googCodecName}\t{audioLevel}\t{samplingRate}\t{transferRate}\t{packetsLost}\t{frameRate}\t{resolution}\t{googRenderDelayMs}\t{googJitterReceived}\t{googNacksReceived}\t{googPlisReceived}\t{googRtt}\t{googFirsReceived}\t{codecImplementationName}',
   R4: 'R4\t-1\t-1\t-1\t{networkType}\t{rtt}\t{localAddress}\t{receiveBand}\t{sendBand}\t{packetsLost}\t{totalRate}\r{tracks}'
-  
+
 };
 
 export const STAT_NONE = '-1';
