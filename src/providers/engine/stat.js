@@ -47,9 +47,6 @@ function Stat(im, option) {
     return utils.tplEngine(STAT_TPL.R4, content);
   };
 
-  let getR5 = (content) => {
-    return utils.tplEngine(STAT_TPL.R5, content);
-  };
   /* 封装日志格式 */
   let format = (stats) => {
     let getResolution = (stat) => {
@@ -193,26 +190,26 @@ function Stat(im, option) {
         receiveTracks.push(track);
       }
     });
-    let R3, R4, R5;
+    let R3, R4;
     if (!utils.isEmpty(sendTracks)) {
-      R3 = getR3({
+      let content = {
         totalRate: totalSend,
         tracks: sendTracks.join(STAT_SEPARATOR)
-      });
+      };
+      utils.extend(content, R5Data);
+      R3 = getR3(content);
     }
     if (!utils.isEmpty(receiveTracks)) {
-      R4 = getR4({
+      let content = {
         totalRate: totalReceive,
         tracks: receiveTracks.join(STAT_SEPARATOR)
-      });
-    }
-    if (!utils.isEmpty(sendTracks) || !utils.isEmpty(receiveTracks)) {
-      R5 = getR5(R5Data);
+      };
+      utils.extend(content, R5Data);
+      R4 = getR4(content);
     }
     return {
       R3,
-      R4,
-      R5
+      R4
     }
   };
   /* 根据条件调用 Send 方法 */

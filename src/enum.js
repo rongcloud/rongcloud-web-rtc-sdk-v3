@@ -88,12 +88,11 @@ export const STAT_TPL = {
   R2: 'R2\t{type}\t{state}\r{trackIds}',
 
   R3_ITEM: '{googTrackId}\t{googCodecName}\t{audioLevel}\t{samplingRate}\t{transferRate}\t{packetsLost}\t{frameRate}\t{resolution}\t{googRenderDelayMs}\t{googJitterReceived}\t{googNacksReceived}\t{googPlisReceived}\t{googRtt}\t{googFirsReceived}\t{codecImplementationName}',
-  R3: 'R3\t{totalRate}\r{tracks}',
+  R3: 'R3\t-1\t-1\t-1\t{networkType}\t{rtt}\t{localAddress}\t{receiveBand}\t{sendBand}\t{packetsLost}\t{totalRate}\r{tracks}',
 
   R4_ITEM: '{googTrackId}\t{googCodecName}\t{audioLevel}\t{samplingRate}\t{transferRate}\t{packetsLost}\t{frameRate}\t{resolution}\t{googRenderDelayMs}\t{googJitterReceived}\t{googNacksReceived}\t{googPlisReceived}\t{googRtt}\t{googFirsReceived}\t{codecImplementationName}',
-  R4: 'R4\t{totalRate}\r{tracks}',
-
-  R5: 'R5\t-1\t-1\t-1\t{networkType}\t{rtt}\t{localAddress}\t{receiveBand}\t{sendBand}\t{packetsLost}'
+  R4: 'R4\t-1\t-1\t-1\t{networkType}\t{rtt}\t{localAddress}\t{receiveBand}\t{sendBand}\t{packetsLost}\t{totalRate}\r{tracks}'
+  
 };
 
 export const STAT_NONE = '-1';
@@ -104,8 +103,7 @@ export const STAT_NAME = {
   R1: 'r1',
   R2: 'r2',
   R3: 'r3',
-  R4: 'r4',
-  R5: 'r5'
+  R4: 'r4'
 };
 
 export const SDK_VERSION = '3.0.4';
