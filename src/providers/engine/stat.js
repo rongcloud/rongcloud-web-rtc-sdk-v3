@@ -61,7 +61,8 @@ function Stat(im, option) {
   /* 封装日志格式 */
   let format = (stats) => {
     let getResolution = (stat) => {
-      let { googFrameWidthInput, googFrameHeightInput, googFrameWidthSent, googFrameHeightSent } = stat;
+      let { googFrameWidthSent, googFrameHeightSent,
+        googFrameHeightReceived, googFrameWidthReceived } = stat;
       let tpl = '{width}x{height}';
       let send = utils.tplEngine(tpl, {
         height: googFrameHeightSent,
@@ -69,8 +70,8 @@ function Stat(im, option) {
       });
       send = utils.isInclude(send, 'height') ? STAT_NONE : send;
       let receive = utils.tplEngine(tpl, {
-        height: googFrameHeightInput,
-        width: googFrameWidthInput
+        height: googFrameHeightReceived,
+        width: googFrameWidthReceived
       });
       receive = utils.isInclude(receive, 'height') ? STAT_NONE : receive;
 
@@ -82,7 +83,7 @@ function Stat(im, option) {
     let getTrack = (stat) => {
       let track = {};
       let audioLevel = stat['audioOutputLevel'] || stat['audioInputLevel'] || STAT_NONE;
-      let frameRate = stat['googFrameRateInput'] || stat['googFrameRateSent'] || STAT_NONE;
+      let frameRate = stat['googFrameRateInput'] || stat['googFrameRateOutput'] || STAT_NONE;
       let samplingRate = STAT_NONE, transferRate = STAT_NONE;
       let { id } = stat;
       let ratio = getResolution(stat);
@@ -109,7 +110,11 @@ function Stat(im, option) {
         'googRtt',
         'googFirsReceived',
         'codecImplementationName',
-        'googRenderDelayMs'
+        'googRenderDelayMs',
+        'googJitterSent',
+        'googNacksSent',
+        'googPlisSent',
+        'googFirsSent'
       ]
       utils.forEach(props, (prop) => {
         track[prop] = stat[prop] || STAT_NONE;
@@ -181,6 +186,7 @@ function Stat(im, option) {
     let totalPacketsLost = 0;
     utils.forEach(ssrcs, (ssrc) => {
       let { packetsLost } = ssrc;
+      packetsLost = Number(packetsLost);
       if (!utils.isEqual(packetsLost, STAT_NONE)) {
         totalPacketsLost += packetsLost;
       }
