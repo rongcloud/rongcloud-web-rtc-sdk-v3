@@ -90,7 +90,7 @@ function Stat(im, option) {
       let trackId = stat.googTrackId;
       let trackState = TRACK_STATE.DISABLE;
       let trackEnabled = TrackStateCache.get(trackId);
-      if(utils.isUndefined(trackEnabled) || trackEnabled){
+      if (utils.isUndefined(trackEnabled) || trackEnabled) {
         trackState = TRACK_STATE.ENABLE;
       }
 
@@ -144,15 +144,15 @@ function Stat(im, option) {
       pair = pair || {};
       let { bytesReceived, bytesSent, googLocalAddress } = pair;
       let latestRate = getLatestRate();
+      StatCache.set(StatCacheName.LATEST_RATE_SENT, bytesSent);
+      StatCache.set(StatCacheName.LATEST_RATE_RECEIVE, bytesReceived);
       // 发送、接收总码率为空，直接返回，下次有合法值再行计算
       let { send, receive } = latestRate;
       if (utils.isEmpty(send) && utils.isEmpty(receive)) {
-        StatCache.set(StatCacheName.LATEST_RATE_SENT, bytesSent);
-        StatCache.set(StatCacheName.LATEST_RATE_RECEIVE, bytesReceived);
         return latestRate;
       }
       let getTotal = (current, latest) => {
-        let rate = (current - latest) * 8 / 1024 / frequency;
+        let rate = (current - latest) * 8 / 1024 / (frequency / 1000);
         return rate;
       };
       let totalSend = getTotal(bytesSent, send);
@@ -278,7 +278,7 @@ function Stat(im, option) {
         state = 'end';
         break;
     }
-    return { 
+    return {
       type,
       state
     }
