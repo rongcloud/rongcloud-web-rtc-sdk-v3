@@ -1121,6 +1121,10 @@ function StreamHandler(im, option) {
       });
       let tracks = stream[type]();
       utils.forEach(tracks, (track) => {
+        im.emit(CommonEvent.TRACK_MODIFY, {
+          id: track.id,
+          isEnable
+        })
         track.enabled = isEnable;
       });
     }

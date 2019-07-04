@@ -1,6 +1,6 @@
 import { CommonEvent } from './events';
 import utils from '../../utils';
-import { LogTag, STAT_FREQUENCY, STAT_TPL, STAT_NONE, STAT_SEPARATOR, STAT_NAME } from '../../enum';
+import { LogTag, STAT_FREQUENCY, STAT_TPL, STAT_NONE, STAT_SEPARATOR, STAT_NAME, TRACK_STATE } from '../../enum';
 import * as common from '../../common';
 import { UpEvent } from '../../event-name';
 import Logger from '../../logger';
@@ -16,6 +16,15 @@ function Stat(im, option) {
     TOTAL_PACAKS_LOST: 'total_packs_lost'
   };
   let StatCache = utils.Cache();
+  let TrackStateCache = utils.Cache();
+
+  im.on(CommonEvent.TRACK_MODIFY, (error, track) => {
+    if (error) {
+      return;
+    }
+    let { id, isEnable } = track;
+    TrackStateCache.set(id, isEnable);
+  });
   /* 
     data = {
       content: ''
@@ -78,6 +87,13 @@ function Stat(im, option) {
       let { id } = stat;
       let ratio = getResolution(stat);
 
+      let trackId = stat.googTrackId;
+      let trackState = TRACK_STATE.DISABLE;
+      let trackEnabled = TrackStateCache.get(trackId);
+      if(utils.isUndefined(trackEnabled) || trackEnabled){
+        trackState = TRACK_STATE.ENABLE;
+      }
+
       let isSender = utils.isInclude(id, 'send');
       let resolution = ratio.receive;
       if (isSender) {
@@ -104,6 +120,7 @@ function Stat(im, option) {
         frameRate,
         transferRate,
         resolution,
+        trackState,
         isSender
       });
       return track;
@@ -279,6 +296,7 @@ function Stat(im, option) {
             platform: 'Web',
             pcName: navigator.platform,
             pcVersion: STAT_NONE,
+            browserName: borwser.name,
             browserVersion: borwser.version
           });
           break;

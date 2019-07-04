@@ -84,15 +84,15 @@ export const TAG_V2 = '';
 export const STAT_FREQUENCY = 2 * 1000;
 
 export const STAT_TPL = {
-  R1: 'R1\t{rtcVersion}\t{imVersion}\t{platform}\t{pcName}\t{pcVersion}\t{browserVersion}',
+  R1: 'R1\t{rtcVersion}\t{imVersion}\t{platform}\t{pcName}\t{pcVersion}\t{browserName}\t{browserVersion}',
 
   R2: 'R2\t{type}\t{state}\r{trackIds}',
 
-  R3_ITEM: '{googTrackId}\t{googCodecName}\t{audioLevel}\t{samplingRate}\t{transferRate}\t{packetsLost}\t{frameRate}\t{resolution}\t{googRenderDelayMs}\t{googJitterReceived}\t{googNacksReceived}\t{googPlisReceived}\t{googRtt}\t{googFirsReceived}\t{codecImplementationName}',
-  R3: 'R3\t-1\t-1\t-1\t{networkType}\t{rtt}\t{localAddress}\t{receiveBand}\t{sendBand}\t{packetsLost}\t{totalRate}\r{tracks}',
+  R3_ITEM: '{googTrackId}\t{googCodecName}\t{audioLevel}\t{samplingRate}\t{transferRate}\t{packetsLost}\t{frameRate}\t{resolution}\t{googRenderDelayMs}\t{googJitterReceived}\t{googNacksReceived}\t{googPlisReceived}\t{googRtt}\t{googFirsReceived}\t{codecImplementationName}\t{trackState}',
+  R3: 'R3\t{totalRate}\t-1\t-1\t-1\t{networkType}\t{rtt}\t{localAddress}\t{receiveBand}\t{sendBand}\t{packetsLost}\r{tracks}',
 
-  R4_ITEM: '{googTrackId}\t{googCodecName}\t{audioLevel}\t{samplingRate}\t{transferRate}\t{packetsLost}\t{frameRate}\t{resolution}\t{googRenderDelayMs}\t{googJitterReceived}\t{googNacksReceived}\t{googPlisReceived}\t{googRtt}\t{googFirsReceived}\t{codecImplementationName}',
-  R4: 'R4\t-1\t-1\t-1\t{networkType}\t{rtt}\t{localAddress}\t{receiveBand}\t{sendBand}\t{packetsLost}\t{totalRate}\r{tracks}'
+  R4_ITEM: '{googTrackId}\t{googCodecName}\t{audioLevel}\t{samplingRate}\t{transferRate}\t{packetsLost}\t{frameRate}\t{resolution}\t{googRenderDelayMs}\t{googJitterReceived}\t{googNacksReceived}\t{googPlisReceived}\t{googRtt}\t{googFirsReceived}\t{codecImplementationName}\t{trackState}',
+  R4: 'R4\t{totalRate}\t-1\t-1\t-1\t{networkType}\t{rtt}\t{localAddress}\t{receiveBand}\t{sendBand}\t{packetsLost}\r{tracks}'
 
 };
 
@@ -108,3 +108,8 @@ export const STAT_NAME = {
 };
 
 export const SDK_VERSION = '3.0.4';
+
+export const TRACK_STATE = {
+  DISABLE: 0,
+  ENABLE: 1
+};
