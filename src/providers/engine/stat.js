@@ -263,7 +263,7 @@ function Stat(im, option) {
     switch (name) {
       case UpEvent.STREAM_PUBLISH:
         type = 'publish';
-        state = 'start';
+        state = 'bengin';
         break;
       case UpEvent.STREAM_UNPUBLISH:
         type = 'publish';
@@ -271,14 +271,14 @@ function Stat(im, option) {
         break;
       case UpEvent.STREAM_SUBSCRIBE:
         type = 'subscribe';
-        state = 'start';
+        state = 'bengin';
         break;
       case UpEvent.STREAM_UNSUBSCRIBE:
         type = 'subscribe';
         state = 'end';
         break;
     }
-    return {
+    return { 
       type,
       state
     }
