@@ -11,9 +11,8 @@ function Stat(im, option) {
   let frequency = stat.frequency || STAT_FREQUENCY;
 
   let StatCacheName = {
-    LATEST_RATE_SENT: 'latest_rate_sent',
-    LATEST_RATE_RECEIVE: 'latest_rate_receive',
-    TOTAL_PACAKS_LOST: 'total_packs_lost'
+    TOTAL_PACAKS_LOST: 'total_packs_lost',
+    IS_FIRST: 'is_first'
   };
   let StatCache = utils.Cache();
   let TrackStateCache = utils.Cache();
@@ -80,6 +79,24 @@ function Stat(im, option) {
         receive
       }
     };
+    let getRate = (ssrc) => {
+      let { bytesSent, bytesReceived } = ssrc;
+      let { googTrackId } = ssrc;
+      let transferRate = bytesSent ? bytesSent : bytesReceived;
+      let lastRate = StatCache.get(googTrackId);
+      // 发送、接收总码率为空，直接返回，下次有合法值再行计算
+      if (utils.isUndefined(lastRate)) {
+        StatCache.set(googTrackId, transferRate);
+        return transferRate;
+      }
+
+      let getCurrent = (current, latest) => {
+        let rate = (current - latest) * 8 / 1024 / (frequency / 1000);
+        return rate;
+      };
+      let rate = getCurrent(transferRate, lastRate);
+      return rate;
+    };
     let getTrack = (stat) => {
       let track = {};
       let audioLevel = stat['audioOutputLevel'] || stat['audioInputLevel'] || STAT_NONE;
@@ -98,7 +115,15 @@ function Stat(im, option) {
       let isSender = utils.isInclude(id, 'send');
       let resolution = ratio.receive;
       if (isSender) {
-        resolution = ratio.receive;
+        resolution = ratio.send;
+      }
+
+      let rate = getRate(stat);
+      let trackSent = STAT_NONE, trackReceived = STAT_NONE;
+      if (isSender) {
+        trackSent = rate;
+      } else {
+        trackReceived = rate;
       }
       let props = [
         'googTrackId',
@@ -119,6 +144,7 @@ function Stat(im, option) {
       utils.forEach(props, (prop) => {
         track[prop] = stat[prop] || STAT_NONE;
       });
+
       utils.extend(track, {
         audioLevel,
         samplingRate,
@@ -126,6 +152,8 @@ function Stat(im, option) {
         transferRate,
         resolution,
         trackState,
+        trackSent,
+        trackReceived,
         isSender
       });
       return track;
@@ -137,34 +165,12 @@ function Stat(im, option) {
       });
       return isArray ? props : props[0];
     };
-    let getLatestRate = () => {
-      let send = StatCache.get(StatCacheName.LATEST_RATE_SENT) || 0;
-      let receive = StatCache.get(StatCacheName.LATEST_RATE_RECEIVE) || 0;
-      return {
-        send,
-        receive
-      };
-    };
     let getPair = (pair) => {
       pair = pair || {};
       let { bytesReceived, bytesSent, googLocalAddress } = pair;
-      let latestRate = getLatestRate();
-      StatCache.set(StatCacheName.LATEST_RATE_SENT, bytesSent);
-      StatCache.set(StatCacheName.LATEST_RATE_RECEIVE, bytesReceived);
-      // 发送、接收总码率为空，直接返回，下次有合法值再行计算
-      let { send, receive } = latestRate;
-      if (utils.isEmpty(send) && utils.isEmpty(receive)) {
-        return latestRate;
-      }
-      let getTotal = (current, latest) => {
-        let rate = (current - latest) * 8 / 1024 / (frequency / 1000);
-        return rate;
-      };
-      let totalSend = getTotal(bytesSent, send);
-      let totalReceive = getTotal(bytesReceived, receive);
       return {
-        totalSend,
-        totalReceive,
+        totalSend: bytesSent,
+        totalReceive: bytesReceived,
         localAddress: googLocalAddress
       };
     };
@@ -180,9 +186,6 @@ function Stat(im, option) {
     googCandidatePair = getPair(googCandidatePair);
     let { totalSend, totalReceive, localAddress } = googCandidatePair;
 
-    if (utils.isEmpty(totalSend) && utils.isEmpty(totalReceive)) {
-      return;
-    }
     let totalPacketsLost = 0;
     utils.forEach(ssrcs, (ssrc) => {
       let { packetsLost } = ssrc;
@@ -231,6 +234,10 @@ function Stat(im, option) {
       };
       utils.extend(content, R5Data);
       R4 = getR4(content);
+    }
+    if (utils.isUndefined(StatCache.get(StatCacheName.IS_FIRST))) {
+      StatCache.set(StatCacheName.IS_FIRST, true);
+      return
     }
     return {
       R3,
