@@ -194,7 +194,10 @@ function Stat(im, option) {
         totalPacketsLost += packetsLost;
       }
     });
-
+    
+    if(utils.isUndefined(localcandidate)){
+      return {};
+    }
     let { networkType, stunKeepaliveRttTotal: rtt } = localcandidate;
     let { googAvailableReceiveBandwidth: receiveBand, googAvailableSendBandwidth: sendBand } = videoBwe;
 
@@ -237,7 +240,7 @@ function Stat(im, option) {
     }
     if (utils.isUndefined(StatCache.get(StatCacheName.IS_FIRST))) {
       StatCache.set(StatCacheName.IS_FIRST, true);
-      return
+      return {};
     }
     return {
       R3,
