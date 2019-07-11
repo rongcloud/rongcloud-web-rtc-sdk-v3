@@ -95,7 +95,8 @@ export const dispatchStreamEvent = (user, callback) => {
   let streams = [user];
   if (uris) {
     streams = utils.uniq(uris, (target) => {
-      let { streamId, tag, mediaType, state } = target;
+      let { tag, mediaType, state } = target;
+      let streamId = target.streamId || target.msid;
       return {
         key: [streamId, tag].join('_'),
         value: {
