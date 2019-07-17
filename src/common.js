@@ -166,3 +166,26 @@ export const isV2Tag = (tag) => {
 export const getVersion = () => {
   return SDK_VERSION;
 };
+
+export const getTrackIds = (user) => {
+  let { id, stream: streams } = user;
+  if (!utils.isArray(streams)) {
+    streams = [streams];
+  }
+  let trackIds = [];
+  let tpl = '{id}_{tag}_{kind}'
+  utils.forEach(streams, (stream) => {
+    let { tag, mediaStream } = stream;
+    let tracks = mediaStream.getTracks();
+    utils.forEach(tracks, (track) => {
+      let { kind } = track
+      let trackId = utils.tplEngine(tpl, {
+        id,
+        tag,
+        kind
+      });
+      trackIds.push(trackId);
+    });
+  });
+  return trackIds;
+};

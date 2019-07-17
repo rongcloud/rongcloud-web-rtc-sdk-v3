@@ -425,6 +425,9 @@ function StreamHandler(im, option) {
     if (error) {
       throw error;
     }
+    // 缓存 URIs 上报数据
+    let { stream } = user;
+    im.emit(CommonEvent.SET_URIS, stream.uris);
     dispatchStreamEvent(user, (key, uri) => {
       DataCache.set(key, uri);
     });
@@ -487,9 +490,7 @@ function StreamHandler(im, option) {
       roomId,
       user
     });
-    let mediaStreams = [];
     utils.forEach(streams, ({ mediaStream }) => {
-      mediaStreams.push(mediaStream);
       let tracks = mediaStream.getTracks();
       utils.forEach(tracks, (track) => {
         track.stop();
@@ -497,11 +498,12 @@ function StreamHandler(im, option) {
       let { id: streamId } = mediaStream;
       PublishStreamCache.remove(streamId);
     });
+    let trackIds = common.getTrackIds(user);
     im.emit(CommonEvent.SEND_REPORT, {
       type: STAT_NAME.R2,
       name: UpEvent.STREAM_UNPUBLISH,
       content: {
-        streams: mediaStreams
+        trackIds
       }
     });
     return pc.removeStream(user).then(desc => {
@@ -746,7 +748,7 @@ function StreamHandler(im, option) {
     if (!utils.isArray(streams)) {
       streams = [streams];
     }
-    let { id } = user, mediaStreams = [];
+    let { id } = user;
     utils.forEach(streams, (stream) => {
       let { mediaStream, size } = stream;
       let streamId = pc.getStreamId({
@@ -761,13 +763,13 @@ function StreamHandler(im, option) {
           user
         });
       }
-      mediaStreams.push(mediaStream);
     });
+    let trackIds = common.getTrackIds(user);
     im.emit(CommonEvent.SEND_REPORT, {
       type: STAT_NAME.R2,
       name: UpEvent.STREAM_PUBLISH,
       content: {
-        streams: mediaStreams
+        trackIds
       }
     });
     pc.addStream(user);
@@ -790,6 +792,10 @@ function StreamHandler(im, option) {
             body,
             headers
           }).then(response => {
+            let { publishList } = response;
+            if (utils.isArray(publishList)) {
+              im.emit(CommonEvent.SET_URIS, publishList);
+            }
             Logger.log(LogTag.STREAM_HANDLER, {
               msg: 'publish:response',
               roomId,

@@ -17,6 +17,43 @@ function Stat(im, option) {
   let StatCache = utils.Cache();
   let TrackStateCache = utils.Cache();
 
+  let urisCache = utils.Cache();
+  let URIsCache = {
+    get: (ssrc) => {
+      return urisCache.get(ssrc);
+    },
+    set: (uris) => {
+      if (!utils.isArray(uris)) {
+        uris = [uris];
+      }
+      let kinds = {
+        1: 'video',
+        0: 'audio'
+      };
+      utils.forEach(uris, (item) => {
+        let { uri, msid, mediaType } = item;
+        uri = utils.parse(uri);
+        let { ssrc } = uri;
+        let kind = kinds[mediaType];
+        let trackId = utils.tplEngine('{msid}_{kind}', {
+          msid,
+          kind
+        });
+        urisCache.set(ssrc, trackId);
+      });
+    },
+    remove: (ssrc) => {
+      urisCache.remove(ssrc);
+    }
+  };
+
+  im.on(CommonEvent.SET_URIS, (error, uris) => {
+    if (error) {
+      return;
+    }
+    URIsCache.set(uris);
+  });
+
   im.on(CommonEvent.TRACK_MODIFY, (error, track) => {
     if (error) {
       return;
@@ -126,7 +163,6 @@ function Stat(im, option) {
         trackReceived = rate;
       }
       let props = [
-        'googTrackId',
         'googCodecName',
         'packetsLost',
         'googJitterReceived',
@@ -145,7 +181,10 @@ function Stat(im, option) {
         track[prop] = stat[prop] || STAT_NONE;
       });
 
+      let { googTrackId, ssrc } = stat;
+      googTrackId = URIsCache.get(ssrc) || STAT_NONE;
       utils.extend(track, {
+        googTrackId,
         audioLevel,
         samplingRate,
         frameRate,
@@ -194,8 +233,8 @@ function Stat(im, option) {
         totalPacketsLost += packetsLost;
       }
     });
-    
-    if(utils.isUndefined(localcandidate)){
+
+    if (utils.isUndefined(localcandidate)) {
       return {};
     }
     let { networkType, stunKeepaliveRttTotal: rtt } = localcandidate;
@@ -301,7 +340,7 @@ function Stat(im, option) {
   }
   im.on(CommonEvent.SEND_REPORT, (error, data) => {
     if (utils.isUndefined(error)) {
-      let { type, name, content: { streams } } = data;
+      let { type, name, content: { trackIds } } = data;
       let report = '';
       let borwser = utils.getBrowser();
       switch (type) {
@@ -317,21 +356,7 @@ function Stat(im, option) {
           });
           break;
         case STAT_NAME.R2:
-          if (!utils.isArray(streams)) {
-            streams = [streams];
-          }
           {
-            let trackIds = [];
-            utils.forEach(streams, (stream) => {
-              if (utils.isUndefined(stream)) {
-                return trackIds.push(STAT_NONE);
-              }
-              let tracks = stream.getTracks();
-              utils.forEach(tracks, (track) => {
-                trackIds.push(track.id);
-              });
-            });
-            trackIds = trackIds.join('\t');
             let { type, state } = getType(name);
             report = getR2({
               type,
