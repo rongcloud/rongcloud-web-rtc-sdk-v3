@@ -318,7 +318,7 @@ function Stat(im, option) {
     switch (name) {
       case UpEvent.STREAM_PUBLISH:
         type = 'publish';
-        state = 'bengin';
+        state = 'begin';
         break;
       case UpEvent.STREAM_UNPUBLISH:
         type = 'publish';
@@ -326,7 +326,7 @@ function Stat(im, option) {
         break;
       case UpEvent.STREAM_SUBSCRIBE:
         type = 'subscribe';
-        state = 'bengin';
+        state = 'begin';
         break;
       case UpEvent.STREAM_UNSUBSCRIBE:
         type = 'subscribe';
