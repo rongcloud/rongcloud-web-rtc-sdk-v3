@@ -883,13 +883,12 @@ function StreamHandler(im, option) {
     });
     SubscribeCache.set(userId, subs);
 
-    let streamId = pc.getStreamId(user);
-    let mediaStream = StreamCache.get(streamId);
+    let trackIds = common.getTrackIds(user);
     im.emit(CommonEvent.SEND_REPORT, {
       type: STAT_NAME.R2,
       name: UpEvent.STREAM_SUBSCRIBE,
       content: {
-        streams: [mediaStream]
+        trackIds
       }
     });
 
@@ -952,13 +951,12 @@ function StreamHandler(im, option) {
       roomId,
       user
     });
-    let streamId = pc.getStreamId(user);
-    let mediaStream = StreamCache.get(streamId);
+    let trackIds = common.getTrackIds(user);
     im.emit(CommonEvent.SEND_REPORT, {
       type: STAT_NAME.R2,
       name: UpEvent.STREAM_UNSUBSCRIBE,
       content: {
-        streams: [mediaStream]
+        trackIds
       }
     });
 

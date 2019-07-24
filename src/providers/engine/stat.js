@@ -361,7 +361,7 @@ function Stat(im, option) {
             report = getR2({
               type,
               state,
-              trackIds
+              trackIds: trackIds.join('\t')
             });
           }
           break;

@@ -172,11 +172,26 @@ export const getTrackIds = (user) => {
   if (!utils.isArray(streams)) {
     streams = [streams];
   }
+  let getTracks = (type) => {
+    let tracks = [{
+      kind: 'video',
+      type: StreamType.VIDEO
+    },{
+      kind: 'audio',
+      type: StreamType.AUDIO
+    }];
+    if(utils.isEqual(type, StreamType.AUDIO_AND_VIDEO)){
+      return tracks;
+    }
+    return utils.filter(tracks, (track) => {
+      return utils.isEqual(track.type, type);
+    });
+  };
   let trackIds = [];
   let tpl = '{id}_{tag}_{kind}'
   utils.forEach(streams, (stream) => {
-    let { tag, mediaStream } = stream;
-    let tracks = mediaStream.getTracks();
+    let { tag, type } = stream;
+    let tracks = getTracks(type);
     utils.forEach(tracks, (track) => {
       let { kind } = track
       let trackId = utils.tplEngine(tpl, {
