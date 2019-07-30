@@ -121,9 +121,9 @@ function Stat(im, option) {
       let { googTrackId } = ssrc;
       let transferRate = bytesSent ? bytesSent : bytesReceived;
       let lastRate = StatCache.get(googTrackId);
+      StatCache.set(googTrackId, transferRate);
       // 发送、接收总码率为空，直接返回，下次有合法值再行计算
       if (utils.isUndefined(lastRate)) {
-        StatCache.set(googTrackId, transferRate);
         return transferRate;
       }
 
@@ -208,8 +208,8 @@ function Stat(im, option) {
       pair = pair || {};
       let { bytesReceived, bytesSent, googLocalAddress } = pair;
       return {
-        totalSend: bytesSent,
-        totalReceive: bytesReceived,
+        totalSend: bytesSent * 8 / 1024,
+        totalReceive: bytesReceived * 8 / 1024,
         localAddress: googLocalAddress
       };
     };
