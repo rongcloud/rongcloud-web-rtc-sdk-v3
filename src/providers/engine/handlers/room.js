@@ -63,6 +63,27 @@ function RoomHandler(im, option) {
       roomId
     });
     let headers = common.getHeaders(im);
+    utils.extend(im, {
+      isJoinRoom: false
+    });
+    let leaveRoom = (resolve, reject) => {
+      im.leaveRoom().then(() => {
+        Logger.log(LogTag.ROOM_HANDLER, {
+          msg: 'leave:after',
+          roomId,
+          user
+        });
+        resolve();
+      }, error => {
+        Logger.log(LogTag.ROOM_HANDLER, {
+          msg: 'leave:im:error',
+          roomId,
+          error,
+          user
+        });
+        reject(error);
+      });
+    };
     return utils.deferred((resolve, reject) => {
       request.post({
         path: url,
@@ -71,22 +92,7 @@ function RoomHandler(im, option) {
           token
         }
       }).then(() => {
-        im.leaveRoom().then(() => {
-          Logger.log(LogTag.ROOM_HANDLER, {
-            msg: 'leave:after',
-            roomId,
-            user
-          });
-          resolve();
-        }, error => {
-          Logger.log(LogTag.ROOM_HANDLER, {
-            msg: 'leave:im:error',
-            roomId,
-            error,
-            user
-          });
-          reject(error);
-        });
+        leaveRoom(resolve, reject);
       }, (error) => {
         Logger.log(LogTag.ROOM_HANDLER, {
           msg: 'leave:ms:error',
@@ -94,7 +100,7 @@ function RoomHandler(im, option) {
           error,
           user
         });
-        reject(error);
+        leaveRoom(resolve, reject);
       });
     });
   };
