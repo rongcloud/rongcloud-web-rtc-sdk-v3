@@ -54,11 +54,13 @@ export class IM extends EventEmitter {
     let timer = new utils.Timer({
       timeout: Timeout.TIME
     });
+    let v2Users = utils.Cache();
     let context = this;
     let isJoinRoom = false;
     utils.extend(context, {
       timer,
-      isJoinRoom
+      isJoinRoom,
+      v2Users
     });
     let { RongIMLib: { RongIMClient: im }, RongIMLib } = option;
     let init = () => {
@@ -176,6 +178,9 @@ export class IM extends EventEmitter {
           break;
         case Message.PUBLISH:
           user = { id, uris };
+          if(utils.isInclude(id, '_')){
+            v2Users.set(id, true);
+          }
           common.dispatchStreamEvent(user, (user) => {
             context.emit(DownEvent.STREAM_PUBLISHED, user);
           });
@@ -266,6 +271,7 @@ export class IM extends EventEmitter {
             } else {
               let user = users[userId];
               let { uris } = user;
+              context.v2Users.set(userId, true);
               if (!utils.isUndefined(uris)) {
                 uris = utils.parse(uris);
                 utils.extend(user, {

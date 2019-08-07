@@ -550,10 +550,18 @@ function StreamHandler(im, option) {
     pc = new PeerConnection(option);
     im.emit(CommonEvent.PEERCONN_CREATED, pc);
     let getStreamUser = (stream) => {
-      let { id } = stream, type = StreamType.NODE;
-      let [userId, tag] = pc.getStreamSymbolById(id);
-      if (common.isV2Tag(tag)) {
+      let { id } = stream;
+      let hasUnderline = im.v2Users.get(id);
+      
+      let type = StreamType.NODE, userId, tag;
+      if (hasUnderline) {
+        userId = id;
         tag = TAG_V2;
+      } else {
+        [userId, tag] = pc.getStreamSymbolById(id);
+        if (common.isV2Tag(tag)) {
+          tag = TAG_V2;
+        }
       }
       let videoTracks = stream.getVideoTracks();
       let audioTrakcks = stream.getAudioTracks();
