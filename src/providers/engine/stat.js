@@ -170,7 +170,7 @@ function Stat(im, option) {
           if (_packets == 0) {
             return 100;
           }
-          let rate = packetsLost * 100 / (_packets + _packetsLost);
+          let rate = packetsLost / (_packets + _packetsLost);
           return rate.toFixed(2);
         };
         let calcHandles = {
