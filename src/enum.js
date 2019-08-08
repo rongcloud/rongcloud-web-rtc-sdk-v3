@@ -88,10 +88,10 @@ export const STAT_TPL = {
 
   R2: 'R2\t{type}\t{state}\r{trackIds}',
 
-  R3_ITEM: '{googTrackId}\t{googCodecName}\t{audioLevel}\t{samplingRate}\t{trackSent}\t{packetsLost}\t{frameRate}\t{resolution}\t{googRenderDelayMs}\t{googJitterSent}\t{googNacksSent}\t{googPlisSent}\t{googRtt}\t{googFirsSent}\t{codecImplementationName}\t{trackState}',
+  R3_ITEM: '{googTrackId}\t{googCodecName}\t{audioLevel}\t{samplingRate}\t{trackSent}\t{packLostSentRate}\t{frameRate}\t{resolution}\t{googRenderDelayMs}\t{googJitterSent}\t{googNacksSent}\t{googPlisSent}\t{googRtt}\t{googFirsSent}\t{codecImplementationName}\t{trackState}',
   R3: 'R3\t{totalRate}\t-1\t-1\t-1\t{networkType}\t{rtt}\t{localAddress}\t{receiveBand}\t{sendBand}\t{packetsLost}\r{tracks}',
 
-  R4_ITEM: '{googTrackId}\t{googCodecName}\t{audioLevel}\t{samplingRate}\t{trackReceived}\t{packetsLost}\t{frameRate}\t{resolution}\t{googRenderDelayMs}\t{googJitterReceived}\t{googNacksReceived}\t{googPlisReceived}\t{googRtt}\t{googFirsReceived}\t{codecImplementationName}\t{trackState}',
+  R4_ITEM: '{googTrackId}\t{googCodecName}\t{audioLevel}\t{samplingRate}\t{trackReceived}\t{packLostReceivedRate}\t{frameRate}\t{resolution}\t{googRenderDelayMs}\t{googJitterReceived}\t{googNacksReceived}\t{googPlisReceived}\t{googRtt}\t{googFirsReceived}\t{codecImplementationName}\t{trackState}',
   R4: 'R4\t{totalRate}\t-1\t-1\t-1\t{networkType}\t{rtt}\t{localAddress}\t{receiveBand}\t{sendBand}\t{packetsLost}\r{tracks}'
 
 };

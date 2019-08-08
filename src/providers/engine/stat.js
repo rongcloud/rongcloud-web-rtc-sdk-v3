@@ -12,7 +12,11 @@ function Stat(im, option) {
 
   let StatCacheName = {
     TOTAL_PACAKS_LOST: 'total_packs_lost',
-    IS_FIRST: 'is_first'
+    IS_FIRST: 'is_first',
+    PACKAGE_SENT: 'package_sent',
+    PACKAGE_RECEIVED: 'package_received',
+    PACKAGE_SENT_LOST: 'package_sent_lost',
+    PACKAGE_RECEIVED_LOST: 'package_received_lost'
   };
   let StatCache = utils.Cache();
   let TrackStateCache = utils.Cache();
@@ -157,9 +161,51 @@ function Stat(im, option) {
 
       let rate = getRate(stat);
       let trackSent = STAT_NONE, trackReceived = STAT_NONE;
+
+      let calcLostRate = (stat) => {
+        let { packetsSent, packetsReceived, packetsLost } = stat;
+        let calc = (packets, prePackets, packetsLost, prePacketsLost) => {
+          let _packets = Math.abs(packets - prePackets);
+          let _packetsLost = Math.abs(packetsLost, prePacketsLost);
+          if (_packets == 0) {
+            return 100;
+          }
+          let rate = packetsLost * 100 / (_packets + _packetsLost);
+          return rate.toFixed(2);
+        };
+        let calcHandles = {
+          sender: () => {
+            let prePacketsSent = StatCache.get(StatCacheName.PACKAGE_SENT);
+            StatCache.set(StatCacheName.PACKAGE_SENT, packetsSent);
+
+            let prePacketsLostSent = StatCache.get(StatCacheName.PACKAGE_SENT_LOST);
+            StatCache.set(StatCacheName.PACKAGE_SENT_LOST, packetsSent);
+
+            return calc(packetsSent, prePacketsSent, packetsLost, prePacketsLostSent);
+          },
+          receiver: () => {
+            let prePacketsReceived = StatCache.get(StatCacheName.PACKAGE_RECEIVED);
+            StatCache.set(StatCacheName.PACKAGE_RECEIVED, packetsReceived);
+
+            let prePacketsLostReceived = StatCache.get(StatCacheName.PACKAGE_RECEIVED_LOST);
+            StatCache.set(StatCacheName.PACKAGE_RECEIVED_LOST, packetsSent);
+
+            return calc(packetsReceived, prePacketsReceived, packetsLost, prePacketsLostReceived);
+          }
+        };
+
+        let name = isSender ? 'sender' : 'receiver';
+        let func = calcHandles[name];
+        return func();
+      };
+      let lostRate = calcLostRate(stat);
+      let packLostReceivedRate = 0, packLostSentRate = 0;
+
       if (isSender) {
         trackSent = rate;
+        packLostSentRate = lostRate;
       } else {
+        packLostReceivedRate = lostRate;
         trackReceived = rate;
       }
       let props = [
@@ -193,6 +239,8 @@ function Stat(im, option) {
         trackState,
         trackSent,
         trackReceived,
+        packLostSentRate: packLostSentRate,
+        packLostReceivedRate: packLostReceivedRate,
         isSender
       });
       return track;
