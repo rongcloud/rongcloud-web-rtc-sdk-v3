@@ -16,7 +16,9 @@ function Stat(im, option) {
     PACKAGE_SENT: 'package_sent',
     PACKAGE_RECEIVED: 'package_received',
     PACKAGE_SENT_LOST: 'package_sent_lost',
-    PACKAGE_RECEIVED_LOST: 'package_received_lost'
+    PACKAGE_RECEIVED_LOST: 'package_received_lost',
+    BYTES_SENT: 'bytes_sent',
+    BYTES_RECEIVED: 'bytes_received'
   };
   let StatCache = utils.Cache();
   let TrackStateCache = utils.Cache();
@@ -128,7 +130,7 @@ function Stat(im, option) {
       StatCache.set(googTrackId, transferRate);
       // 发送、接收总码率为空，直接返回，下次有合法值再行计算
       if (utils.isUndefined(lastRate)) {
-        return transferRate;
+        return STAT_NONE;
       }
 
       let getCurrent = (current, latest) => {
@@ -254,10 +256,22 @@ function Stat(im, option) {
     };
     let getPair = (pair) => {
       pair = pair || {};
-      let { bytesReceived, bytesSent, googLocalAddress } = pair;
+      let { bytesReceived: _bytesReceived, bytesSent: _bytesSent, googLocalAddress } = pair;
+      let preBytesSent = StatCache.get(StatCacheName.BYTES_SENT);
+      let preBytesReceived = StatCache.get(StatCacheName.BYTES_RECEIVED);
+
+      let totalSend = STAT_NONE, totalReceive = STAT_NONE;
+      if (preBytesSent) {
+        totalSend = (_bytesSent - preBytesSent) * 8 / 1024 / (frequency / 1000);
+      }
+      if (preBytesReceived) {
+        totalReceive = (_bytesReceived - preBytesReceived) * 8 / 1024 / (frequency / 1000);
+      }
+      StatCache.set(StatCacheName.BYTES_SENT, _bytesSent);
+      StatCache.set(StatCacheName.BYTES_RECEIVED, _bytesReceived);
       return {
-        totalSend: bytesSent * 8 / 1024,
-        totalReceive: bytesReceived * 8 / 1024,
+        totalSend: totalSend,
+        totalReceive: totalReceive,
         localAddress: googLocalAddress
       };
     };
@@ -300,9 +314,9 @@ function Stat(im, option) {
     let sendTracks = [], receiveTracks = [];
     utils.forEach(ssrcs, (ssrc) => {
       let { isSender, trackSent } = ssrc;
-     
+
       if (isSender) {
-        if(trackSent != '0.00'){
+        if (trackSent != '0.00') {
           let track = getR3Item(ssrc);
           sendTracks.push(track);
         }
