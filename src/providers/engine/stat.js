@@ -299,10 +299,13 @@ function Stat(im, option) {
 
     let sendTracks = [], receiveTracks = [];
     utils.forEach(ssrcs, (ssrc) => {
-      let { isSender } = ssrc;
+      let { isSender, trackSent } = ssrc;
+     
       if (isSender) {
-        let track = getR3Item(ssrc);
-        sendTracks.push(track);
+        if(trackSent != '0.00'){
+          let track = getR3Item(ssrc);
+          sendTracks.push(track);
+        }
       } else {
         let track = getR4Item(ssrc);
         receiveTracks.push(track);
