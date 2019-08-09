@@ -376,7 +376,9 @@ function Stat(im, option) {
     if (error) {
       throw error;
     }
-    take(pc);
+    if(!common.isSafari()){
+      take(pc);
+    }
   });
   let getType = (name) => {
     let type = '', state = '';
