@@ -165,34 +165,35 @@ function Stat(im, option) {
       let trackSent = STAT_NONE, trackReceived = STAT_NONE;
 
       let calcLostRate = (stat) => {
-        let { packetsSent, packetsReceived, packetsLost } = stat;
+        let { packetsSent, packetsReceived, packetsLost, mediaType } = stat;
         let calc = (packets, prePackets, packetsLost, prePacketsLost) => {
           let _packets = Math.abs(packets - prePackets);
-          let _packetsLost = Math.abs(packetsLost, prePacketsLost);
+          let _packetsLost = Math.abs(packetsLost - prePacketsLost);
           if (_packets == 0) {
             return 100;
           }
-          let rate = packetsLost / (_packets + _packetsLost);
+          let rate = _packetsLost / (_packets + _packetsLost);
+          if(rate.toString() === 'NaN'){
+            return 0;
+          }
           return rate.toFixed(2);
         };
         let calcHandles = {
           sender: () => {
-            let prePacketsSent = StatCache.get(StatCacheName.PACKAGE_SENT);
-            StatCache.set(StatCacheName.PACKAGE_SENT, packetsSent);
+            let prePacketsSent = StatCache.get(StatCacheName.PACKAGE_SENT + mediaType);
+            StatCache.set(StatCacheName.PACKAGE_SENT + mediaType, packetsSent);
 
-            let prePacketsLostSent = StatCache.get(StatCacheName.PACKAGE_SENT_LOST);
-            StatCache.set(StatCacheName.PACKAGE_SENT_LOST, packetsSent);
-
-            return calc(packetsSent, prePacketsSent, packetsLost, prePacketsLostSent);
+            let prePacketsLostSent = StatCache.get(StatCacheName.PACKAGE_SENT_LOST + mediaType);
+            StatCache.set(StatCacheName.PACKAGE_SENT_LOST + mediaType, packetsLost); 
+            return calc(packetsSent, prePacketsSent , packetsLost , prePacketsLostSent);
           },
           receiver: () => {
-            let prePacketsReceived = StatCache.get(StatCacheName.PACKAGE_RECEIVED);
-            StatCache.set(StatCacheName.PACKAGE_RECEIVED, packetsReceived);
+            let prePacketsReceived = StatCache.get(StatCacheName.PACKAGE_RECEIVED + mediaType);
+            StatCache.set(StatCacheName.PACKAGE_RECEIVED + mediaType, packetsReceived);
 
-            let prePacketsLostReceived = StatCache.get(StatCacheName.PACKAGE_RECEIVED_LOST);
-            StatCache.set(StatCacheName.PACKAGE_RECEIVED_LOST, packetsSent);
-
-            return calc(packetsReceived, prePacketsReceived, packetsLost, prePacketsLostReceived);
+            let prePacketsLostReceived = StatCache.get(StatCacheName.PACKAGE_RECEIVED_LOST + mediaType);
+            StatCache.set(StatCacheName.PACKAGE_RECEIVED_LOST + mediaType, packetsLost); 
+            return calc(packetsReceived, prePacketsReceived , packetsLost , prePacketsLostReceived );
           }
         };
 
@@ -376,7 +377,7 @@ function Stat(im, option) {
     if (error) {
       throw error;
     }
-    if(!common.isSafari()){
+    if (!common.isSafari()) {
       take(pc);
     }
   });
