@@ -17,6 +17,22 @@ function Stat(im, option) {
     PACKAGE_RECEIVED: 'package_received',
     PACKAGE_SENT_LOST: 'package_sent_lost',
     PACKAGE_RECEIVED_LOST: 'package_received_lost',
+    PACKAGE_SENT_ENUM: {
+      AUDIO: 'package_sent_audio',
+      VIDEO: 'package_sent_video'
+    },
+    PACKAGE_RECEIVED_ENUM: {
+      AUDIO: 'package_received_audio',
+      VIDEO: 'package_received_video'
+    },
+    PACKAGE_SENT_LOST_ENUM: {
+      AUDIO: 'package_sent_lost_audio',
+      VIDEO: 'package_sent_lost_video'
+    },
+    PACKAGE_RECEIVED_LOST_ENUM: {
+      AUDIO: 'package_received_lost_audio',
+      VIDEO: 'package_received_lost_video'
+    },
     BYTES_SENT: 'bytes_sent',
     BYTES_RECEIVED: 'bytes_received'
   };
@@ -173,27 +189,30 @@ function Stat(im, option) {
             return 100;
           }
           let rate = _packetsLost / (_packets + _packetsLost);
-          if(rate.toString() === 'NaN'){
+          if (rate.toString() === 'NaN') {
             return 0;
           }
           return rate.toFixed(2);
         };
+        let _mediaType = mediaType.toUpperCase(); 
         let calcHandles = {
           sender: () => {
-            let prePacketsSent = StatCache.get(StatCacheName.PACKAGE_SENT + mediaType);
-            StatCache.set(StatCacheName.PACKAGE_SENT + mediaType, packetsSent);
+            let prePacketsSent = StatCache.get(StatCacheName.PACKAGE_SENT_ENUM[_mediaType]);
+            StatCache.set(StatCacheName.PACKAGE_SENT_ENUM[_mediaType], packetsSent);
 
-            let prePacketsLostSent = StatCache.get(StatCacheName.PACKAGE_SENT_LOST + mediaType);
-            StatCache.set(StatCacheName.PACKAGE_SENT_LOST + mediaType, packetsLost); 
-            return calc(packetsSent, prePacketsSent , packetsLost , prePacketsLostSent);
+            let prePacketsLostSent = StatCache.get(StatCacheName.PACKAGE_SENT_LOST_ENUM[_mediaType]);
+            StatCache.set(StatCacheName.PACKAGE_SENT_LOST_ENUM[_mediaType], packetsLost);
+ 
+            return calc(packetsSent, prePacketsSent, packetsLost, prePacketsLostSent);
           },
           receiver: () => {
-            let prePacketsReceived = StatCache.get(StatCacheName.PACKAGE_RECEIVED + mediaType);
-            StatCache.set(StatCacheName.PACKAGE_RECEIVED + mediaType, packetsReceived);
+            let prePacketsReceived = StatCache.get(StatCacheName.PACKAGE_RECEIVED_ENUM[_mediaType]);
+            StatCache.set(StatCacheName.PACKAGE_RECEIVED_ENUM[_mediaType], packetsReceived);
 
-            let prePacketsLostReceived = StatCache.get(StatCacheName.PACKAGE_RECEIVED_LOST + mediaType);
-            StatCache.set(StatCacheName.PACKAGE_RECEIVED_LOST + mediaType, packetsLost); 
-            return calc(packetsReceived, prePacketsReceived , packetsLost , prePacketsLostReceived );
+            let prePacketsLostReceived = StatCache.get(StatCacheName.PACKAGE_RECEIVED_LOST_ENUM[_mediaType]);
+            StatCache.set(StatCacheName.PACKAGE_RECEIVED_LOST_ENUM[_mediaType], packetsLost);
+ 
+            return calc(packetsReceived, prePacketsReceived, packetsLost, prePacketsLostReceived);
           }
         };
 
