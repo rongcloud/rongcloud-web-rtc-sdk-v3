@@ -87,6 +87,18 @@ export const getHeaders = (im) => {
   }
 };
 
+export const getBroadcastHeaders = (userId) => {
+  let tpl = 'web|{name}|{version}';
+  let browser = utils.getBrowser();
+  let type = utils.tplEngine(tpl, browser);
+  return {
+    UserId: userId,
+    RoomType: 2,
+    ClientType: type,
+    ClientVersion: 1
+  }
+};
+
 export const dispatchStreamEvent = (user, callback) => {
   let { id, uris } = user;
   if (utils.isString(uris)) {

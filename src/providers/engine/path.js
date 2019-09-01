@@ -4,5 +4,7 @@ export const Path = {
   RESIZE: '/exchange',
   SUBSCRIBE: '/exchange',
   UNSUBSCRIBE: '/exchange',
+  BROADCAST_SUBSCRIBE: '/broadcast/subscribe',
+  BROADCAST_EXIT: '/broadcast/exit',
   EXIT: '/exit'
 };

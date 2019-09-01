@@ -29,6 +29,7 @@ export const LogTag = {
   ROOM: 'room',
   STREAM: 'stream',
   STREAM_HANDLER: 'stream_handler',
+  BROADCAST_HANDLER: 'broadcast_handler',
   ROOM_HANDLER: 'room_handler',
   STORAGE_HANDLER: 'storage_handler',
   IM: 'im',
