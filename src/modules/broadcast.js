@@ -1,11 +1,14 @@
-import { getError } from "../common";
-import utils from "../utils";
-import { UpEvent } from "../event-name";
+import { getError, check } from '../common';
+import utils from '../utils';
+import { UpEvent } from '../event-name';
 
 export default class Broadcast {
-  constructor(_option) {
+  constructor() {
     let context = this;
     let client = context.getClient();
+    utils.extend(context, {
+      client
+    });
   }
   subscribe(room) {
     let { isIllegal, name } = check(room, ['liveUrl']);

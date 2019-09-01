@@ -1,13 +1,13 @@
-import utils from "../../../utils";
-import EventEmitter from "../../../event-emitter";
-import { CommonEvent, PeerConnectionEvent } from "../events";
-import { UpEvent } from "../../../event-name";
-import Logger from "../../../logger";
-import { LogTag } from "../../../enum";
-import PeerConnection from "../peerconnection";
-import Network from "../../../network";
-import { ErrorType } from "../../../error";
-import { Path } from "../path";
+import utils from '../../../utils';
+import EventEmitter from '../../../event-emitter';
+import { CommonEvent, PeerConnectionEvent } from '../events';
+import { UpEvent } from '../../../event-name';
+import Logger from '../../../logger';
+import { LogTag } from '../../../enum';
+import PeerConnection from '../peerconnection';
+import Network from '../../../network';
+import { ErrorType } from '../../../error';
+import { Path } from '../path';
 import * as common from '../../../common';
 import request from '../request';
 
@@ -21,8 +21,8 @@ function BroadcastHandler(im, option) {
   let pc = null,
     userId = null;
 
-  let SubPromiseCache = utils.Cache(),
-    SubStreamCache = utils.Cache();
+  let SubPromiseCache = utils.Cache();
+  // SubStreamCache = utils.Cache();
 
   if (im.isIMReady()) {
     let user = im.getUser();
@@ -39,19 +39,19 @@ function BroadcastHandler(im, option) {
   const createPC = () => {
     pc = new PeerConnection(option);
     im.emit(CommonEvent.PEERCONN_CREATED, pc);
-    pc.on(PeerConnectionEvent.ADDED, (error, stream) => {
+    pc.on(PeerConnectionEvent.ADDED, (error) => {
       if (error) {
         throw error;
       }
       // TODO 抛出、缓存
     });
-    pc.on(PeerConnectionEvent.REMOVED, (error, stream) => {
+    pc.on(PeerConnectionEvent.REMOVED, (error) => {
       if (error) {
         throw error;
       }
       // 删除缓存
     });
-    pc.on(PeerConnectionEvent.CHANGED, () => {
+    pc.on(PeerConnectionEvent.CHANGED, (error) => {
       if (error) {
         throw error;
       }
@@ -131,8 +131,8 @@ function BroadcastHandler(im, option) {
     });
   };
 
-  const unsubscribe = (room) => {
-
+  const unsubscribe = () => {
+    closePC(); // TODO 没有订阅的流时才能 close
   };
 
   eventEmitter.on(CommonEvent.CONSUME, () => {
@@ -148,7 +148,14 @@ function BroadcastHandler(im, option) {
             reject(error);
           });
         case UpEvent.BROADCAST_UNSUBSCRIBE:
-          return;
+          return unsubscribe(...args, () => {
+            next();
+          }).then((result) => {
+            resolve(result);
+          }).catch((error) => {
+            next();
+            reject(error);
+          });
         default:
           Logger.warn(LogTag.BROADCAST_HANDLER, {
             event,
@@ -165,6 +172,9 @@ function BroadcastHandler(im, option) {
       eventEmitter.emit(CommonEvent.CONSUME);
     });
   };
+  return {
+    dispatch
+  }
 }
 
 export default BroadcastHandler;
