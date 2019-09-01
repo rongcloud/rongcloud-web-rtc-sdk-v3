@@ -21,7 +21,9 @@ function LiveHandler(im, option) {
   let pc = null,
     userId = null;
 
-  let SubPromiseCache = utils.Cache();
+  // let SubPromiseCache = utils.Cache();
+  let SubPromiseCache = {};
+    SubLiveUrlsCache = utils.Cache();
   // SubStreamCache = utils.Cache();
 
   if (im.isIMReady()) {
@@ -36,20 +38,32 @@ function LiveHandler(im, option) {
     return liveUrl;
   };
 
+  const reconnect = () => {
+    let subLiveUrlList = SubLiveUrlsCache.getKeys();
+    utils.forEach((liveUrl) => {
+      subscribe({
+        liveUrl
+      });
+    });
+  };
+
   const createPC = () => {
     pc = new PeerConnection(option);
     im.emit(CommonEvent.PEERCONN_CREATED, pc);
-    pc.on(PeerConnectionEvent.ADDED, (error) => {
+    pc.on(PeerConnectionEvent.ADDED, (error, stream) => {
       if (error) {
         throw error;
       }
-      // TODO 抛出、缓存
+      SubPromiseCache.resolve({
+        stream: {
+          mediaStream: stream
+        }
+      });
     });
     pc.on(PeerConnectionEvent.REMOVED, (error) => {
       if (error) {
         throw error;
       }
-      // 删除缓存
     });
     pc.on(PeerConnectionEvent.CHANGED, (error) => {
       if (error) {
@@ -71,6 +85,7 @@ function LiveHandler(im, option) {
   const closePC = () => {
     if (pc) {
       pc.close();
+      pc = null;
     }
   };
 
@@ -82,11 +97,15 @@ function LiveHandler(im, option) {
     }
 
     return utils.deferred((resolve, reject) => {
-      let uid = getSubPromiseUId(room);
-      SubPromiseCache.set(uid, {
+      // let uid = getSubPromiseUId(room);
+      // SubPromiseCache.set(uid, {
+      //   resolve,
+      //   reject
+      // });
+      SubPromiseCache = {
         resolve,
         reject
-      });
+      };
       pc.getOffer().then((offer) => {
         let url = Path.LIVE_SUBSCRIBE;
         let headers = common.getLiveHeaders(userId);
@@ -116,7 +135,8 @@ function LiveHandler(im, option) {
             room,
             response
           });
-          callback();
+          SubLiveUrlsCache.set(liveUrl);
+          callback && callback();
         }, (error) => {
           Logger.log(LogTag.LIVE_HANDLER, {
             msg: 'subscribe:response:error',
@@ -131,8 +151,47 @@ function LiveHandler(im, option) {
     });
   };
 
-  const unsubscribe = () => {
-    closePC(); // TODO 没有订阅的流时才能 close
+  const unsubscribe = (room) => {
+    let { liveUrl } = room;
+    // closePC(); // TODO 没有订阅的流时才能 close
+    return utils.deferred((resolve, reject) => {
+      pc.getOffer().then((offer) => {
+        let url = Path.LIVE_EXIT;
+        let headers = common.getLiveHeaders(userId);
+        let body = {
+          sdp: {
+            type: 'offer',
+            sdp: offer
+          },
+          liveUrl: liveUrl
+        };
+        let option = {
+          path: url,
+          body,
+          headers
+        };
+        Logger.log(LogTag.LIVE_HANDLER, {
+          msg: 'unsubscribe:request',
+          room,
+          option
+        });
+        request.post(option).then(response => {
+          let { sdp: answer } = response;
+          pc.setOffer(offer);
+          pc.setAnwser(answer);
+          SubLiveUrlsCache.remove(liveUrl);
+          let subLiveUrlCount = SubLiveUrlsCache.getKeys().length;
+          !subLiveUrlCount && closePC();
+        }, (error) => {
+          Logger.log(LogTag.LIVE_HANDLER, {
+            msg: 'unsubscribe:response:error',
+            room,
+            error
+          });
+          return error;
+        });
+      });
+    });
   };
 
   eventEmitter.on(CommonEvent.CONSUME, () => {
