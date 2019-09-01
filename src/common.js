@@ -87,7 +87,7 @@ export const getHeaders = (im) => {
   }
 };
 
-export const getBroadcastHeaders = (userId) => {
+export const getLiveHeaders = (userId) => {
   let tpl = 'web|{name}|{version}';
   let browser = utils.getBrowser();
   let type = utils.tplEngine(tpl, browser);

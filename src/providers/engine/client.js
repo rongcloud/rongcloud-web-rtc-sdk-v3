@@ -1,7 +1,7 @@
 import EventEmitter from '../../event-emitter';
 import utils from '../../utils';
 import StreamHandler from './handlers/stream';
-import BroadcastHandler from './handlers/broadcast';
+import LiveHandler from './handlers/live';
 import RoomHandler from './handlers/room';
 import StorageHandler from './handlers/storage';
 import MessageHandler from './handlers/message';
@@ -32,7 +32,7 @@ export default class Client extends EventEmitter {
     let RequestHandler = {
       room: RoomHandler(im, option),
       stream: StreamHandler(im, option),
-      broadcast: BroadcastHandler(im, option),
+      live: LiveHandler(im, option),
       storage: StorageHandler(im),
       message: MessageHandler(im),
       device: DeviceHandler(im),

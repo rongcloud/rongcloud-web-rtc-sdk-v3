@@ -11,7 +11,7 @@ import { Path } from '../path';
 import * as common from '../../../common';
 import request from '../request';
 
-function BroadcastHandler(im, option) {
+function LiveHandler(im, option) {
   const { detect } = option;
 
   const prosumer = new utils.Prosumer(),
@@ -88,8 +88,8 @@ function BroadcastHandler(im, option) {
         reject
       });
       pc.getOffer().then((offer) => {
-        let url = Path.BROADCAST_SUBSCRIBE;
-        let headers = common.getBroadcastHeaders(userId);
+        let url = Path.LIVE_SUBSCRIBE;
+        let headers = common.getLiveHeaders(userId);
         let body = {
           sdp: {
             type: 'offer',
@@ -102,7 +102,7 @@ function BroadcastHandler(im, option) {
           body,
           headers
         };
-        Logger.log(LogTag.BROADCAST_HANDLER, {
+        Logger.log(LogTag.LIVE_HANDLER, {
           msg: 'subscribe:request',
           room,
           option
@@ -111,14 +111,14 @@ function BroadcastHandler(im, option) {
           let { sdp: answer } = response;
           pc.setOffer(offer);
           pc.setAnwser(answer);
-          Logger.log(LogTag.BROADCAST_HANDLER, {
+          Logger.log(LogTag.LIVE_HANDLER, {
             msg: 'subscribe:response:stream:not:arrive',
             room,
             response
           });
           callback();
         }, (error) => {
-          Logger.log(LogTag.BROADCAST_HANDLER, {
+          Logger.log(LogTag.LIVE_HANDLER, {
             msg: 'subscribe:response:error',
             room,
             error
@@ -138,7 +138,7 @@ function BroadcastHandler(im, option) {
   eventEmitter.on(CommonEvent.CONSUME, () => {
     prosumer.consume(({ event, args, resolve, reject }, next) => {
       switch (event) {
-        case UpEvent.BROADCAST_SUBSCRIBE:
+        case UpEvent.LIVE_SUBSCRIBE:
           return subscribe(...args, () => {
             next();
           }).then((result) => {
@@ -147,7 +147,7 @@ function BroadcastHandler(im, option) {
             next();
             reject(error);
           });
-        case UpEvent.BROADCAST_UNSUBSCRIBE:
+        case UpEvent.LIVE_UNSUBSCRIBE:
           return unsubscribe(...args, () => {
             next();
           }).then((result) => {
@@ -157,7 +157,7 @@ function BroadcastHandler(im, option) {
             reject(error);
           });
         default:
-          Logger.warn(LogTag.BROADCAST_HANDLER, {
+          Logger.warn(LogTag.LIVE_HANDLER, {
             event,
             msg: 'unkown event'
           });
@@ -177,4 +177,4 @@ function BroadcastHandler(im, option) {
   }
 }
 
-export default BroadcastHandler;
+export default LiveHandler;

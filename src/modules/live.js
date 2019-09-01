@@ -2,7 +2,7 @@ import { getError, check } from '../common';
 import utils from '../utils';
 import { UpEvent } from '../event-name';
 
-export default class Broadcast {
+export default class Live {
   constructor() {
     let context = this;
     let client = context.getClient();
@@ -18,8 +18,8 @@ export default class Broadcast {
     }
     let { client } = this;
     return client.exec({
-      event: UpEvent.BROADCAST_SUBSCRIBE,
-      type: 'broadcast',
+      event: UpEvent.LIVE_SUBSCRIBE,
+      type: 'live',
       args: [room]
     });
   }
@@ -31,8 +31,8 @@ export default class Broadcast {
     }
     let { client } = this;
     return client.exec({
-      event: UpEvent.BROADCAST_UNSUBSCRIBE,
-      type: 'broadcast',
+      event: UpEvent.LIVE_UNSUBSCRIBE,
+      type: 'live',
       args: [room]
     });
   }
