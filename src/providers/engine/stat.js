@@ -93,8 +93,10 @@ function Stat(im, option) {
     }]
   */
   let send = (report) => {
-    im.setRTCState(report);
-    Logger.log(LogTag.STAT, report);
+    if (!common.isSafari()) {
+      im.setRTCState(report);
+      Logger.log(LogTag.STAT, report);
+    }
   };
   let getR1 = (content) => {
     return utils.tplEngine(STAT_TPL.R1, content);
@@ -194,7 +196,7 @@ function Stat(im, option) {
           }
           return rate.toFixed(2);
         };
-        let _mediaType = mediaType.toUpperCase(); 
+        let _mediaType = mediaType.toUpperCase();
         let calcHandles = {
           sender: () => {
             let prePacketsSent = StatCache.get(StatCacheName.PACKAGE_SENT_ENUM[_mediaType]);
@@ -202,7 +204,7 @@ function Stat(im, option) {
 
             let prePacketsLostSent = StatCache.get(StatCacheName.PACKAGE_SENT_LOST_ENUM[_mediaType]);
             StatCache.set(StatCacheName.PACKAGE_SENT_LOST_ENUM[_mediaType], packetsLost);
- 
+
             return calc(packetsSent, prePacketsSent, packetsLost, prePacketsLostSent);
           },
           receiver: () => {
@@ -211,7 +213,7 @@ function Stat(im, option) {
 
             let prePacketsLostReceived = StatCache.get(StatCacheName.PACKAGE_RECEIVED_LOST_ENUM[_mediaType]);
             StatCache.set(StatCacheName.PACKAGE_RECEIVED_LOST_ENUM[_mediaType], packetsLost);
- 
+
             return calc(packetsReceived, prePacketsReceived, packetsLost, prePacketsLostReceived);
           }
         };
