@@ -146,7 +146,7 @@ export default class Client extends EventEmitter {
       return utils.Defer.reject(ErrorType.Inner.IM_SDK_VER_NOT_MATCH);
     }
     let { type, args, event } = params;
-    let APIWhitelist = [UpEvent.ROOM_JOIN, UpEvent.DEVICE_GET, UpEvent.STREAM_GET];
+    let APIWhitelist = [UpEvent.ROOM_JOIN, UpEvent.DEVICE_GET, UpEvent.STREAM_GET, UpEvent.LIVE_SUBSCRIBE, UpEvent.LIVE_UNSUBSCRIBE];
     let isInclude = utils.isInclude(APIWhitelist, event);
 
     if (!im.isIMReady() && !isInclude) {
