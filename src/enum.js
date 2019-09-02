@@ -76,7 +76,7 @@ export const MEDIASERVER_SUCCESS = 10000;
 
 export const RTC_MODE = {
   RTC: 0,
-  LIVE: 1
+  LIVE: 2
 };
 
 export const TAG_V2 = '';
