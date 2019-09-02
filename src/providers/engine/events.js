@@ -18,7 +18,10 @@ export const CommonEvent = {
   REQUEST_CONSUME: 'common_request_consume',
   CONNECTED: 'common_connected',
   PEERCONN_CREATED: 'common_peerconn_created',
-  PUBLISHED_STREAM: 'common_published_stream'
+  PUBLISHED_STREAM: 'common_published_stream',
+  SEND_REPORT: 'common_send_report',
+  TRACK_MODIFY: 'common_track_modify',
+  SET_URIS: 'common_set_uris'
 };
 
 export const CommandEvent = {

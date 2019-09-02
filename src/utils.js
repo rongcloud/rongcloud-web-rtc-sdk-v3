@@ -58,6 +58,9 @@ const isEmpty = (obj) => {
   if (isString(obj) || isArray(obj)) {
     result = obj.length === 0;
   }
+  if (isNumber(obj)) {
+    result = obj === 0;
+  }
   return result;
 };
 const rename = (origin, newNames) => {

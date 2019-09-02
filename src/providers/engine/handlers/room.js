@@ -3,9 +3,10 @@ import utils from '../../../utils';
 import request from '../request';
 import { Path } from '../path';
 import Logger from '../../../logger';
-import { LogTag } from '../../../enum';
+import { LogTag, STAT_NAME } from '../../../enum';
 import { ErrorType } from '../../../error';
 import * as common from '../../../common';
+import { CommonEvent } from '../events';
 
 function RoomHandler(im, option) {
   let join = (room) => {
@@ -36,6 +37,11 @@ function RoomHandler(im, option) {
           return {
             id: user[0]
           };
+        });
+        im.emit(CommonEvent.SEND_REPORT, {
+          type: STAT_NAME.R1,
+          name: UpEvent.ROOM_JOIN,
+          content: {}
         });
         resolve({
           users

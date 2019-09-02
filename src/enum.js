@@ -34,7 +34,8 @@ export const LogTag = {
   STORAGE_HANDLER: 'storage_handler',
   IM: 'im',
   MESSAGE: 'message',
-  DEVICE: 'device'
+  DEVICE: 'device',
+  STAT: 'stat'
 };
 
 export const LogLevel = {
@@ -80,3 +81,36 @@ export const RTC_MODE = {
 };
 
 export const TAG_V2 = '';
+
+export const STAT_FREQUENCY = 2 * 1000;
+
+export const STAT_TPL = {
+  R1: 'R1\t{rtcVersion}\t{imVersion}\t{platform}\t{pcName}\t{pcVersion}\t{browserName}\t{browserVersion}',
+
+  R2: 'R2\t{type}\t{state}\r{trackIds}',
+
+  R3_ITEM: '{googTrackId}\t{googCodecName}\t{audioLevel}\t{samplingRate}\t{trackSent}\t{packLostSentRate}\t{frameRate}\t{resolution}\t{googRenderDelayMs}\t{googJitterSent}\t{googNacksSent}\t{googPlisSent}\t{googRtt}\t{googFirsSent}\t{codecImplementationName}\t{trackState}',
+  R3: 'R3\t{totalRate}\t-1\t-1\t-1\t{networkType}\t{rtt}\t{localAddress}\t{receiveBand}\t{sendBand}\t{packetsLost}\r{tracks}',
+
+  R4_ITEM: '{googTrackId}\t{googCodecName}\t{audioLevel}\t{samplingRate}\t{trackReceived}\t{packLostReceivedRate}\t{frameRate}\t{resolution}\t{googRenderDelayMs}\t{googJitterReceived}\t{googNacksReceived}\t{googPlisReceived}\t{googRtt}\t{googFirsReceived}\t{codecImplementationName}\t{trackState}',
+  R4: 'R4\t{totalRate}\t-1\t-1\t-1\t{networkType}\t{rtt}\t{localAddress}\t{receiveBand}\t{sendBand}\t{packetsLost}\r{tracks}'
+
+};
+
+export const STAT_NONE = '-1';
+
+export const STAT_SEPARATOR = '\n';
+
+export const STAT_NAME = {
+  R1: 'r1',
+  R2: 'r2',
+  R3: 'r3',
+  R4: 'r4'
+};
+
+export const SDK_VERSION = '3.0.4';
+
+export const TRACK_STATE = {
+  DISABLE: 0,
+  ENABLE: 1
+};

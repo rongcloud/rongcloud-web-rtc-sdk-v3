@@ -1,6 +1,6 @@
 import utils from './utils';
 import { ErrorType } from './error';
-import { StreamType, StreamState } from './enum';
+import { StreamType, StreamState, SDK_VERSION } from './enum';
 import { DownEvent } from './event-name';
 /* 
   data： 任意对象
@@ -174,4 +174,46 @@ export const isSafari = () => {
 
 export const isV2Tag = (tag) => {
   return utils.isUndefined(tag) || utils.isEmpty(tag);
+};
+
+export const getVersion = () => {
+  return SDK_VERSION;
+};
+
+export const getTrackIds = (user) => {
+  let { id, stream: streams } = user;
+  if (!utils.isArray(streams)) {
+    streams = [streams];
+  }
+  let getTracks = (type) => {
+    let tracks = [{
+      kind: 'video',
+      type: StreamType.VIDEO
+    },{
+      kind: 'audio',
+      type: StreamType.AUDIO
+    }];
+    if(utils.isEqual(type, StreamType.AUDIO_AND_VIDEO)){
+      return tracks;
+    }
+    return utils.filter(tracks, (track) => {
+      return utils.isEqual(track.type, type);
+    });
+  };
+  let trackIds = [];
+  let tpl = '{id}_{tag}_{kind}'
+  utils.forEach(streams, (stream) => {
+    let { tag, type } = stream;
+    let tracks = getTracks(type);
+    utils.forEach(tracks, (track) => {
+      let { kind } = track
+      let trackId = utils.tplEngine(tpl, {
+        id,
+        tag,
+        kind
+      });
+      trackIds.push(trackId);
+    });
+  });
+  return trackIds;
 };

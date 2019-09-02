@@ -6,6 +6,7 @@ import RoomHandler from './handlers/room';
 import StorageHandler from './handlers/storage';
 import MessageHandler from './handlers/message';
 import DeviceHandler from './handlers/device';
+import Stat from './stat';
 
 import { IM } from './im';
 import request from './request';
@@ -38,6 +39,7 @@ export default class Client extends EventEmitter {
       device: DeviceHandler(im),
       report: ReportHandler(im)
     };
+    Stat(im, option);
     let context = this;
     let { RongIMLib } = option;
     let destroyed = false;

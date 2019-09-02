@@ -6,7 +6,7 @@ import { Path } from '../path';
 import Message from '../im';
 import { CommonEvent, PeerConnectionEvent } from '../events';
 import EventEmitter from '../../../event-emitter';
-import { StreamType, StreamState, LogTag, StreamSize, DEFAULT_MS_PROFILE, TAG_V2 } from '../../../enum';
+import { StreamType, StreamState, LogTag, StreamSize, DEFAULT_MS_PROFILE, TAG_V2, STAT_NAME } from '../../../enum';
 import { ErrorType } from '../../../error';
 import Logger from '../../../logger';
 import Network from '../../../network';
@@ -425,6 +425,9 @@ function StreamHandler(im, option) {
     if (error) {
       throw error;
     }
+    // 缓存 URIs 上报数据
+    let { stream } = user;
+    im.emit(CommonEvent.SET_URIS, stream.uris);
     dispatchStreamEvent(user, (key, uri) => {
       DataCache.set(key, uri);
     });
@@ -494,6 +497,14 @@ function StreamHandler(im, option) {
       });
       let { id: streamId } = mediaStream;
       PublishStreamCache.remove(streamId);
+    });
+    let trackIds = common.getTrackIds(user);
+    im.emit(CommonEvent.SEND_REPORT, {
+      type: STAT_NAME.R2,
+      name: UpEvent.STREAM_UNPUBLISH,
+      content: {
+        trackIds
+      }
     });
     return pc.removeStream(user).then(desc => {
       return getBody().then(body => {
@@ -761,6 +772,14 @@ function StreamHandler(im, option) {
         });
       }
     });
+    let trackIds = common.getTrackIds(user);
+    im.emit(CommonEvent.SEND_REPORT, {
+      type: STAT_NAME.R2,
+      name: UpEvent.STREAM_PUBLISH,
+      content: {
+        trackIds
+      }
+    });
     pc.addStream(user);
     let roomId = im.getRoomId();
     return utils.deferred((resolve, reject) => {
@@ -781,6 +800,10 @@ function StreamHandler(im, option) {
             body,
             headers
           }).then(response => {
+            let { publishList } = response;
+            if (utils.isArray(publishList)) {
+              im.emit(CommonEvent.SET_URIS, publishList);
+            }
             Logger.log(LogTag.STREAM_HANDLER, {
               msg: 'publish:response',
               roomId,
@@ -867,6 +890,16 @@ function StreamHandler(im, option) {
       }
     });
     SubscribeCache.set(userId, subs);
+
+    let trackIds = common.getTrackIds(user);
+    im.emit(CommonEvent.SEND_REPORT, {
+      type: STAT_NAME.R2,
+      name: UpEvent.STREAM_SUBSCRIBE,
+      content: {
+        trackIds
+      }
+    });
+
     let roomId = im.getRoomId();
     return utils.deferred((resolve, reject) => {
       let uid = getSubPromiseUId(user);
@@ -926,6 +959,15 @@ function StreamHandler(im, option) {
       roomId,
       user
     });
+    let trackIds = common.getTrackIds(user);
+    im.emit(CommonEvent.SEND_REPORT, {
+      type: STAT_NAME.R2,
+      name: UpEvent.STREAM_UNSUBSCRIBE,
+      content: {
+        trackIds
+      }
+    });
+
     return getBody().then(body => {
       let url = utils.tplEngine(Path.UNSUBSCRIBE, {
         roomId
@@ -1091,6 +1133,10 @@ function StreamHandler(im, option) {
       });
       let tracks = stream[type]();
       utils.forEach(tracks, (track) => {
+        im.emit(CommonEvent.TRACK_MODIFY, {
+          id: track.id,
+          isEnable
+        })
         track.enabled = isEnable;
       });
     }
