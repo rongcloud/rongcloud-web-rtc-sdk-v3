@@ -22,7 +22,7 @@ function LiveHandler(im, option) {
     userId = null;
 
   // let SubPromiseCache = utils.Cache();
-  let SubPromiseCache = {};
+  let SubPromiseCache = {},
     SubLiveUrlsCache = utils.Cache();
   // SubStreamCache = utils.Cache();
 
@@ -38,63 +38,15 @@ function LiveHandler(im, option) {
     return liveUrl;
   };
 
-  const reconnect = () => {
-    let subLiveUrlList = SubLiveUrlsCache.getKeys();
-    utils.forEach((liveUrl) => {
-      subscribe({
-        liveUrl
-      });
-    });
-  };
-
-  const createPC = () => {
-    pc = new PeerConnection(option);
-    im.emit(CommonEvent.PEERCONN_CREATED, pc);
-    pc.on(PeerConnectionEvent.ADDED, (error, stream) => {
-      if (error) {
-        throw error;
-      }
-      SubPromiseCache.resolve({
-        stream: {
-          mediaStream: stream
-        }
-      });
-    });
-    pc.on(PeerConnectionEvent.REMOVED, (error) => {
-      if (error) {
-        throw error;
-      }
-    });
-    pc.on(PeerConnectionEvent.CHANGED, (error) => {
-      if (error) {
-        throw error;
-      }
-      if (pc.isNegotiate()) {
-        network.detect((isOnline) => {
-          if (isOnline) {
-            // TODO 重连
-          } else {
-            let { Inner } = ErrorType;
-            im.emit(CommonEvent.ERROR, Inner.NETWORK_UNAVAILABLE);
-          }
-        });
-      }
-    });
-  };
-
-  const closePC = () => {
-    if (pc) {
-      pc.close();
-      pc = null;
-    }
-  };
+  // const closePC = () => {
+  //   if (pc) {
+  //     pc.close();
+  //     pc = null;
+  //   }
+  // };
 
   const subscribe = (room, callback) => {
     let { liveUrl } = room;
-    
-    if (!pc) {
-      createPC();
-    }
 
     return utils.deferred((resolve, reject) => {
       // let uid = getSubPromiseUId(room);
@@ -153,43 +105,40 @@ function LiveHandler(im, option) {
 
   const unsubscribe = (room) => {
     let { liveUrl } = room;
-    // closePC(); // TODO 没有订阅的流时才能 close
-    return utils.deferred((resolve, reject) => {
-      pc.getOffer().then((offer) => {
-        let url = Path.LIVE_EXIT;
-        let headers = common.getLiveHeaders(userId);
-        let body = {
-          sdp: {
-            type: 'offer',
-            sdp: offer
-          },
-          liveUrl: liveUrl
-        };
-        let option = {
-          path: url,
-          body,
-          headers
-        };
+    return pc.getOffer().then((offer) => {
+      let url = Path.LIVE_EXIT;
+      let headers = common.getLiveHeaders(userId);
+      let body = {
+        sdp: {
+          type: 'offer',
+          sdp: offer
+        },
+        liveUrl: liveUrl
+      };
+      let option = {
+        path: url,
+        body,
+        headers
+      };
+      Logger.log(LogTag.LIVE_HANDLER, {
+        msg: 'unsubscribe:request',
+        room,
+        option
+      });
+      request.post(option).then(response => {
+        let { sdp: answer } = response;
+        pc.setOffer(offer);
+        pc.setAnwser(answer);
+        SubLiveUrlsCache.remove(liveUrl);
+        // let subLiveUrlCount = SubLiveUrlsCache.getKeys().length;
+        // !subLiveUrlCount && closePC();
+      }, (error) => {
         Logger.log(LogTag.LIVE_HANDLER, {
-          msg: 'unsubscribe:request',
+          msg: 'unsubscribe:response:error',
           room,
-          option
+          error
         });
-        request.post(option).then(response => {
-          let { sdp: answer } = response;
-          pc.setOffer(offer);
-          pc.setAnwser(answer);
-          SubLiveUrlsCache.remove(liveUrl);
-          let subLiveUrlCount = SubLiveUrlsCache.getKeys().length;
-          !subLiveUrlCount && closePC();
-        }, (error) => {
-          Logger.log(LogTag.LIVE_HANDLER, {
-            msg: 'unsubscribe:response:error',
-            room,
-            error
-          });
-          return error;
-        });
+        return error;
       });
     });
   };
@@ -231,6 +180,53 @@ function LiveHandler(im, option) {
       eventEmitter.emit(CommonEvent.CONSUME);
     });
   };
+
+  const reconnect = () => {
+    var liveUrls = SubLiveUrlsCache.getKeys();
+    utils.forEach(liveUrls, (url) => {
+      subscribe({
+        liveUrl: url
+      });
+    });
+  };
+
+  const createPC = () => {
+    pc = new PeerConnection(option);
+    im.emit(CommonEvent.PEERCONN_CREATED, pc);
+    pc.on(PeerConnectionEvent.ADDED, (error, stream) => {
+      if (error) {
+        throw error;
+      }
+      SubPromiseCache.resolve({
+        stream: {
+          mediaStream: stream
+        }
+      });
+    });
+    pc.on(PeerConnectionEvent.REMOVED, (error) => {
+      if (error) {
+        throw error;
+      }
+    });
+    pc.on(PeerConnectionEvent.CHANGED, (error) => {
+      if (error) {
+        throw error;
+      }
+      if (pc.isNegotiate()) {
+        network.detect((isOnline) => {
+          if (isOnline) {
+            reconnect();
+          } else {
+            let { Inner } = ErrorType;
+            im.emit(CommonEvent.ERROR, Inner.NETWORK_UNAVAILABLE);
+          }
+        });
+      }
+    });
+  };
+
+  createPC();
+
   return {
     dispatch
   }
