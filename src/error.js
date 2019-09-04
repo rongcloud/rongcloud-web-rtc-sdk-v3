@@ -124,6 +124,11 @@ let getErrors = () => {
     code: 50058,
     name: 'MEDIA_SERVER_RESPONSE_EMPTY',
     msg: 'Media Server response body is empty'
+  },
+  {
+    code: 50059,
+    name: 'NO_AUDIO_AND_VIDEO_SERVICE',
+    msg: 'No audio and video services have been activated'
   }, {
     code: 40001,
     name: 'NOT_IN_ROOM',

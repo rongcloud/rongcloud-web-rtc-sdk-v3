@@ -27,7 +27,11 @@ function request() {
         if (isRange) {
           let { Inner } = ErrorType;
           indexTools.reset();
-          error = utils.isEqual(error.status, 0) ? Inner.MEDIA_SERVER_ERROR : error;
+          if (error == undefined) {
+            error = Inner.NO_AUDIO_AND_VIDEO_SERVICE;
+          } else {
+            error = utils.isEqual(error.status, 0) ? Inner.MEDIA_SERVER_ERROR : error;
+          }
           return reject(error);
         }
         let domain = urls[index];
