@@ -30,6 +30,9 @@ export const UpEvent = {
   STREAM_RESIZE: 'stream_resize',
   STREAM_GET: 'stream_get',
 
+  LIVE_SUBSCRIBE: 'live_subscribe',
+  LIVE_UNSUBSCRIBE: 'live_unsubscribe',
+
   AUDIO_MUTE: 'audio_mute',
   AUDIO_UNMUTE: 'audio_unmute',
 

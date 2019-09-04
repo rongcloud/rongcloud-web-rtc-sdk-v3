@@ -29,6 +29,7 @@ export const LogTag = {
   ROOM: 'room',
   STREAM: 'stream',
   STREAM_HANDLER: 'stream_handler',
+  LIVE_HANDLER: 'live_handler',
   ROOM_HANDLER: 'room_handler',
   STORAGE_HANDLER: 'storage_handler',
   IM: 'im',
@@ -76,7 +77,7 @@ export const MEDIASERVER_SUCCESS = 10000;
 
 export const RTC_MODE = {
   RTC: 0,
-  LIVE: 1
+  LIVE: 2
 };
 
 export const TAG_V2 = '';
