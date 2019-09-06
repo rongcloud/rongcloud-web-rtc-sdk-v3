@@ -616,16 +616,34 @@ export class IM extends EventEmitter {
   getIMVersion() {
     let context = this;
     let { im } = context;
+    if(!context.isCompatibleIM('getSDKInfo')){
+      return '';
+    }
     let info = im.getInstance().getSDKInfo();
     return info.version || '';
   }
   setRTCState(content) {
     let context = this;
     let { im, room } = context;
+    if(!context.isCompatibleIM('setRTCState')){
+      return '';
+    }
     return im.getInstance().setRTCState(room, content, {
       onSuccess: () => { },
       onError: () => { }
     });
+  }
+  isCompatibleIM(key){
+    let context = this;
+    let { im } = context;
+    var imInstance = im.getInstance();
+    if(imInstance[key]){
+      return true;
+    }
+    Logger.warn(LogTag.IM, {
+      msg: 'Low version IM SDK is not supported, please update IM SDK'
+    });
+    return false;
   }
 }
 
