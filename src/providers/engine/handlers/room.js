@@ -14,13 +14,20 @@ function RoomHandler(im, option) {
       msg: 'join:before',
       room
     });
+    let { Inner } = ErrorType;
     if (im.isJoined()) {
-      let { Inner } = ErrorType;
       Logger.log(LogTag.ROOM_HANDLER, {
         msg: 'join:after',
         extra: 'repeate join room'
       });
       return utils.Defer.reject(Inner.ROOM_REPEAT_JOIN);
+    }
+    if (!im.isIMReady()) {
+      Logger.log(LogTag.ROOM_HANDLER, {
+        msg: 'im:connected',
+        extra: 'IM not connected'
+      });
+      return utils.Defer.reject(Inner.IM_NOT_CONNECTED);
     }
     return utils.deferred((resolve, reject) => {
       let { mode } = option;
