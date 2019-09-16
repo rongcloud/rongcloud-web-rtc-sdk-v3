@@ -552,7 +552,7 @@ function StreamHandler(im, option) {
     let getStreamUser = (stream) => {
       let { id } = stream;
       let hasUnderline = im.v2Users.get(id);
-      
+
       let type = StreamType.NODE, userId, tag;
       if (hasUnderline) {
         userId = id;
@@ -952,6 +952,9 @@ function StreamHandler(im, option) {
     });
   };
   let unsubscribe = (user) => {
+    if (utils.isNull(pc)) {
+      return utils.Defer.resolve();
+    }
     SubscribeCache.remove(user);
     let roomId = im.getRoomId();
     Logger.log(LogTag.STREAM_HANDLER, {
