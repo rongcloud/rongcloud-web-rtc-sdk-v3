@@ -3,5 +3,5 @@ node_modules
 build
 dist
 .vscode
-package-lock.json
 src/demo
+package-lock.json
